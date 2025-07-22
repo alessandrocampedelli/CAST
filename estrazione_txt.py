@@ -39,8 +39,10 @@ def estrai_da_imsdb(url, output_path):
 
     testo = pre_tag.get_text(separator="\n", strip=True)
 
+    testo_pulito = pulisci_testo(testo)
+
     with open(output_path, 'w', encoding='utf-8') as f:
-        f.write(testo)
+        f.write(testo_pulito)
 
     print(f"[OK] Script IMSDB salvato in: {output_path}")
 
