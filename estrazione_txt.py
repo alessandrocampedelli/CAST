@@ -167,14 +167,14 @@ if __name__ == "__main__":
     os.makedirs("copioni_txt", exist_ok=True)
 
     # Estrazione Cars (HTML - springfield)
-    url_cars = "https://www.springfieldspringfield.co.uk/movie_script.php?movie=cars"
-    nome_cars = ricava_nome_film_da_url(url_cars)
-    estrai_da_springfield(url_cars, os.path.join("copioni_txt", f"{nome_cars}.txt"))
+    url_harryPotter = "https://www.springfieldspringfield.co.uk/movie_script.php?movie=harry-potter-and-the-sorcerers-stone"
+    nome_harryPotter = ricava_nome_film_da_url(url_harryPotter)
+    estrai_da_springfield(url_harryPotter, os.path.join("copioni_txt", f"{nome_harryPotter}.txt"))
 
     # Estrazione + pulizia Rush (PDF)
-    url_rush_pdf = "https://assets.scriptslug.com/live/pdf/scripts/rush-2013.pdf"
-    nome_rush = ricava_nome_film_da_url(url_rush_pdf)
-    estrai_e_pulisci_pdf(url_rush_pdf, os.path.join("copioni_txt", f"{nome_rush}.txt"))
+    url_rush = "https://assets.scriptslug.com/live/pdf/scripts/rush-2013.pdf"
+    nome_rush = ricava_nome_film_da_url(url_rush)
+    estrai_e_pulisci_pdf(url_rush, os.path.join("copioni_txt", f"{nome_rush}.txt"))
 
     # Estrazione Cars 2 (HTML - IMSDB)
     url_cars2 = "https://imsdb.com/scripts/Cars-2.html"
