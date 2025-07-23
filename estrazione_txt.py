@@ -39,10 +39,8 @@ def estrai_da_imsdb(url, output_path):
 
     testo = pre_tag.get_text(separator="\n", strip=True)
 
-    testo_pulito = pulisci_testo(testo)
-
     with open(output_path, 'w', encoding='utf-8') as f:
-        f.write(testo_pulito)
+        f.write(testo)
 
     print(f"[OK] Script IMSDB salvato in: {output_path}")
 
@@ -83,70 +81,11 @@ def estrai_e_pulisci_pdf(pdf_url, output_path):
     #elimino il pdf temporaneo
     os.remove(nome_pdf)
 
-    # Pulizia direttamente sul testo estratto
-    testo_pulito = pulisci_testo(testo)
-
     with open(output_path, 'w', encoding='utf-8') as f:
-        f.write(testo_pulito)
+        f.write(testo)
 
     print(f"[OK] Script PDF estratto e pulito salvato in: {output_path}")
 
-
-def pulisci_testo(testo_raw):
-    #divido il testo in righe
-    righe = testo_raw.splitlines()
-
-    #conterrà il testo finale formattato
-    righe_pulite = []
-
-    #tiene temporaneamente le battute associate a un personaggio
-    buffer_dialogo = []
-    personaggio_corrente = None
-
-    for riga in righe:
-        #rimuovo gli spazi a fine riga
-        riga = riga.rstrip()
-
-        #Se la riga è vuota e l’ultima riga pulita è già vuota, la ignora, salto così righe vuote doppie
-        if riga.strip() == '' and (len(righe_pulite) == 0 or righe_pulite[-1] == ''):
-            continue
-
-        #salta righe composte solo da numeri
-        if re.fullmatch(r'\d+', riga.strip()):
-            continue
-
-        #verifico se la riga è in maiuscolo e ha al massimo 3 parole: corrisponde al personaggio che parla
-        if re.fullmatch(r"[A-Z\s]+", riga.strip()) and len(riga.strip().split()) <= 3:
-            #se c'erano battute da personaggi precedenti le salvo
-            if buffer_dialogo:
-                righe_pulite.extend(buffer_dialogo)
-                buffer_dialogo = []
-
-            personaggio_corrente = riga.strip()
-            centrato = personaggio_corrente.center(60)
-            righe_pulite.append(centrato)
-            continue
-
-        #se c'è un personaggio attivo salvo le sue battute
-        if personaggio_corrente:
-            #Se trova una riga vuota → fine del blocco dialogo → salva tutto
-            if riga.strip() == "":
-                righe_pulite.extend(buffer_dialogo)
-                buffer_dialogo = []
-                personaggio_corrente = None
-            #Se la riga ha testo → indenta e aggiunge alla lista di battute
-            else:
-                buffer_dialogo.append("    " + riga.strip())
-            continue
-
-        #Se la riga non è né un nome né un dialogo, la salva com'è (indicazione di scena)
-        righe_pulite.append(riga.strip())
-
-    if buffer_dialogo:
-        righe_pulite.extend(buffer_dialogo)
-
-    #ritorno testo pulito
-    return '\n'.join(righe_pulite)
 
 def ricava_nome_film_da_url(url):
     # Per scriptslug e springfield: prendi il valore dopo "movie=" o l'ultima parte del path
