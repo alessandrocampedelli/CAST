@@ -6,6 +6,7 @@ from datetime import datetime
 INPUT_DIR = "copioni_txt"
 OUTPUT_DIR = "copioni_tei"
 
+
 def indent(elem, level=0):
     i = "\n" + level * "  "  # due spazi per livello
     if len(elem):
@@ -19,17 +20,46 @@ def indent(elem, level=0):
         if level and (not elem.tail or not elem.tail.strip()):
             elem.tail = i
 
+
 def crea_elemento_testo(tag, testo):
     elem = ET.Element(tag)
     elem.text = testo.strip()
     return elem
 
+
+def is_scene_number(riga):
+    """Rileva se una riga è un numero di scena (solo cifre)"""
+    return re.match(r"^\d+$", riga.strip())
+
+
+def is_page_number(riga):
+    """Rileva numeri di pagina (formato \f numero o caratteri escape + numero)"""
+    return re.match(r"^\f\d+$", riga.strip()) or '\f' in riga
+
+
+def is_location_line(riga):
+    """Rileva righe di location (INT./EXT.)"""
+    return re.match(r"^(INT\.|EXT\.).+", riga.strip())
+
+
+def is_speaker(riga):
+    """Rileva speaker (tutto maiuscolo, max 4 parole, non inizia con parentesi)"""
+    riga_clean = riga.strip().split("(")[0].strip()
+    return (riga_clean.isupper() and
+            len(riga_clean.split()) <= 4 and
+            not riga.startswith("(") and
+            riga_clean != "" and
+            riga_clean not in ["CONTINUED", "CONTINUED:"])
+
+
 def converti_in_tei(percorso_txt):
     with open(percorso_txt, 'r', encoding='utf-8') as f:
         righe = [r.strip() for r in f if r.strip()]
 
-    # Parsing intestazione (prime 3–4 righe)
-    titolo = righe[0]
+    print(f"[DEBUG] Totale righe lette: {len(righe)}")
+
+    # Parsing intestazione (prime 4 righe: titolo, "By", autore, data)
+    titolo = righe[0] if len(righe) > 0 else "Unknown Title"
     autore = righe[2] if len(righe) >= 3 else "Unknown"
     data_raw = righe[3] if len(righe) >= 4 else None
     try:
@@ -37,8 +67,9 @@ def converti_in_tei(percorso_txt):
     except:
         data = datetime.today().strftime("%Y-%m-%d")
 
-    # Avanzamento righe dopo intestazione
+    # Corpo del copione inizia dalla riga 4
     corpo_righe = righe[4:]
+    print(f"[DEBUG] Corpo del copione: {len(corpo_righe)} righe")
 
     root = ET.Element("TEI", xmlns="http://www.tei-c.org/ns/1.0")
 
@@ -63,63 +94,124 @@ def converti_in_tei(percorso_txt):
     body = ET.SubElement(text, "body")
 
     scena_corrente = None
-    speaker_attivo = None
-    in_continued = False
-
+    numeri_scene_gia_creati = set()  # Traccia i numeri di scena già processati
     i = 0
+
     while i < len(corpo_righe):
-        riga = corpo_righe[i]
+        riga = corpo_righe[i].strip()
 
-        # Ignora numeri di pagina (es: \f 2) o "(CONTINUED)"
-        if re.match(r"^\f?\d+$", riga) or riga.upper() == "(CONTINUED)":
+        # Ignora numeri di pagina (\f numero o simili)
+        if is_page_number(riga):
+            print(f"[DEBUG] Saltata pagina: {riga}")
             i += 1
             continue
 
-        # Rileva "CONTINUED:" e salta
-        if riga.strip().upper() == "CONTINUED:":
+        # Ignora righe CONTINUED
+        if riga.upper() in ["(CONTINUED)", "CONTINUED", "CONTINUED:"]:
+            print(f"[DEBUG] Saltata riga CONTINUED: {riga}")
             i += 1
             continue
 
-        # Rileva inizio nuova scena tramite numero + INT./EXT.
-        if re.match(r"^\d+$", riga):
-            riga_succ = corpo_righe[i + 1] if i + 1 < len(corpo_righe) else ""
-            if re.match(r"^(INT\.|EXT\.).+", riga_succ):
-                scena_corrente = ET.SubElement(body, "div", type="scene")
-                ET.SubElement(scena_corrente, "stage").text = riga_succ.strip()
-                i += 2
+        # RILEVA INIZIO NUOVA SCENA
+        if is_scene_number(riga):
+            numero_scena = riga
+
+            # Se abbiamo già creato una scena con questo numero, saltala
+            if numero_scena in numeri_scene_gia_creati:
+                print(f"[DEBUG] Scena {numero_scena} già creata, salto questo numero")
+                i += 1
                 continue
 
-        # Rileva descrizioni luogo
-        if re.match(r"^(INT\.|EXT\.).+", riga):
-            if scena_corrente is None:
-                scena_corrente = ET.SubElement(body, "div", type="scene")
-            ET.SubElement(scena_corrente, "stage").text = riga
-            i += 1
-            continue
+            print(f"[DEBUG] === NUOVA SCENA {numero_scena} ===")
 
-        # Rileva speaker
-        if riga.isupper() and len(riga.split()) <= 4 and not riga.startswith("("):
-            speaker_attivo = riga.strip().split("(")[0].strip()
+            # Prossima riga dovrebbe essere la location (INT./EXT.)
             i += 1
-            battute = []
-            # Raccoglie tutte le righe successive come battuta finché non cambia contesto
-            while i < len(corpo_righe) and not corpo_righe[i].isupper() and not re.match(r"^\d+$", corpo_righe[i]):
-                battute.append(corpo_righe[i])
-                i += 1
-            sp = ET.SubElement(scena_corrente, "sp")
-            ET.SubElement(sp, "speaker").text = speaker_attivo
-            for battuta in battute:
-                sp.append(crea_elemento_testo("p", battuta))
-            continue
+            location_line = None
 
-        # Frasi giustificate = descrizione scena
-        if scena_corrente is not None:
-            ET.SubElement(scena_corrente, "stage").text = riga
-        else:
+            if i < len(corpo_righe):
+                possibile_location = corpo_righe[i].strip()
+
+                # Salta eventuali numeri di pagina
+                while i < len(corpo_righe) and is_page_number(possibile_location):
+                    print(f"[DEBUG] Saltata pagina durante ricerca location: {possibile_location}")
+                    i += 1
+                    if i < len(corpo_righe):
+                        possibile_location = corpo_righe[i].strip()
+
+                if i < len(corpo_righe) and is_location_line(possibile_location):
+                    location_line = possibile_location
+                    print(f"[DEBUG] Location trovata: {location_line}")
+                    i += 1  # Avanza dopo la location
+                else:
+                    print(f"[DEBUG] Nessuna location trovata, riga: '{possibile_location}'")
+
+            # Salta il numero scena ripetuto dopo la location (se presente)
+            while i < len(corpo_righe):
+                next_riga = corpo_righe[i].strip()
+                if is_page_number(next_riga):
+                    print(f"[DEBUG] Saltata pagina: {next_riga}")
+                    i += 1
+                elif next_riga == numero_scena:
+                    print(f"[DEBUG] Saltato numero scena ripetuto: {next_riga}")
+                    i += 1
+                    break  # Esci dal loop dopo aver trovato e saltato il numero ripetuto
+                else:
+                    break  # Non è un numero ripetuto, esci dal loop
+
+            # Crea nuova scena
             scena_corrente = ET.SubElement(body, "div", type="scene")
+            scena_corrente.set("n", numero_scena)
+            numeri_scene_gia_creati.add(numero_scena)  # Segna come creata
+
+            # Aggiungi location se trovata
+            if location_line:
+                ET.SubElement(scena_corrente, "stage", type="location").text = location_line
+
+            print(f"[DEBUG] Scena {numero_scena} creata con location: {location_line}")
+            continue
+
+        # RILEVA SPEAKER E BATTUTE
+        if is_speaker(riga) and scena_corrente is not None:
+            speaker_name = riga.split("(")[0].strip()
+            print(f"[DEBUG] Speaker trovato: {speaker_name}")
+            i += 1
+
+            # Raccogli tutte le battute del speaker
+            battute = []
+            while i < len(corpo_righe):
+                next_riga = corpo_righe[i].strip()
+
+                # Ferma se incontri un nuovo speaker, numero scena, location, o pagina
+                if (is_speaker(next_riga) or
+                        is_scene_number(next_riga) or
+                        is_location_line(next_riga) or
+                        is_page_number(next_riga) or
+                        next_riga.upper() in ["(CONTINUED)", "CONTINUED", "CONTINUED:"]):
+                    break
+
+                if next_riga:
+                    battute.append(next_riga)
+
+                i += 1
+
+            # Crea elemento speaker con battute
+            if battute:
+                sp = ET.SubElement(scena_corrente, "sp")
+                ET.SubElement(sp, "speaker").text = speaker_name
+                for battuta in battute:
+                    sp.append(crea_elemento_testo("p", battuta))
+                print(f"[DEBUG] Aggiunte {len(battute)} battute per {speaker_name}")
+
+            continue
+
+        # DESCRIZIONI SCENE (tutto il resto)
+        if scena_corrente is not None and riga:
             ET.SubElement(scena_corrente, "stage").text = riga
+            print(f"[DEBUG] Aggiunta descrizione: {riga[:50]}...")
 
         i += 1
+
+    print(f"[DEBUG] Processamento completato. Scene create: {len(body.findall('.//div[@type=\"scene\"]'))}")
 
     # Indenta l'albero XML
     indent(root)
@@ -131,13 +223,16 @@ def converti_in_tei(percorso_txt):
     tree.write(percorso_finale, encoding="utf-8", xml_declaration=True)
     print(f"✔️ File TEI salvato in: {percorso_finale}")
 
+
 def main():
     if not os.path.exists(OUTPUT_DIR):
         os.makedirs(OUTPUT_DIR)
 
     for nome_file in os.listdir(INPUT_DIR):
         if nome_file.endswith(".txt"):
+            print(f"\n🎬 Processando: {nome_file}")
             converti_in_tei(os.path.join(INPUT_DIR, nome_file))
+
 
 if __name__ == "__main__":
     main()
