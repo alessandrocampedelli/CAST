@@ -51,6 +51,16 @@ def is_speaker(riga):
             riga_clean != "" and
             riga_clean not in ["CONTINUED", "CONTINUED:"])
 
+def is_continued_line(riga):
+    """Rileva righe CONTINUED in tutte le varianti comuni"""
+    riga_upper = riga.strip().upper()
+    return (
+        riga_upper == "(CONTINUED)" or
+        riga_upper == "CONTINUED" or
+        riga_upper == "CONTINUED:" or
+        re.match(r"CONTINUED[:\s]*\(?\d+\)?", riga_upper) or
+        re.match(r"\(CONTINUED[:\s]*\d+\)", riga_upper)
+    )
 
 def converti_in_tei(percorso_txt):
     with open(percorso_txt, 'r', encoding='utf-8') as f:
@@ -95,6 +105,9 @@ def converti_in_tei(percorso_txt):
 
     scena_corrente = None
     numeri_scene_gia_creati = set()  # Traccia i numeri di scena già processati
+    speaker_corrente = None
+    ultimo_sp_element = None
+    speech_in_continuazione = False
     i = 0
 
     while i < len(corpo_righe):
@@ -106,8 +119,8 @@ def converti_in_tei(percorso_txt):
             i += 1
             continue
 
-        # Ignora righe CONTINUED
-        if riga.upper() in ["(CONTINUED)", "CONTINUED", "CONTINUED:"]:
+        # Ignora righe CONTINUED (tutte le varianti)
+        if is_continued_line(riga):
             print(f"[DEBUG] Saltata riga CONTINUED: {riga}")
             i += 1
             continue
@@ -173,35 +186,54 @@ def converti_in_tei(percorso_txt):
         # RILEVA SPEAKER E BATTUTE
         if is_speaker(riga) and scena_corrente is not None:
             speaker_name = riga.split("(")[0].strip()
+
+            # Se stiamo continuando lo speech e lo speaker è lo stesso
+            continua_speech = speech_in_continuazione and speaker_name == speaker_corrente and ultimo_sp_element is not None
+            if continua_speech:
+                print(f"[DEBUG] Continua speech per {speaker_name}")
+            else:
+                print(f"[DEBUG] Nuovo speaker trovato: {speaker_name}")
+
             print(f"[DEBUG] Speaker trovato: {speaker_name}")
             i += 1
-
-            # Raccogli tutte le battute del speaker
             battute = []
+
             while i < len(corpo_righe):
                 next_riga = corpo_righe[i].strip()
 
-                # Ferma se incontri un nuovo speaker, numero scena, location, o pagina
                 if (is_speaker(next_riga) or
                         is_scene_number(next_riga) or
                         is_location_line(next_riga) or
                         is_page_number(next_riga) or
-                        next_riga.upper() in ["(CONTINUED)", "CONTINUED", "CONTINUED:"]):
+                        is_continued_line(next_riga.upper())):
                     break
 
-                #se la riga non è vuota la aggiungo alla lista delle battute
                 if next_riga:
                     battute.append(next_riga)
 
                 i += 1
 
-            # Creo lo speech con speaker e battute (se c'è almeno una battuta)
+            # Verifica se l'ultima riga è (MORE) per tenere attivo il flag
+            if battute and re.match(r"[\(\[\{]?\s*MORE\s*[\)\]\}]?$", battute[-1].strip().upper()):
+                battute.pop()
+                speech_in_continuazione = True
+                print(f"[DEBUG] Trovato (MORE), speech in continuazione per {speaker_name}")
+            else:
+                speech_in_continuazione = False
+
             if battute:
-                sp = ET.SubElement(scena_corrente, "sp")
-                ET.SubElement(sp, "speaker").text = speaker_name
-                for battuta in battute:
-                    sp.append(crea_elemento_testo("p", battuta))
-                print(f"[DEBUG] Aggiunte {len(battute)} battute per {speaker_name}")
+                if continua_speech:
+                    for battuta in battute:
+                        ultimo_sp_element.append(crea_elemento_testo("p", battuta))
+                    print(f"[DEBUG] Appese {len(battute)} battute a speech esistente di {speaker_name}")
+                else:
+                    sp = ET.SubElement(scena_corrente, "sp")
+                    ET.SubElement(sp, "speaker").text = speaker_name
+                    for battuta in battute:
+                        sp.append(crea_elemento_testo("p", battuta))
+                    ultimo_sp_element = sp
+                    speaker_corrente = speaker_name
+                    print(f"[DEBUG] Nuovo speech per {speaker_name} con {len(battute)} battute")
 
             #salto il resto del loop principale e ricomincia dall'inizio (senza incrementare i)
             continue
@@ -223,7 +255,7 @@ def converti_in_tei(percorso_txt):
     nome_file = os.path.basename(percorso_txt).replace(".txt", ".xml")
     percorso_finale = os.path.join(OUTPUT_DIR, nome_file)
     tree.write(percorso_finale, encoding="utf-8", xml_declaration=True)
-    print(f"✔️ File TEI salvato in: {percorso_finale}")
+    print(f" File TEI salvato in: {percorso_finale}")
 
 
 def main():
