@@ -189,12 +189,13 @@ def converti_in_tei(percorso_txt):
                         next_riga.upper() in ["(CONTINUED)", "CONTINUED", "CONTINUED:"]):
                     break
 
+                #se la riga non è vuota la aggiungo alla lista delle battute
                 if next_riga:
                     battute.append(next_riga)
 
                 i += 1
 
-            # Crea elemento speaker con battute
+            # Creo lo speech con speaker e battute (se c'è almeno una battuta)
             if battute:
                 sp = ET.SubElement(scena_corrente, "sp")
                 ET.SubElement(sp, "speaker").text = speaker_name
@@ -202,6 +203,7 @@ def converti_in_tei(percorso_txt):
                     sp.append(crea_elemento_testo("p", battuta))
                 print(f"[DEBUG] Aggiunte {len(battute)} battute per {speaker_name}")
 
+            #salto il resto del loop principale e ricomincia dall'inizio (senza incrementare i)
             continue
 
         # DESCRIZIONI SCENE (tutto il resto)
@@ -230,7 +232,7 @@ def main():
 
     for nome_file in os.listdir(INPUT_DIR):
         if nome_file.endswith(".txt"):
-            print(f"\n🎬 Processando: {nome_file}")
+            print(f"\n Processando: {nome_file}")
             converti_in_tei(os.path.join(INPUT_DIR, nome_file))
 
 
