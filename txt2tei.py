@@ -214,7 +214,7 @@ def converti_in_tei(percorso_txt):
                 i += 1
 
             # Verifica se l'ultima riga è (MORE) per tenere attivo il flag
-            if battute and re.match(r"[\(\[\{]?\s*MORE\s*[\)\]\}]?$", battute[-1].strip().upper()):
+            if battute and re.match(r"[(\[{]?\s*MORE\s*[)\]}]?$", battute[-1].strip().upper()):
                 battute.pop()
                 speech_in_continuazione = True
                 print(f"[DEBUG] Trovato (MORE), speech in continuazione per {speaker_name}")

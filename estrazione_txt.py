@@ -46,11 +46,12 @@ def estrai_da_imsdb(url, output_path):
 
 
 
-def estrai_e_pulisci_pdf(pdf_url, output_path):
+def estrai_pdf(pdf_url, output_path):
     print(f"[INFO] Scaricamento PDF da: {pdf_url}")
     nome_pdf = "tmp_script.pdf"
 
-    #scarisco il pdf a blocchi e lo salvo localmente in un file temporaneo
+    #scarico il pdf a blocchi e lo salvo localmente in un file temporaneo per garantire compatibilità con pdfminer.
+    #dal momento che la funzione extract_text_to_fp di pdfminer richiede un file-like object in modalità binaria (rb).
     with requests.get(pdf_url, stream=True) as r:
         r.raise_for_status()
         with open(nome_pdf, 'wb') as f:
@@ -65,7 +66,7 @@ def estrai_e_pulisci_pdf(pdf_url, output_path):
         boxes_flow=None
     )
 
-    #estrae il testo dal pdf con libreria pdfminer e lo scrivo in una stringa di output
+    #estrae il testo dal pdf tmp con libreria pdfminer e lo scrivo in una stringa di output
     output_string = io.StringIO()
     with open(nome_pdf, 'rb') as f:
         extract_text_to_fp(
@@ -110,10 +111,10 @@ if __name__ == "__main__":
     nome_harryPotter = ricava_nome_film_da_url(url_harryPotter)
     estrai_da_springfield(url_harryPotter, os.path.join("copioni_txt", f"{nome_harryPotter}.txt"))
 
-    # Estrazione + pulizia Rush (PDF)
+    # Estrazione Rush (PDF)
     url_rush = "https://assets.scriptslug.com/live/pdf/scripts/rush-2013.pdf"
     nome_rush = ricava_nome_film_da_url(url_rush)
-    estrai_e_pulisci_pdf(url_rush, os.path.join("copioni_txt", f"{nome_rush}.txt"))
+    estrai_pdf(url_rush, os.path.join("copioni_txt", f"{nome_rush}.txt"))
 
     # Estrazione Cars 2 (HTML - IMSDB)
     url_cars2 = "https://imsdb.com/scripts/Cars-2.html"
