@@ -6,6 +6,9 @@ from bs4 import BeautifulSoup
 from pdfminer.high_level import extract_text_to_fp
 from pdfminer.layout import LAParams
 
+INPUT_DIR = "copioni_pdf"
+OUTPUT_DIR = "copioni_txt"
+
 def estrai_da_imsdb(url, output_path):
     print(f"[INFO] Scaricamento da IMSDB: {url}")
     response = requests.get(url)
@@ -24,19 +27,10 @@ def estrai_da_imsdb(url, output_path):
 
 
 
-def estrai_pdf(pdf_url, output_path):
-    print(f"[INFO] Scaricamento PDF da: {pdf_url}")
-    nome_pdf = "tmp_script.pdf"
+def estrai_pdf(percorso_pdf, output_path):
+    print(f"[INFO] Estrazione testo da PDF: {percorso_pdf}")
 
-    #scarico il pdf a blocchi e lo salvo localmente in un file temporaneo per garantire compatibilità con pdfminer.
-    #dal momento che la funzione extract_text_to_fp di pdfminer richiede un file-like object in modalità binaria (rb).
-    with requests.get(pdf_url, stream=True) as r:
-        r.raise_for_status()
-        with open(nome_pdf, 'wb') as f:
-            for chunk in r.iter_content(chunk_size=8192):
-                f.write(chunk)
-
-    #parametri di parsing per ottenere un testo più strutturato
+    # Parametri di parsing pdfminer per mantenere una buona struttura
     laparams = LAParams(
         line_margin=0.1,
         char_margin=2.0,
@@ -44,9 +38,9 @@ def estrai_pdf(pdf_url, output_path):
         boxes_flow=None
     )
 
-    #estrae il testo dal pdf tmp con libreria pdfminer e lo scrivo in una stringa di output
+    # Legge PDF ed estrae testo
     output_string = io.StringIO()
-    with open(nome_pdf, 'rb') as f:
+    with open(percorso_pdf, 'rb') as f:
         extract_text_to_fp(
             f,
             output_string,
@@ -57,14 +51,11 @@ def estrai_pdf(pdf_url, output_path):
 
     testo = output_string.getvalue()
 
-    #elimino il pdf temporaneo
-    os.remove(nome_pdf)
-
+    # Salva il testo estratto in .txt
     with open(output_path, 'w', encoding='utf-8') as f:
         f.write(testo)
 
-    print(f"[OK] Script PDF estratto e pulito salvato in: {output_path}")
-
+    print(f"[OK] Script PDF salvato in: {output_path}")
 
 def ricava_nome_film_da_url(url):
     # Per scriptslug e springfield: prendi il valore dopo "movie=" o l'ultima parte del path
@@ -80,17 +71,21 @@ def ricava_nome_film_da_url(url):
     else:
         return "film"
 
-
-if __name__ == "__main__":
-    os.makedirs("copioni_txt", exist_ok=True)
-
-    # Estrazione Rush (PDF)
-    url_rush = "https://assets.scriptslug.com/live/pdf/scripts/rush-2013.pdf"
-    nome_rush = ricava_nome_film_da_url(url_rush)
-    estrai_pdf(url_rush, os.path.join("copioni_txt", f"{nome_rush}.txt"))
+def main():
+    os.makedirs(OUTPUT_DIR, exist_ok=True)
 
     # Estrazione Cars 2 (HTML - IMSDB)
     url_cars2 = "https://imsdb.com/scripts/Cars-2.html"
     nome_cars2 = ricava_nome_film_da_url(url_cars2)
     estrai_da_imsdb(url_cars2, os.path.join("copioni_txt", f"{nome_cars2}.txt"))
 
+    # Cerca tutti i file .pdf nella cartella copioni_pdf
+    for nome_file in os.listdir(INPUT_DIR):
+        if nome_file.lower().endswith(".pdf"):
+            nome_base = os.path.splitext(nome_file)[0]
+            percorso_pdf = os.path.join(INPUT_DIR, nome_file)
+            percorso_txt = os.path.join(OUTPUT_DIR, f"{nome_base}.txt")
+            estrai_pdf(percorso_pdf, percorso_txt)
+
+if __name__ == "__main__":
+    main()
