@@ -6,28 +6,6 @@ from bs4 import BeautifulSoup
 from pdfminer.high_level import extract_text_to_fp
 from pdfminer.layout import LAParams
 
-#scarica e salva lo script dal sito www.springfieldspringfield.co.uk
-def estrai_da_springfield(url, output_path):
-    print(f"[INFO] Scaricamento HTML da: {url}")
-    response = requests.get(url)
-    soup = BeautifulSoup(response.text, 'html.parser')
-
-    #scarica la pagina e la analizza tramite la libreria BeatifulSoup identificando il div in cui è contenuto
-    #il copione
-    script_div = soup.find("div", class_="scrolling-script-container")
-    if not script_div:
-        raise ValueError("Tag <div class='scrolling-script-container'> non trovato nella pagina HTML.")
-
-    #estraggo il testo
-    testo = script_div.get_text(separator="\n", strip=True)
-
-    #salvo il testo in un file txt
-    with open(output_path, 'w', encoding='utf-8') as f:
-        f.write(testo)
-
-    print(f"[OK] Script HTML salvato in: {output_path}")
-
-
 def estrai_da_imsdb(url, output_path):
     print(f"[INFO] Scaricamento da IMSDB: {url}")
     response = requests.get(url)
@@ -105,11 +83,6 @@ def ricava_nome_film_da_url(url):
 
 if __name__ == "__main__":
     os.makedirs("copioni_txt", exist_ok=True)
-
-    # Estrazione Cars (HTML - springfield)
-    url_harryPotter = "https://www.springfieldspringfield.co.uk/movie_script.php?movie=harry-potter-and-the-sorcerers-stone"
-    nome_harryPotter = ricava_nome_film_da_url(url_harryPotter)
-    estrai_da_springfield(url_harryPotter, os.path.join("copioni_txt", f"{nome_harryPotter}.txt"))
 
     # Estrazione Rush (PDF)
     url_rush = "https://assets.scriptslug.com/live/pdf/scripts/rush-2013.pdf"
