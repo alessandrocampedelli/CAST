@@ -66,6 +66,82 @@ def is_page_number(riga):
     return False
 
 
+def is_transition_line(riga):
+    """Rileva righe di transizione cinematografica da ignorare"""
+    riga_upper = riga.strip().upper()
+
+    # Lista delle transizioni comuni
+    transizioni = [
+        "CUT TO:",
+        "CUT TO BLACK:",
+        "FREEZE FRAME:",
+        "RESUMING:",
+        "THE END",
+        "FADE TO BLACK",
+        "FADE OUT",
+        "MATCH FADE TO",
+        "FADE IN:",
+        "DISSOLVE TO:",
+        "SMASH CUT TO:",
+        "JUMP CUT TO:",
+        "QUICK CUT TO:",
+        "SLOW FADE TO:",
+        "IRIS OUT",
+        "IRIS IN",
+        "WIPE TO:",
+        "CROSSFADE TO:",
+        "END FLASHBACK"
+    ]
+
+    # Verifica se la riga corrisponde esattamente a una transizione
+    if riga_upper in transizioni:
+        return True
+
+    # Verifica pattern più generici
+    # CUT TO qualcosa:
+    if re.match(r"^CUT TO\b", riga_upper):
+        return True
+
+    # FADE TO qualcosa:
+    if re.match(r"^FADE TO\b", riga_upper):
+        return True
+
+    # MATCH qualcosa TO:
+    if re.match(r"^MATCH .+ TO:?$", riga_upper):
+        return True
+
+    return False
+
+
+def is_header_line(riga):
+    """Rileva righe di intestazione (titoli con date di revisione, etc.)"""
+    riga_clean = riga.strip()
+
+    # Intestazioni con date di revisione (es: "THE CHAMBER OF SECRETS - Rev. 1/28/02")
+    if re.search(r"- Rev\. \d+/\d+/\d+", riga_clean):
+        return True
+
+    # Intestazioni con "Draft" (es: "SCRIPT TITLE - First Draft")
+    if re.search(r"- (First|Second|Third|Final|Shooting) Draft", riga_clean, re.IGNORECASE):
+        return True
+
+    # Intestazioni con date generiche (es: "TITLE - January 2023")
+    if re.search(r"- (January|February|March|April|May|June|July|August|September|October|November|December) \d{4}",
+                 riga_clean, re.IGNORECASE):
+        return True
+
+    # Intestazioni molto lunghe (probabilmente titoli di film)
+    # che non sono dialoghi o descrizioni scene
+    if (len(riga_clean) > 20 and
+            riga_clean.isupper() and
+            not riga_clean.startswith("(") and
+            not re.match(r"^(INT\.|EXT\.).+", riga_clean)):
+        # Verifica che non sia uno speaker (max 4 parole per gli speaker)
+        if len(riga_clean.split()) > 4:
+            return True
+
+    return False
+
 def is_location_line(riga):
     """Rileva righe di location (INT./EXT.)"""
     return re.match(r"^(INT\.|EXT\.).+", riga.strip())
@@ -151,6 +227,17 @@ def converti_in_tei(percorso_txt):
         # Ignora righe CONTINUED (tutte le varianti)
         if is_continued_line(riga):
             print(f"[DEBUG] Saltata riga CONTINUED: {riga}")
+            i += 1
+            continue
+
+        if is_transition_line(riga):
+            print(f"[DEBUG] Saltata transizione: {riga}")
+            i += 1
+            continue
+
+        # Ignora righe di transizione cinematografica
+        if is_header_line(riga):
+            print(f"[DEBUG] Saltata transizione: {riga}")
             i += 1
             continue
 
