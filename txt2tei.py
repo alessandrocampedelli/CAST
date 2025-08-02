@@ -33,8 +33,37 @@ def is_scene_number(riga):
 
 
 def is_page_number(riga):
-    """Rileva numeri di pagina (formato \f numero o caratteri escape + numero)"""
-    return re.match(r"^\f\d+$", riga.strip()) or '\f' in riga
+    """Rileva numeri di pagina in vari formati"""
+    riga_clean = riga.strip()
+
+    # Formato originale: \f seguito da numero
+    if re.match(r"^\f\d+$", riga_clean):
+        return True
+
+    # Presenza del carattere di escape \f
+    if '\f' in riga:
+        return True
+
+    # Numero seguito da punto (es. "2.")
+    if re.match(r"^\d+\.$", riga_clean):
+        return True
+
+    # Intestazione pagina: testo seguito da spazi e numero con punto finale
+    # Es: "ACU FINAL SHOOTING SCRIPT                          2."
+    if re.match(r"^.+\s{10,}\d+\.$", riga_clean):
+        return True
+
+    # Intestazione pagina: testo seguito da spazi e numero senza punto
+    # Es: "SCRIPT TITLE                                        15"
+    if re.match(r"^.+\s{10,}\d+$", riga_clean):
+        return True
+
+    # Righe molto lunghe con molto spazio bianco (probabile header/footer)
+    # Solo se terminano con numero o numero+punto
+    if len(riga_clean) > 50 and re.search(r"\s{10,}\d+\.?$", riga_clean):
+        return True
+
+    return False
 
 
 def is_location_line(riga):
