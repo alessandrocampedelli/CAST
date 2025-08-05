@@ -162,8 +162,34 @@ def is_header_line(riga, next_line=None):
 
 
 def is_location_line(riga):
-    """Rileva righe di location (INT./EXT.)"""
-    return re.match(r"^(INT\.|EXT\.).+", riga.strip())
+    """Rileva righe che rappresentano location di scena (INT., EXT., I/E., ecc.)"""
+    riga_clean = riga.strip().replace("\xa0", " ").upper()
+
+    # Match iniziale con INT., EXT., I/E. o senza punto (INT, EXT, I/E)
+    if re.match(r"^(INT\.?|EXT\.?|I/E\.?)\s+.+", riga_clean):
+        return True
+
+    # Contiene keyword tipiche di location
+    location_keywords = [
+        "ESTABLISHING SHOT",
+        "LOCATION:",
+        "SETTING:",
+        "SCENE LOCATION:",
+        "ESTABLISHING:",
+        "SOMEPLACE",
+        "SOMEWHERE",
+        "VARIOUS LOCATIONS"
+    ]
+    for keyword in location_keywords:
+        if keyword in riga_clean:
+            return True
+
+    # Pattern: qualcosa seguito da "-" e un'indicazione temporale (es: DAY, NIGHT, CONTINUOUS, MOMENTS LATER)
+    if re.match(r"^.+\s*[-–—]\s*(DAY|NIGHT|CONTINUOUS|MOMENTS LATER|SAME TIME|LATER)$", riga_clean):
+        return True
+
+    return False
+
 
 def is_speaker(riga):
     """Rileva speaker:
