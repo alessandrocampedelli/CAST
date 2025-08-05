@@ -1,5 +1,6 @@
 import os
 import re
+import string
 import xml.etree.ElementTree as ET
 from datetime import datetime
 
@@ -164,15 +165,31 @@ def is_location_line(riga):
     """Rileva righe di location (INT./EXT.)"""
     return re.match(r"^(INT\.|EXT\.).+", riga.strip())
 
-
 def is_speaker(riga):
-    """Rileva speaker (tutto maiuscolo, max 4 parole, non inizia con parentesi)"""
+    """Rileva speaker:
+    - tutto maiuscolo
+    - max 4 parole
+    - non inizia con parentesi
+    - nessuna punteggiatura (tranne apostrofo) nelle parole
+    - esclude CONTINUED e CONTINUED:
+    """
     riga_clean = riga.strip().split("(")[0].strip()
-    return (riga_clean.isupper() and
-            len(riga_clean.split()) <= 4 and
-            not riga.startswith("(") and
-            riga_clean != "" and
-            riga_clean not in ["CONTINUED", "CONTINUED:"])
+
+    # Definisce la punteggiatura ammessa (tolto apostrofo)
+    punctuation_check = string.punctuation.replace("'", "")
+
+    # Se contiene punteggiatura non ammessa → non è speaker
+    if any(char in punctuation_check for char in riga_clean):
+        return False
+
+    return (
+        riga_clean.isupper() and
+        len(riga_clean.split()) <= 4 and
+        not riga.startswith("(") and
+        riga_clean != "" and
+        riga_clean not in ["CONTINUED", "CONTINUED:"]
+    )
+
 
 def is_continued_line(riga):
     """Rileva righe CONTINUED in tutte le varianti comuni"""
@@ -310,6 +327,13 @@ def converti_in_tei(percorso_txt):
                 ET.SubElement(scena_corrente, "stage", type="location").text = location_line
 
             print(f"[DEBUG] Scena {numero_scena} creata con location: {location_line}")
+            continue
+
+        # RILEVA LOCATION FUORI DA NUMERO SCENA
+        if is_location_line(riga) and scena_corrente is not None:
+            ET.SubElement(scena_corrente, "stage", type="location").text = riga
+            print(f"[DEBUG] Location aggiunta: {riga}")
+            i += 1
             continue
 
         # RILEVA SPEAKER E BATTUTE
