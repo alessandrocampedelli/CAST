@@ -192,30 +192,49 @@ def is_location_line(riga):
 
 
 def is_speaker(riga):
-    """Rileva speaker:
-    - tutto maiuscolo
-    - max 4 parole
-    - non inizia con parentesi
-    - nessuna punteggiatura (tranne apostrofo) nelle parole
-    - esclude CONTINUED e CONTINUED:
-    """
-    riga_clean = riga.strip().split("(")[0].strip()
-
-    # Definisce la punteggiatura ammessa (tolto apostrofo)
-    punctuation_check = string.punctuation.replace("'", "")
-
-    # Se contiene punteggiatura non ammessa → non è speaker
-    if any(char in punctuation_check for char in riga_clean):
+    """Rileva righe che rappresentano uno speaker (personaggio che parla)"""
+    if not riga.strip():
         return False
 
-    return (
-        riga_clean.isupper() and
-        len(riga_clean.split()) <= 4 and
-        not riga.startswith("(") and
-        riga_clean != "" and
-        riga_clean not in ["CONTINUED", "CONTINUED:"]
+    riga_clean = riga.strip()
+    base_name = riga_clean.split("(")[0].strip()
+
+    # Ammessi: apostrofo, #, numeri e trattino
+    allowed_chars = set("'#-0123456789")
+    punctuation_check = "".join(ch for ch in string.punctuation if ch not in allowed_chars)
+
+    # Esclude se contiene punteggiatura non ammessa
+    if any(char in punctuation_check for char in base_name):
+        return False
+
+    # Esclude se è un numero di scena
+    if is_scene_number(riga_clean):
+        return False
+
+    # Esclude CONTINUED scritto da solo
+    if base_name in ["CONTINUED", "CONTINUED:"]:
+        return False
+
+    # Conta parole "non maiuscole" per permettere eccezioni tipo McGONAGALL, O'Neil, De Gaulle
+    words = base_name.split()
+    lowercase_tolerated = all(
+        w.isupper() or re.match(r"^(Mc|O'|D[ae])", w) or w[0].isupper()
+        for w in words
     )
 
+    # Speaker tipico: tutto maiuscolo o quasi, poche parole
+    if lowercase_tolerated and len(words) <= 4 and not riga_clean.startswith("("):
+        return True
+
+    # Speaker con CONT'D o CONTINUED in varie forme
+    if re.match(r"^[A-Z0-9#\-\s]+(\s*\(CONT'?D\))\s*$", riga_clean):
+        return True
+    if re.match(r"^[A-Z0-9#\-\s]+(\s*\(CONTINUED\))\s*$", riga_clean):
+        return True
+    if re.match(r"^[A-Z0-9#\-\s]+\s*\([^)]*cont[^)]*\)\s*$", riga_clean, re.IGNORECASE):
+        return True
+
+    return False
 
 def is_continued_line(riga):
     """Rileva righe CONTINUED in tutte le varianti comuni"""
@@ -227,6 +246,26 @@ def is_continued_line(riga):
         re.match(r"CONTINUED[:\s]*\(?\d+\)?", riga_upper) or
         re.match(r"\(CONTINUED[:\s]*\d+\)", riga_upper)
     )
+
+def is_more_line(riga):
+    """Rileva righe (MORE) che indicano continuazione su pagina successiva"""
+    riga_upper = riga.strip().upper()
+    return (
+        riga_upper == "(MORE)" or
+        riga_upper == "MORE" or
+        re.match(r'^\s*\(?\s*MORE\s*\)?\s*$', riga_upper)
+    )
+
+def extract_speaker_name(speaker_line):
+    """Estrae il nome pulito dello speaker"""
+    # Rimuove (CONT'D), (contíd), e altre parentesi
+    name = re.sub(r'\s*\([^)]*\)\s*$', '', speaker_line.strip())
+    return name.strip()
+
+def is_continuation_speaker(speaker_line):
+    """Verifica se lo speaker indica continuazione"""
+    return bool(re.search(r'\((CONT\'D|cont[íi]d)\)', speaker_line, re.IGNORECASE))
+
 
 def converti_in_tei(percorso_txt):
     with open(percorso_txt, 'r', encoding='utf-8') as f:
@@ -278,7 +317,7 @@ def converti_in_tei(percorso_txt):
 
     while i < len(corpo_righe):
         riga = corpo_righe[i].strip()
-        next_line = corpo_righe[i+1].strip() if i+1 < len(corpo_righe) else None
+        next_line = corpo_righe[i + 1].strip() if i + 1 < len(corpo_righe) else None
 
         # Ignora numeri di pagina
         if is_page_number(riga):
@@ -292,21 +331,30 @@ def converti_in_tei(percorso_txt):
             i += 1
             continue
 
+        # Ignora righe MORE (ma imposta flag di continuazione)
+        if is_more_line(riga):
+            print(f"[DEBUG] Saltata riga MORE: {riga}")
+            speech_in_continuazione = True
+            i += 1
+            continue
+
         # Ignora transizioni
         if is_transition_line(riga):
             print(f"[DEBUG] Saltata transizione: {riga}")
             i += 1
             continue
 
-        # Ignora intestazioni (header)
+        # Ignora intestazioni (header) - righe duplicate
         if is_header_line(riga, next_line):
-            print(f"[DEBUG] Saltata intestazione: {riga}")
+            print(f"[DEBUG] Saltata intestazione duplicata: {riga}")
             i += 1
             continue
 
         # RILEVA INIZIO NUOVA SCENA
         if is_scene_number(riga):
             numero_scena = riga
+
+            # Verifica se la scena è già stata creata
             if numero_scena in numeri_scene_gia_creati:
                 print(f"[DEBUG] Scena {numero_scena} già creata, salto")
                 i += 1
@@ -318,33 +366,36 @@ def converti_in_tei(percorso_txt):
             i += 1
             location_line = None
 
-            if i < len(corpo_righe):
+            # Salta eventuali numeri di pagina o ripetizioni
+            while i < len(corpo_righe):
                 possibile_location = corpo_righe[i].strip()
-                while i < len(corpo_righe) and is_page_number(possibile_location):
+
+                if is_page_number(possibile_location):
                     print(f"[DEBUG] Saltata pagina durante ricerca location: {possibile_location}")
                     i += 1
-                    if i < len(corpo_righe):
-                        possibile_location = corpo_righe[i].strip()
+                    continue
+                elif possibile_location == numero_scena:
+                    print(f"[DEBUG] Saltato numero scena ripetuto: {possibile_location}")
+                    i += 1
+                    continue
+                elif is_continued_line(possibile_location):
+                    print(f"[DEBUG] Saltata riga CONTINUED durante ricerca location: {possibile_location}")
+                    i += 1
+                    continue
+                else:
+                    break
 
-                if i < len(corpo_righe) and is_location_line(possibile_location):
+            # Verifica se è una location
+            if i < len(corpo_righe):
+                possibile_location = corpo_righe[i].strip()
+                if is_location_line(possibile_location):
                     location_line = possibile_location
                     print(f"[DEBUG] Location trovata: {location_line}")
                     i += 1
                 else:
                     print(f"[DEBUG] Nessuna location trovata, riga: '{possibile_location}'")
 
-            while i < len(corpo_righe):
-                next_riga = corpo_righe[i].strip()
-                if is_page_number(next_riga):
-                    print(f"[DEBUG] Saltata pagina: {next_riga}")
-                    i += 1
-                elif next_riga == numero_scena:
-                    print(f"[DEBUG] Saltato numero scena ripetuto: {next_riga}")
-                    i += 1
-                    break
-                else:
-                    break
-
+            # Crea la scena
             scena_corrente = ET.SubElement(body, "div", type="scene")
             scena_corrente.set("n", numero_scena)
             numeri_scene_gia_creati.add(numero_scena)
@@ -364,45 +415,61 @@ def converti_in_tei(percorso_txt):
 
         # RILEVA SPEAKER E BATTUTE
         if is_speaker(riga) and scena_corrente is not None:
-            speaker_name = riga.split("(")[0].strip()
-            continua_speech = speech_in_continuazione and speaker_name == speaker_corrente and ultimo_sp_element is not None
+            speaker_name = extract_speaker_name(riga)
+            is_continuation = is_continuation_speaker(riga)
+
+            # Determina se continuare la speech precedente
+            continua_speech = (
+                                      (speech_in_continuazione and speaker_name == speaker_corrente) or
+                                      (is_continuation and speaker_name == speaker_corrente)
+                              ) and ultimo_sp_element is not None
 
             if continua_speech:
-                print(f"[DEBUG] Continua speech per {speaker_name}")
+                print(f"[DEBUG] Continua speech per {speaker_name} (continuation: {is_continuation})")
             else:
-                print(f"[DEBUG] Nuovo speaker trovato: {speaker_name}")
+                print(f"[DEBUG] Nuovo speaker trovato: {speaker_name} (continuation: {is_continuation})")
 
             i += 1
             battute = []
 
+            # Raccoglie le battute del personaggio
             while i < len(corpo_righe):
                 next_riga = corpo_righe[i].strip()
+
+                # Stop conditions
                 if (is_speaker(next_riga) or is_scene_number(next_riga) or
-                    is_location_line(next_riga) or is_page_number(next_riga) or
-                    is_continued_line(next_riga.upper())):
+                        is_location_line(next_riga) or is_page_number(next_riga) or
+                        is_continued_line(next_riga) or is_more_line(next_riga)):
                     break
+
                 if next_riga:
                     battute.append(next_riga)
                 i += 1
 
-            if battute and re.match(r"[(\[{]?\s*MORE\s*[)\]}]?$", battute[-1].strip().upper()):
+            # Verifica se c'è (MORE) alla fine delle battute raccolte
+            if battute and is_more_line(battute[-1]):
                 battute.pop()
                 speech_in_continuazione = True
-                print(f"[DEBUG] Trovato (MORE), speech in continuazione per {speaker_name}")
+                print(f"[DEBUG] Trovato (MORE) nelle battute, speech in continuazione per {speaker_name}")
             else:
                 speech_in_continuazione = False
 
+            # Aggiunge le battute
             if battute:
                 if continua_speech:
+                    # Continua la speech precedente
                     for battuta in battute:
                         ultimo_sp_element.append(crea_elemento_testo("p", battuta))
+                    print(f"[DEBUG] Aggiunte {len(battute)} battute alla speech esistente")
                 else:
+                    # Crea nuova speech
                     sp = ET.SubElement(scena_corrente, "sp")
                     ET.SubElement(sp, "speaker").text = speaker_name
                     for battuta in battute:
                         sp.append(crea_elemento_testo("p", battuta))
                     ultimo_sp_element = sp
                     speaker_corrente = speaker_name
+                    print(f"[DEBUG] Creata nuova speech con {len(battute)} battute")
             continue
 
         # DESCRIZIONI SCENE
@@ -414,12 +481,14 @@ def converti_in_tei(percorso_txt):
 
     print(f"[DEBUG] Processamento completato. Scene create: {len(body.findall('.//div[@type=\"scene\"]'))}")
 
+    # Formattazione e salvataggio
     indent(root)
     tree = ET.ElementTree(root)
     nome_file = os.path.basename(percorso_txt).replace(".txt", ".xml")
+    os.makedirs(OUTPUT_DIR, exist_ok=True)
     percorso_finale = os.path.join(OUTPUT_DIR, nome_file)
     tree.write(percorso_finale, encoding="utf-8", xml_declaration=True)
-    print(f" File TEI salvato in: {percorso_finale}")
+    print(f"File TEI salvato in: {percorso_finale}")
 
 
 
