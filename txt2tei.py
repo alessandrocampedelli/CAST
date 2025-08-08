@@ -306,6 +306,28 @@ def is_continuation_speaker(speaker_line):
     """Verifica se lo speaker indica continuazione"""
     return bool(re.search(r'\((CONT\'D|cont[íi]d)\)', speaker_line, re.IGNORECASE))
 
+def extract_title_from_filename(filename):
+    """Estrae il titolo del film dal nome del file, rimuovendo l'anno finale.
+    Gestisce nomi con trattini, es. 'nome-del-film-2020.txt'"""
+
+    # Rimuove l'estensione .txt
+    name_without_ext = os.path.splitext(filename)[0]
+
+    # Cerca l'anno alla fine del nome con trattini (es. 'nome-del-film-2020')
+    match = re.search(r'^(.+)-(\d{4})$', name_without_ext)
+
+    if match:
+        title_slug = match.group(1)
+        year = match.group(2)
+        # Sostituisce i trattini con spazi per una forma leggibile
+        title = title_slug.replace('-', ' ').strip()
+        print(f"[DEBUG] Titolo estratto: '{title}', Anno: {year}")
+        return title
+    else:
+        # Se non trova l'anno, restituisce comunque il nome "normalizzato"
+        normalized_title = name_without_ext.replace('-', ' ').strip()
+        print(f"[DEBUG] Anno non trovato, uso tutto il nome: '{normalized_title}'")
+        return normalized_title
 
 def converti_in_tei(percorso_txt):
     with open(percorso_txt, 'r', encoding='utf-8') as f:
@@ -313,37 +335,21 @@ def converti_in_tei(percorso_txt):
 
     print(f"[DEBUG] Totale righe lette: {len(righe)}")
 
-    # Parsing intestazione (prime 4 righe: titolo, "By", autore, data)
-    titolo = righe[0] if len(righe) > 0 else "Unknown Title"
-    autore = righe[2] if len(righe) >= 3 else "Unknown"
-    data_raw = righe[3] if len(righe) >= 4 else None
-    try:
-        data = datetime.strptime(data_raw, "%B %dth, %Y").strftime("%Y-%m-%d")
-    except:
-        data = datetime.today().strftime("%Y-%m-%d")
+    # Estrae il titolo dal nome del file invece che dalla prima riga
+    filename = os.path.basename(percorso_txt)
+    titolo = extract_title_from_filename(filename)
 
-    # Corpo del copione inizia dalla riga 4
-    corpo_righe = righe[4:]
+    # Tutto il contenuto del file è il corpo del copione
+    corpo_righe = righe
     print(f"[DEBUG] Corpo del copione: {len(corpo_righe)} righe")
 
     root = ET.Element("TEI", xmlns="http://www.tei-c.org/ns/1.0")
 
-    # HEADER
+    # HEADER SEMPLIFICATO - solo il titolo
     teiHeader = ET.SubElement(root, "teiHeader")
     fileDesc = ET.SubElement(teiHeader, "fileDesc")
-
     titleStmt = ET.SubElement(fileDesc, "titleStmt")
     ET.SubElement(titleStmt, "title").text = titolo
-    ET.SubElement(titleStmt, "author").text = autore
-
-    publicationStmt = ET.SubElement(fileDesc, "publicationStmt")
-    ET.SubElement(publicationStmt, "publisher").text = "Converted Script Archive"
-    ET.SubElement(publicationStmt, "pubPlace").text = "Italy"
-    ET.SubElement(publicationStmt, "date").text = data
-
-    sourceDesc = ET.SubElement(fileDesc, "sourceDesc")
-    ET.SubElement(sourceDesc, "p").text = f"Derived from plain text file: {os.path.basename(percorso_txt)}"
-
     # CORPO TESTO
     text = ET.SubElement(root, "text")
     body = ET.SubElement(text, "body")
