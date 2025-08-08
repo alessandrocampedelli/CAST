@@ -74,18 +74,33 @@ def ricava_nome_film_da_url(url):
 def main():
     os.makedirs(OUTPUT_DIR, exist_ok=True)
 
-    # Estrazione Cars 2 (HTML - IMSDB)
-    url_cars2 = "https://imsdb.com/scripts/Cars-2.html"
-    nome_cars2 = ricava_nome_film_da_url(url_cars2)
-    estrai_da_imsdb(url_cars2, os.path.join("copioni_txt", f"{nome_cars2}.txt"))
+    # --- Estrazione da file siti.txt ---
+    path_siti = "siti.txt"
+    if os.path.exists(path_siti):
+        with open(path_siti, 'r', encoding='utf-8') as f:
+            urls = [riga.strip() for riga in f if riga.strip()]
 
-    # Cerca tutti i file .pdf nella cartella copioni_pdf
+        for url in urls:
+            if "imsdb.com" in url:
+                try:
+                    nome_film = ricava_nome_film_da_url(url)
+                    output_path = os.path.join(OUTPUT_DIR, f"{nome_film}.txt")
+                    estrai_da_imsdb(url, output_path)
+                except Exception as e:
+                    print(f"[ERRORE] Impossibile estrarre da {url}: {e}")
+            else:
+                print(f"[AVVISO] URL non supportato: {url}")
+    else:
+        print(f"[ERRORE] File '{path_siti}' non trovato.")
+
+    # --- Estrazione da PDF nella cartella ---
     for nome_file in os.listdir(INPUT_DIR):
         if nome_file.lower().endswith(".pdf"):
             nome_base = os.path.splitext(nome_file)[0]
             percorso_pdf = os.path.join(INPUT_DIR, nome_file)
             percorso_txt = os.path.join(OUTPUT_DIR, f"{nome_base}.txt")
             estrai_pdf(percorso_pdf, percorso_txt)
+
 
 if __name__ == "__main__":
     main()
