@@ -29,24 +29,50 @@ def crea_elemento_testo(tag, testo):
 
 
 def is_scene_number(riga):
-    """Rileva se una riga è un numero di scena (solo cifre)"""
-    return re.match(r"^\d+$", riga.strip())
+    """Rileva se una riga è un numero di scena (cifre pure o alfanumerici come 11A, 11B, etc.)"""
+    riga_clean = riga.strip()
+
+    # Pattern originale: solo cifre
+    if re.match(r"^\d+$", riga_clean):
+        return True
+
+    # Pattern numeri seguiti da lettere: 11A, 11B, 123C, etc.
+    if re.match(r"^\d+[A-Za-z]{1,3}$", riga_clean):
+        return True
+
+    # Pattern lettere seguite da numeri: A1, B2, AA1, ABC123
+    if re.match(r"^[A-Za-z]{1,3}\d+$", riga_clean):
+        return True
+
+    # Pattern con trattino: A-1, B-2, 11-A, etc.
+    if re.match(r"^([A-Za-z]{1,3}-\d+|\d+-[A-Za-z]{1,3})$", riga_clean):
+        return True
+
+    return False
 
 
 def is_page_number(riga):
-    """Rileva numeri di pagina in vari formati"""
+    """Rileva numeri di pagina in vari formati, inclusi quelli alfanumerici"""
     riga_clean = riga.strip()
 
     # Formato originale: \f seguito da numero
     if re.match(r"^\f\d+$", riga_clean):
         return True
 
+    # Formato alfanumerico con \f: \f11A, \f11B, \fA1, \fB2, etc.
+    if re.match(r"^\f(\d+[A-Za-z]{1,3}|[A-Za-z]{1,3}\d+)$", riga_clean):
+        return True
+
     # Presenza del carattere di escape \f
     if '\f' in riga:
         return True
 
-    # Numero seguito da punto (es. "2.")
+    # Numero puro seguito da punto (es. "2.")
     if re.match(r"^\d+\.$", riga_clean):
+        return True
+
+    # Numeri alfanumerici seguiti da punto (es. "11A.", "B2.")
+    if re.match(r"^(\d+[A-Za-z]{1,3}|[A-Za-z]{1,3}\d+)\.$", riga_clean):
         return True
 
     # Intestazione pagina: testo seguito da spazi e numero con punto finale
@@ -54,14 +80,28 @@ def is_page_number(riga):
     if re.match(r"^.+\s{10,}\d+\.$", riga_clean):
         return True
 
+    # Intestazione pagina con numero alfanumerico
+    # Es: "ACU FINAL SHOOTING SCRIPT                          11A."
+    if re.match(r"^.+\s{10,}(\d+[A-Za-z]{1,3}|[A-Za-z]{1,3}\d+)\.$", riga_clean):
+        return True
+
     # Intestazione pagina: testo seguito da spazi e numero senza punto
     # Es: "SCRIPT TITLE                                        15"
     if re.match(r"^.+\s{10,}\d+$", riga_clean):
         return True
 
+    # Intestazione pagina con numero alfanumerico senza punto
+    # Es: "SCRIPT TITLE                                        11A"
+    if re.match(r"^.+\s{10,}(\d+[A-Za-z]{1,3}|[A-Za-z]{1,3}\d+)$", riga_clean):
+        return True
+
     # Righe molto lunghe con molto spazio bianco (probabile header/footer)
     # Solo se terminano con numero o numero+punto
     if len(riga_clean) > 50 and re.search(r"\s{10,}\d+\.?$", riga_clean):
+        return True
+
+    # Righe lunghe che terminano con numeri alfanumerici
+    if len(riga_clean) > 50 and re.search(r"\s{10,}(\d+[A-Za-z]{1,3}|[A-Za-z]{1,3}\d+)\.?$", riga_clean):
         return True
 
     return False
