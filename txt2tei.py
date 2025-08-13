@@ -548,25 +548,24 @@ def converti_in_tei(percorso_txt):
             print(f"[DEBUG] Scena PDF {numero_scena} creata con location: {location_line}")
             continue
 
-        # GESTIONE LOCATION SENZA SCENA (per entrambi i formati): crea scena automatica
-        if is_location_line(riga) and scena_corrente is None:
+        # GESTIONE LOCATION: ogni location inizia una nuova scena automatica
+        if is_location_line(riga):
             numero_scena_auto = f"auto_{scene_counter}"
-            print(f"[DEBUG] === NUOVA SCENA AUTOMATICA {numero_scena_auto} ===")
+            print(f"[DEBUG] === NUOVA SCENA AUTOMATICA PER LOCATION {numero_scena_auto} ===")
 
+            # Crea sempre una nuova scena quando si incontra una location
             scena_corrente = ET.SubElement(body, "div", type="scene")
             scena_corrente.set("n", numero_scena_auto)
             numeri_scene_gia_creati.add(numero_scena_auto)
             scene_counter += 1
 
+            # Reset dei riferimenti al speaker precedente per la nuova scena
+            speaker_corrente = None
+            ultimo_sp_element = None
+            speech_in_continuazione = False
+
             ET.SubElement(scena_corrente, "stage", type="location").text = riga
             print(f"[DEBUG] Scena automatica {numero_scena_auto} creata con location: {riga}")
-            i += 1
-            continue
-
-        # RILEVA LOCATION FUORI DA NUMERO SCENA (per scena già esistente)
-        if is_location_line(riga) and scena_corrente is not None:
-            ET.SubElement(scena_corrente, "stage", type="location").text = riga
-            print(f"[DEBUG] Location aggiunta: {riga}")
             i += 1
             continue
 
