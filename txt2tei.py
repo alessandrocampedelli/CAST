@@ -51,6 +51,41 @@ def is_scene_number(riga):
     return False
 
 
+def parse_html_scene_line(riga):
+    """
+    Parsa una riga che contiene numero di scena + location in formato HTML
+    Esempio: "1   EXT. CASTLE GROUNDS - NIGHT                                1"
+    Ritorna: (numero_scena, location) o (None, None)
+    """
+    riga_clean = riga.strip()
+
+    # Pattern per righe con numero scena + location + numero scena ripetuto
+    # Esempio: "1   EXT. CASTLE GROUNDS - NIGHT                                1"
+    match = re.match(r'^(\d+[A-Za-z]*)\s+(.*?)\s+\1\s*$', riga_clean)
+    if match:
+        numero_scena = match.group(1)
+        location = match.group(2).strip()
+        if is_location_line(location):
+            return numero_scena, location
+
+    # Pattern per righe con solo numero scena + location (senza ripetizione)
+    # Esempio: "1   EXT. CASTLE GROUNDS - NIGHT"
+    match = re.match(r'^(\d+[A-Za-z]*)\s+(.*?)$', riga_clean)
+    if match:
+        numero_scena = match.group(1)
+        location = match.group(2).strip()
+        if is_location_line(location):
+            return numero_scena, location
+
+    return None, None
+
+
+def is_html_scene_line(riga):
+    """Rileva se una riga è nel formato HTML con scena+location"""
+    numero, location = parse_html_scene_line(riga)
+    return numero is not None and location is not None
+
+
 def is_page_number(riga):
     """Rileva numeri di pagina in vari formati, inclusi quelli alfanumerici"""
     riga_clean = riga.strip()
@@ -276,25 +311,28 @@ def is_speaker(riga):
 
     return False
 
+
 def is_continued_line(riga):
     """Rileva righe CONTINUED in tutte le varianti comuni"""
     riga_upper = riga.strip().upper()
     return (
-        riga_upper == "(CONTINUED)" or
-        riga_upper == "CONTINUED" or
-        riga_upper == "CONTINUED:" or
-        re.match(r"CONTINUED[:\s]*\(?\d+\)?", riga_upper) or
-        re.match(r"\(CONTINUED[:\s]*\d+\)", riga_upper)
+            riga_upper == "(CONTINUED)" or
+            riga_upper == "CONTINUED" or
+            riga_upper == "CONTINUED:" or
+            re.match(r"CONTINUED[:\s]*\(?\d+\)?", riga_upper) or
+            re.match(r"\(CONTINUED[:\s]*\d+\)", riga_upper)
     )
+
 
 def is_more_line(riga):
     """Rileva righe (MORE) che indicano continuazione su pagina successiva"""
     riga_upper = riga.strip().upper()
     return (
-        riga_upper == "(MORE)" or
-        riga_upper == "MORE" or
-        re.match(r'^\s*\(?\s*MORE\s*\)?\s*$', riga_upper)
+            riga_upper == "(MORE)" or
+            riga_upper == "MORE" or
+            re.match(r'^\s*\(?\s*MORE\s*\)?\s*$', riga_upper)
     )
+
 
 def extract_speaker_name(speaker_line):
     """Estrae il nome pulito dello speaker"""
@@ -302,9 +340,11 @@ def extract_speaker_name(speaker_line):
     name = re.sub(r'\s*\([^)]*\)\s*$', '', speaker_line.strip())
     return name.strip()
 
+
 def is_continuation_speaker(speaker_line):
     """Verifica se lo speaker indica continuazione"""
     return bool(re.search(r'\((CONT\'D|cont[íi]d)\)', speaker_line, re.IGNORECASE))
+
 
 def extract_title_from_filename(filename):
     """Estrae il titolo del film dal nome del file, rimuovendo l'anno finale.
@@ -329,11 +369,43 @@ def extract_title_from_filename(filename):
         print(f"[DEBUG] Anno non trovato, uso tutto il nome: '{normalized_title}'")
         return normalized_title
 
+
+def detect_source_type(righe):
+    """
+    Rileva se il copione proviene da fonte HTML o PDF analizzando la struttura.
+    Ritorna: 'html' o 'pdf'
+    """
+    html_indicators = 0
+    pdf_indicators = 0
+
+    for i, riga in enumerate(righe):
+        # Indicatori formato HTML
+        if is_html_scene_line(riga):
+            html_indicators += 2
+
+        # Indicatori formato PDF
+        if is_scene_number(riga) and i + 1 < len(righe):
+            next_riga = righe[i + 1].strip()
+            if is_location_line(next_riga):
+                pdf_indicators += 2
+
+    print(f"[DEBUG] HTML indicators: {html_indicators}, PDF indicators: {pdf_indicators}")
+
+    if html_indicators > pdf_indicators:
+        return 'html'
+    else:
+        return 'pdf'
+
+
 def converti_in_tei(percorso_txt):
     with open(percorso_txt, 'r', encoding='utf-8') as f:
         righe = [r.strip() for r in f if r.strip()]
 
     print(f"[DEBUG] Totale righe lette: {len(righe)}")
+
+    # Rileva il tipo di sorgente
+    source_type = detect_source_type(righe)
+    print(f"[DEBUG] Tipo sorgente rilevato: {source_type}")
 
     # Estrae il titolo dal nome del file invece che dalla prima riga
     filename = os.path.basename(percorso_txt)
@@ -350,6 +422,7 @@ def converti_in_tei(percorso_txt):
     fileDesc = ET.SubElement(teiHeader, "fileDesc")
     titleStmt = ET.SubElement(fileDesc, "titleStmt")
     ET.SubElement(titleStmt, "title").text = titolo
+
     # CORPO TESTO
     text = ET.SubElement(root, "text")
     body = ET.SubElement(text, "body")
@@ -359,6 +432,7 @@ def converti_in_tei(percorso_txt):
     speaker_corrente = None
     ultimo_sp_element = None
     speech_in_continuazione = False
+    scene_counter = 1  # Contatore per scene senza numero esplicito
     i = 0
 
     while i < len(corpo_righe):
@@ -396,8 +470,30 @@ def converti_in_tei(percorso_txt):
             i += 1
             continue
 
-        # RILEVA INIZIO NUOVA SCENA
-        if is_scene_number(riga):
+        # GESTIONE FORMATO HTML: scene+location sulla stessa riga
+        if source_type == 'html' and is_html_scene_line(riga):
+            numero_scena, location_line = parse_html_scene_line(riga)
+
+            if numero_scena in numeri_scene_gia_creati:
+                print(f"[DEBUG] Scena {numero_scena} già creata, salto")
+                i += 1
+                continue
+
+            print(f"[DEBUG] === NUOVA SCENA HTML {numero_scena} ===")
+
+            scena_corrente = ET.SubElement(body, "div", type="scene")
+            scena_corrente.set("n", numero_scena)
+            numeri_scene_gia_creati.add(numero_scena)
+
+            if location_line:
+                ET.SubElement(scena_corrente, "stage", type="location").text = location_line
+
+            print(f"[DEBUG] Scena HTML {numero_scena} creata con location: {location_line}")
+            i += 1
+            continue
+
+        # GESTIONE FORMATO PDF: RILEVA INIZIO NUOVA SCENA (numero separato)
+        if source_type == 'pdf' and is_scene_number(riga):
             numero_scena = riga
 
             # Verifica se la scena è già stata creata
@@ -406,7 +502,7 @@ def converti_in_tei(percorso_txt):
                 i += 1
                 continue
 
-            print(f"[DEBUG] === NUOVA SCENA {numero_scena} ===")
+            print(f"[DEBUG] === NUOVA SCENA PDF {numero_scena} ===")
 
             # Prossima riga: location
             i += 1
@@ -449,10 +545,25 @@ def converti_in_tei(percorso_txt):
             if location_line:
                 ET.SubElement(scena_corrente, "stage", type="location").text = location_line
 
-            print(f"[DEBUG] Scena {numero_scena} creata con location: {location_line}")
+            print(f"[DEBUG] Scena PDF {numero_scena} creata con location: {location_line}")
             continue
 
-        # RILEVA LOCATION FUORI DA NUMERO SCENA
+        # GESTIONE LOCATION SENZA SCENA (per entrambi i formati): crea scena automatica
+        if is_location_line(riga) and scena_corrente is None:
+            numero_scena_auto = f"auto_{scene_counter}"
+            print(f"[DEBUG] === NUOVA SCENA AUTOMATICA {numero_scena_auto} ===")
+
+            scena_corrente = ET.SubElement(body, "div", type="scene")
+            scena_corrente.set("n", numero_scena_auto)
+            numeri_scene_gia_creati.add(numero_scena_auto)
+            scene_counter += 1
+
+            ET.SubElement(scena_corrente, "stage", type="location").text = riga
+            print(f"[DEBUG] Scena automatica {numero_scena_auto} creata con location: {riga}")
+            i += 1
+            continue
+
+        # RILEVA LOCATION FUORI DA NUMERO SCENA (per scena già esistente)
         if is_location_line(riga) and scena_corrente is not None:
             ET.SubElement(scena_corrente, "stage", type="location").text = riga
             print(f"[DEBUG] Location aggiunta: {riga}")
@@ -460,7 +571,17 @@ def converti_in_tei(percorso_txt):
             continue
 
         # RILEVA SPEAKER E BATTUTE
-        if is_speaker(riga) and scena_corrente is not None:
+        if is_speaker(riga):
+            # Se non c'è una scena corrente, creane una automatica
+            if scena_corrente is None:
+                numero_scena_auto = f"auto_{scene_counter}"
+                print(f"[DEBUG] === CREAZIONE SCENA AUTOMATICA PER SPEAKER {numero_scena_auto} ===")
+
+                scena_corrente = ET.SubElement(body, "div", type="scene")
+                scena_corrente.set("n", numero_scena_auto)
+                numeri_scene_gia_creati.add(numero_scena_auto)
+                scene_counter += 1
+
             speaker_name = extract_speaker_name(riga)
             is_continuation = is_continuation_speaker(riga)
 
@@ -485,7 +606,8 @@ def converti_in_tei(percorso_txt):
                 # Stop conditions
                 if (is_speaker(next_riga) or is_scene_number(next_riga) or
                         is_location_line(next_riga) or is_page_number(next_riga) or
-                        is_continued_line(next_riga) or is_more_line(next_riga)):
+                        is_continued_line(next_riga) or is_more_line(next_riga) or
+                        is_html_scene_line(next_riga)):
                     break
 
                 if next_riga:
@@ -519,7 +641,17 @@ def converti_in_tei(percorso_txt):
             continue
 
         # DESCRIZIONI SCENE
-        if scena_corrente is not None and riga:
+        if riga:
+            # Se non c'è una scena corrente, creane una automatica
+            if scena_corrente is None:
+                numero_scena_auto = f"auto_{scene_counter}"
+                print(f"[DEBUG] === CREAZIONE SCENA AUTOMATICA PER DESCRIZIONE {numero_scena_auto} ===")
+
+                scena_corrente = ET.SubElement(body, "div", type="scene")
+                scena_corrente.set("n", numero_scena_auto)
+                numeri_scene_gia_creati.add(numero_scena_auto)
+                scene_counter += 1
+
             ET.SubElement(scena_corrente, "stage").text = riga
             print(f"[DEBUG] Aggiunta descrizione: {riga[:50]}...")
 
@@ -535,7 +667,6 @@ def converti_in_tei(percorso_txt):
     percorso_finale = os.path.join(OUTPUT_DIR, nome_file)
     tree.write(percorso_finale, encoding="utf-8", xml_declaration=True)
     print(f"File TEI salvato in: {percorso_finale}")
-
 
 
 def main():
