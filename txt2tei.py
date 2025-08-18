@@ -29,7 +29,7 @@ def crea_elemento_testo(tag, testo):
 
 
 def is_scene_number(riga):
-    """Rileva se una riga è un numero di scena (cifre pure o alfanumerici come 11A, 11B, etc.)"""
+    """Rileva se una riga è un numero di scena (ora viene ignorato)"""
     riga_clean = riga.strip()
 
     # Pattern originale: solo cifre
@@ -202,7 +202,8 @@ def is_header_line(riga, next_line=None):
 
 
 def is_location_line(riga):
-    """Rileva righe che rappresentano location di scena (INT., EXT., I/E., ecc.)"""
+    """Rileva righe che rappresentano location di scena (INT., EXT., I/E., ecc.)
+    QUESTA È ORA LA FUNZIONE CHIAVE PER IDENTIFICARE NUOVE SCENE"""
     riga_clean = riga.strip().replace("\xa0", " ").upper()
 
     # Match iniziale con INT., EXT., I/E. o senza punto (INT, EXT, I/E)
@@ -276,25 +277,28 @@ def is_speaker(riga):
 
     return False
 
+
 def is_continued_line(riga):
     """Rileva righe CONTINUED in tutte le varianti comuni"""
     riga_upper = riga.strip().upper()
     return (
-        riga_upper == "(CONTINUED)" or
-        riga_upper == "CONTINUED" or
-        riga_upper == "CONTINUED:" or
-        re.match(r"CONTINUED[:\s]*\(?\d+\)?", riga_upper) or
-        re.match(r"\(CONTINUED[:\s]*\d+\)", riga_upper)
+            riga_upper == "(CONTINUED)" or
+            riga_upper == "CONTINUED" or
+            riga_upper == "CONTINUED:" or
+            re.match(r"CONTINUED[:\s]*\(?\d+\)?", riga_upper) or
+            re.match(r"\(CONTINUED[:\s]*\d+\)", riga_upper)
     )
+
 
 def is_more_line(riga):
     """Rileva righe (MORE) che indicano continuazione su pagina successiva"""
     riga_upper = riga.strip().upper()
     return (
-        riga_upper == "(MORE)" or
-        riga_upper == "MORE" or
-        re.match(r'^\s*\(?\s*MORE\s*\)?\s*$', riga_upper)
+            riga_upper == "(MORE)" or
+            riga_upper == "MORE" or
+            re.match(r'^\s*\(?\s*MORE\s*\)?\s*$', riga_upper)
     )
+
 
 def extract_speaker_name(speaker_line):
     """Estrae il nome pulito dello speaker"""
@@ -302,9 +306,11 @@ def extract_speaker_name(speaker_line):
     name = re.sub(r'\s*\([^)]*\)\s*$', '', speaker_line.strip())
     return name.strip()
 
+
 def is_continuation_speaker(speaker_line):
     """Verifica se lo speaker indica continuazione"""
     return bool(re.search(r'\((CONT\'D|cont[íi]d)\)', speaker_line, re.IGNORECASE))
+
 
 def extract_title_from_filename(filename):
     """Estrae il titolo del film dal nome del file, rimuovendo l'anno finale.
@@ -329,6 +335,7 @@ def extract_title_from_filename(filename):
         print(f"[DEBUG] Anno non trovato, uso tutto il nome: '{normalized_title}'")
         return normalized_title
 
+
 def converti_in_tei(percorso_txt):
     with open(percorso_txt, 'r', encoding='utf-8') as f:
         righe = [r.strip() for r in f if r.strip()]
@@ -350,12 +357,13 @@ def converti_in_tei(percorso_txt):
     fileDesc = ET.SubElement(teiHeader, "fileDesc")
     titleStmt = ET.SubElement(fileDesc, "titleStmt")
     ET.SubElement(titleStmt, "title").text = titolo
+
     # CORPO TESTO
     text = ET.SubElement(root, "text")
     body = ET.SubElement(text, "body")
 
     scena_corrente = None
-    numeri_scene_gia_creati = set()
+    scene_counter = 1  # Contatore progressivo delle scene
     speaker_corrente = None
     ultimo_sp_element = None
     speech_in_continuazione = False
@@ -368,6 +376,12 @@ def converti_in_tei(percorso_txt):
         # Ignora numeri di pagina
         if is_page_number(riga):
             print(f"[DEBUG] Saltata pagina: {riga}")
+            i += 1
+            continue
+
+        # NUOVO: Ignora numeri di scena (ora non servono più per identificare scene)
+        if is_scene_number(riga):
+            print(f"[DEBUG] Saltato numero scena (ora ignorato): {riga}")
             i += 1
             continue
 
@@ -396,66 +410,31 @@ def converti_in_tei(percorso_txt):
             i += 1
             continue
 
-        # RILEVA INIZIO NUOVA SCENA
-        if is_scene_number(riga):
-            numero_scena = riga
+        # NUOVA LOGICA: RILEVA INIZIO NUOVA SCENA BASANDOSI SULLA LOCATION
+        if is_location_line(riga):
+            # Ogni location line inizia una nuova scena
+            numero_scena = str(scene_counter)
+            location_line = riga
 
-            # Verifica se la scena è già stata creata
-            if numero_scena in numeri_scene_gia_creati:
-                print(f"[DEBUG] Scena {numero_scena} già creata, salto")
-                i += 1
-                continue
+            print(f"[DEBUG] === NUOVA SCENA {numero_scena} (auto-generata) ===")
+            print(f"[DEBUG] Location: {location_line}")
 
-            print(f"[DEBUG] === NUOVA SCENA {numero_scena} ===")
-
-            # Prossima riga: location
-            i += 1
-            location_line = None
-
-            # Salta eventuali numeri di pagina o ripetizioni
-            while i < len(corpo_righe):
-                possibile_location = corpo_righe[i].strip()
-
-                if is_page_number(possibile_location):
-                    print(f"[DEBUG] Saltata pagina durante ricerca location: {possibile_location}")
-                    i += 1
-                    continue
-                elif possibile_location == numero_scena:
-                    print(f"[DEBUG] Saltato numero scena ripetuto: {possibile_location}")
-                    i += 1
-                    continue
-                elif is_continued_line(possibile_location):
-                    print(f"[DEBUG] Saltata riga CONTINUED durante ricerca location: {possibile_location}")
-                    i += 1
-                    continue
-                else:
-                    break
-
-            # Verifica se è una location
-            if i < len(corpo_righe):
-                possibile_location = corpo_righe[i].strip()
-                if is_location_line(possibile_location):
-                    location_line = possibile_location
-                    print(f"[DEBUG] Location trovata: {location_line}")
-                    i += 1
-                else:
-                    print(f"[DEBUG] Nessuna location trovata, riga: '{possibile_location}'")
-
-            # Crea la scena
+            # Crea la scena con numerazione automatica
             scena_corrente = ET.SubElement(body, "div", type="scene")
             scena_corrente.set("n", numero_scena)
-            numeri_scene_gia_creati.add(numero_scena)
 
-            if location_line:
-                ET.SubElement(scena_corrente, "stage", type="location").text = location_line
+            # Aggiunge la location
+            ET.SubElement(scena_corrente, "stage", type="location").text = location_line
+
+            # Reset dello speaker quando inizia nuova scena
+            speaker_corrente = None
+            ultimo_sp_element = None
+            speech_in_continuazione = False
+
+            # Incrementa il contatore delle scene
+            scene_counter += 1
 
             print(f"[DEBUG] Scena {numero_scena} creata con location: {location_line}")
-            continue
-
-        # RILEVA LOCATION FUORI DA NUMERO SCENA
-        if is_location_line(riga) and scena_corrente is not None:
-            ET.SubElement(scena_corrente, "stage", type="location").text = riga
-            print(f"[DEBUG] Location aggiunta: {riga}")
             i += 1
             continue
 
@@ -482,10 +461,10 @@ def converti_in_tei(percorso_txt):
             while i < len(corpo_righe):
                 next_riga = corpo_righe[i].strip()
 
-                # Stop conditions
-                if (is_speaker(next_riga) or is_scene_number(next_riga) or
-                        is_location_line(next_riga) or is_page_number(next_riga) or
-                        is_continued_line(next_riga) or is_more_line(next_riga)):
+                # Stop conditions - MODIFICATO: non più is_scene_number ma is_location_line
+                if (is_speaker(next_riga) or is_location_line(next_riga) or
+                        is_page_number(next_riga) or is_continued_line(next_riga) or
+                        is_more_line(next_riga) or is_scene_number(next_riga)):
                     break
 
                 if next_riga:
@@ -518,7 +497,7 @@ def converti_in_tei(percorso_txt):
                     print(f"[DEBUG] Creata nuova speech con {len(battute)} battute")
             continue
 
-        # DESCRIZIONI SCENE
+        # DESCRIZIONI SCENE (stage directions)
         if scena_corrente is not None and riga:
             ET.SubElement(scena_corrente, "stage").text = riga
             print(f"[DEBUG] Aggiunta descrizione: {riga[:50]}...")
@@ -535,7 +514,6 @@ def converti_in_tei(percorso_txt):
     percorso_finale = os.path.join(OUTPUT_DIR, nome_file)
     tree.write(percorso_finale, encoding="utf-8", xml_declaration=True)
     print(f"File TEI salvato in: {percorso_finale}")
-
 
 
 def main():
