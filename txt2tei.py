@@ -413,13 +413,78 @@ def converti_in_tei(percorso_txt):
         riga = corpo_righe[i].strip()
         next_line = corpo_righe[i + 1].strip() if i + 1 < len(corpo_righe) else None
 
-        # Ignora numeri di pagina
+        # PRIORITÀ 1: RILEVA INIZIO NUOVA SCENA BASANDOSI SULLA LOCATION
+        # Questo deve essere controllato PRIMA dei numeri di pagina
+        if is_location_line(riga):
+            # Verifica se è il pattern numero-descrizione-numero sulla stessa riga
+            riga_clean = riga.strip().replace("\xa0", " ").replace("\u00A0", " ")
+            riga_clean = re.sub(r'\s+', ' ', riga_clean)
+
+            # Pattern: numero + descrizione + numero (es: "4   FULL SHOT - ENTERPRISE BRIDGE                                4")
+            numero_desc_numero_match = re.match(r'^(\d+[A-Za-z]*)\s+(.+?)\s+(\d+[A-Za-z]*)$', riga_clean)
+
+            if numero_desc_numero_match:
+                # Estrae SOLO la descrizione, ignora il numero originale
+                location_description = numero_desc_numero_match.group(2).strip()
+                # Usa numerazione automatica
+                numero_scena = str(scene_counter)
+
+                print(f"[DEBUG] === NUOVA SCENA {numero_scena} (auto-generata da pattern numero-desc-numero) ===")
+                print(f"[DEBUG] Location estratta: {location_description}")
+                print(f"[DEBUG] Numero originale ignorato: {numero_desc_numero_match.group(1)}")
+
+                # Crea la scena usando numerazione automatica
+                scena_corrente = ET.SubElement(body, "div", type="scene")
+                scena_corrente.set("n", numero_scena)
+
+                # Aggiunge la location estratta
+                ET.SubElement(scena_corrente, "stage", type="location").text = location_description
+
+                # Reset dello speaker quando inizia nuova scena
+                speaker_corrente = None
+                ultimo_sp_element = None
+                speech_in_continuazione = False
+
+                # Incrementa il contatore delle scene
+                scene_counter += 1
+
+                print(f"[DEBUG] Scena {numero_scena} creata con location: {location_description}")
+                i += 1
+                continue
+            else:
+                # Location line normale (INT./EXT./etc.) - usa numerazione automatica
+                numero_scena = str(scene_counter)
+                location_line = riga
+
+                print(f"[DEBUG] === NUOVA SCENA {numero_scena} (auto-generata) ===")
+                print(f"[DEBUG] Location: {location_line}")
+
+                # Crea la scena con numerazione automatica
+                scena_corrente = ET.SubElement(body, "div", type="scene")
+                scena_corrente.set("n", numero_scena)
+
+                # Aggiunge la location
+                ET.SubElement(scena_corrente, "stage", type="location").text = location_line
+
+                # Reset dello speaker quando inizia nuova scena
+                speaker_corrente = None
+                ultimo_sp_element = None
+                speech_in_continuazione = False
+
+                # Incrementa il contatore delle scene
+                scene_counter += 1
+
+                print(f"[DEBUG] Scena {numero_scena} creata con location: {location_line}")
+                i += 1
+                continue
+
+        # PRIORITÀ 2: Ignora numeri di pagina (SOLO se non sono location)
         if is_page_number(riga):
             print(f"[DEBUG] Saltata pagina: {riga}")
             i += 1
             continue
 
-        # NUOVO: Ignora numeri di scena (ora non servono più per identificare scene)
+        # Ignora numeri di scena (ora non servono più per identificare scene)
         if is_scene_number(riga):
             print(f"[DEBUG] Saltato numero scena (ora ignorato): {riga}")
             i += 1
@@ -447,34 +512,6 @@ def converti_in_tei(percorso_txt):
         # Ignora intestazioni (header) - righe duplicate
         if is_header_line(riga, next_line):
             print(f"[DEBUG] Saltata intestazione duplicata: {riga}")
-            i += 1
-            continue
-
-        # NUOVA LOGICA: RILEVA INIZIO NUOVA SCENA BASANDOSI SULLA LOCATION
-        if is_location_line(riga):
-            # Ogni location line inizia una nuova scena
-            numero_scena = str(scene_counter)
-            location_line = riga
-
-            print(f"[DEBUG] === NUOVA SCENA {numero_scena} (auto-generata) ===")
-            print(f"[DEBUG] Location: {location_line}")
-
-            # Crea la scena con numerazione automatica
-            scena_corrente = ET.SubElement(body, "div", type="scene")
-            scena_corrente.set("n", numero_scena)
-
-            # Aggiunge la location
-            ET.SubElement(scena_corrente, "stage", type="location").text = location_line
-
-            # Reset dello speaker quando inizia nuova scena
-            speaker_corrente = None
-            ultimo_sp_element = None
-            speech_in_continuazione = False
-
-            # Incrementa il contatore delle scene
-            scene_counter += 1
-
-            print(f"[DEBUG] Scena {numero_scena} creata con location: {location_line}")
             i += 1
             continue
 
