@@ -204,11 +204,48 @@ def is_header_line(riga, next_line=None):
 def is_location_line(riga):
     """Rileva righe che rappresentano location di scena (INT., EXT., I/E., ecc.)
     QUESTA È ORA LA FUNZIONE CHIAVE PER IDENTIFICARE NUOVE SCENE"""
-    riga_clean = riga.strip().replace("\xa0", " ").upper()
+
+    # Pulizia più aggressiva della riga per rimuovere caratteri problematici
+    riga_clean = riga.strip().replace("\xa0", " ").replace("\u00A0", " ")
+    # Rimuove spazi multipli e normalizza
+    riga_clean = re.sub(r'\s+', ' ', riga_clean).upper()
+
+    # Debug: stampa la riga per vedere cosa stiamo analizzando
+    print(f"[DEBUG] Analizzando location: '{riga_clean}' (lunghezza: {len(riga_clean)})")
 
     # Match iniziale con INT., EXT., I/E. o senza punto (INT, EXT, I/E)
+    # Pattern più permissivo per gestire variazioni di spaziatura
     if re.match(r"^(INT\.?|EXT\.?|I/E\.?)\s+.+", riga_clean):
+        print(f"[DEBUG] ✅ MATCH INT/EXT: '{riga_clean}'")
         return True
+
+    # Verifica alternativa: inizia con INT o EXT seguito da spazio e altro testo
+    if re.match(r"^(INT|EXT|I/E)\s+[A-Z]", riga_clean):
+        print(f"[DEBUG] ✅ MATCH INT/EXT alternativo: '{riga_clean}'")
+        return True
+
+    # NUOVO: Pattern numero - descrizione - numero (es: "4   FULL SHOT - ENTERPRISE BRIDGE                                4")
+    # Questo pattern inizia con numero, ha del testo nel mezzo e finisce con numero
+    if re.match(r"^\d+\s+.+\s+\d+\s*$", riga_clean):
+        print(f"[DEBUG] ✅ MATCH numero-desc-numero: '{riga_clean}'")
+        return True
+
+    # NUOVO: Pattern simile ma con numeri alfanumerici (es: "4A  CLOSE UP - SPOCK'S FACE  4A")
+    if re.match(r"^(\d+[A-Za-z]*|[A-Za-z]*\d+)\s+.+\s+(\d+[A-Za-z]*|[A-Za-z]*\d+)\s*$", riga_clean):
+        print(f"[DEBUG] ✅ MATCH alfanumerico: '{riga_clean}'")
+        return True
+
+    # NUOVO: Pattern con trattino centrale che indica shot/location (es: "FULL SHOT - ENTERPRISE BRIDGE")
+    # Questo cattura righe che contengono pattern descrittivi cinematografici
+    shot_keywords = [
+        "FULL SHOT", "CLOSE UP", "MEDIUM SHOT", "WIDE SHOT", "EXTREME CLOSE UP",
+        "ESTABLISHING SHOT", "MASTER SHOT", "TWO SHOT", "OVER THE SHOULDER",
+        "POINT OF VIEW", "POV", "CUTAWAY", "INSERT"
+    ]
+    for keyword in shot_keywords:
+        if keyword in riga_clean and "-" in riga_clean:
+            print(f"[DEBUG] ✅ MATCH shot keyword '{keyword}': '{riga_clean}'")
+            return True
 
     # Contiene keyword tipiche di location
     location_keywords = [
@@ -223,12 +260,15 @@ def is_location_line(riga):
     ]
     for keyword in location_keywords:
         if keyword in riga_clean:
+            print(f"[DEBUG] ✅ MATCH location keyword '{keyword}': '{riga_clean}'")
             return True
 
     # Pattern: qualcosa seguito da "-" e un'indicazione temporale (es: DAY, NIGHT, CONTINUOUS, MOMENTS LATER)
-    if re.match(r"^.+\s*[-–—]\s*(DAY|NIGHT|CONTINUOUS|MOMENTS LATER|SAME TIME|LATER)$", riga_clean):
+    if re.match(r"^.+\s*[-–—]\s*(DAY|NIGHT|CONTINUOUS|MOMENTS LATER|SAME TIME|LATER|SAME)$", riga_clean):
+        print(f"[DEBUG] ✅ MATCH temporale: '{riga_clean}'")
         return True
 
+    print(f"[DEBUG] ❌ NO MATCH: '{riga_clean}'")
     return False
 
 
