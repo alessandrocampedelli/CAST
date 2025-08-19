@@ -274,7 +274,7 @@ def is_location_line(riga):
         print(f"[DEBUG] ✅ MATCH numero-desc-numero: '{riga_clean}'")
         return True
 
-    # NUOVO: Pattern simile ma con numeri alfanumerici (es: "4A  CLOSE UP - SPOCK'S FACE  4A")
+    # NUOVO: Pattern simile ma con numeri alfanumerici (es: "4A  CLOSE UP - SPOCK'S FACE  4A" o "A1 EXT. MANSION A1")
     if re.match(r"^(\d+[A-Za-z]*|[A-Za-z]*\d+)\s+.+\s+(\d+[A-Za-z]*|[A-Za-z]*\d+)\s*$", riga_clean):
         print(f"[DEBUG] ✅ MATCH alfanumerico: '{riga_clean}'")
         return True
@@ -490,8 +490,10 @@ def converti_in_tei(percorso_txt):
             riga_clean = riga.strip().replace("\xa0", " ").replace("\u00A0", " ")
             riga_clean = re.sub(r'\s+', ' ', riga_clean)
 
-            # Pattern: numero + descrizione + numero (es: "4   FULL SHOT - ENTERPRISE BRIDGE                                4")
-            numero_desc_numero_match = re.match(r'^(\d+[A-Za-z]*)\s+(.+?)\s+(\d+[A-Za-z]*)$', riga_clean)
+            # Pattern: numero/alfanumerico + descrizione + numero/alfanumerico
+            # (es: "4 FULL SHOT - ENTERPRISE BRIDGE 4" o "A1 EXT. ADDAMS MANSION FRONT STEPS - CHRISTMAS EVE A1")
+            numero_desc_numero_match = re.match(r'^([A-Za-z]*\d+[A-Za-z]*)\s+(.+?)\s+([A-Za-z]*\d+[A-Za-z]*)$',
+                                                riga_clean)
 
             if numero_desc_numero_match:
                 # Estrae SOLO la descrizione, ignora il numero originale
