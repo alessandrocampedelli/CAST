@@ -155,13 +155,57 @@ def is_transition_line(riga):
 
 
 def is_header_line(riga, next_line=None):
-    """Rileva righe di intestazione (titoli con date di revisione, ecc.)"""
+    """Rileva righe di intestazione e piè di pagina (titoli con date di revisione, copyright, ecc.)"""
     riga_clean = riga.strip()
 
-    # Rimuove eventuali caratteri di escape
+    # Rimuove eventuali caratteri di escape e caratteri Unicode problematici
     riga_senza_escape = re.sub(r'^[\f\x0c]+', '', riga_clean)
+    riga_senza_escape = re.sub(r'[^\x00-\x7F]+', ' ', riga_senza_escape)  # Rimuove caratteri non-ASCII
 
-    # ---- 1) Pattern classici già presenti ----
+    # ---- PIEDI DI PAGINA (NUOVI PATTERN) ----
+
+    # Pattern copyright generale: © o (C) o simboli Unicode copyright + anno + testo
+    if re.search(r'(©|\(C\)|COPYRIGHT|�)\s*\d{4}', riga_senza_escape, re.IGNORECASE):
+        return True
+
+    # Pattern specifico Disney/Pixar/Studios: "DISNEY", "PIXAR", "CONFIDENTIAL", etc.
+    footer_keywords = [
+        'DISNEY', 'PIXAR', 'MARVEL', 'LUCASFILM', 'DREAMWORKS', 'WARNER', 'PARAMOUNT',
+        'UNIVERSAL', 'SONY', 'FOX', 'MGM', 'LIONSGATE', 'A24', 'NETFLIX', 'AMAZON',
+        'CONFIDENTIAL', 'PRIVILEGED', 'PROPRIETARY', 'RESTRICTED', 'INTERNAL USE',
+        'DO NOT DISTRIBUTE', 'FOR YOUR CONSIDERATION', 'SCREENPLAY BY', 'WRITTEN BY',
+        'ALL RIGHTS RESERVED', 'PROPERTY OF'
+    ]
+
+    riga_upper = riga_senza_escape.upper()
+    for keyword in footer_keywords:
+        if keyword in riga_upper and re.search(r'\d{4}', riga_senza_escape):  # Con anno
+            return True
+
+    # Pattern "CONFIDENTIAL" anche senza anno
+    confidential_patterns = [
+        'CONFIDENTIAL', 'PRIVILEGED', 'PROPRIETARY', 'RESTRICTED',
+        'INTERNAL USE ONLY', 'DO NOT DISTRIBUTE', 'PRIVATE AND CONFIDENTIAL'
+    ]
+    for pattern in confidential_patterns:
+        if pattern in riga_upper:
+            return True
+
+    # Pattern con simboli speciali tipici di footer (es: "• 2023 STUDIO •")
+    if re.search(r'[•·▪▫■□●○◆◇★☆]+.*\d{4}.*[•·▪▫■□●○◆◇★☆]+', riga_senza_escape):
+        return True
+
+    # Pattern "Studio Name - Year" o "Year - Studio Name"
+    if re.search(r'(^|\s)\d{4}\s*[-–—]\s*[A-Z]', riga_senza_escape) or \
+            re.search(r'[A-Z]\s*[-–—]\s*\d{4}(\s|$)', riga_senza_escape):
+        return True
+
+    # Pattern con parentesi e anno: "(C) 2023" o "© 2023"
+    if re.search(r'\([Cc©]\)\s*\d{4}', riga_senza_escape):
+        return True
+
+    # ---- INTESTAZIONI ORIGINALI ----
+
     # Date di revisione tipo Rev. mm/dd/yyyy
     if re.search(r"- Rev\. \d{1,2}/\d{1,2}/\d{2,4}", riga_senza_escape):
         return True
@@ -175,13 +219,13 @@ def is_header_line(riga, next_line=None):
                  riga_senza_escape, re.IGNORECASE):
         return True
 
-    # ---- 2) Nuovo: date tra parentesi ----
+    # Date tra parentesi
     if re.search(
             r"\(\s*(January|February|March|April|May|June|July|August|September|October|November|December)\s+\d{1,2},\s+\d{4}\s*\)",
             riga_senza_escape, re.IGNORECASE):
         return True
 
-    # ---- 3) Righe tutte maiuscole che sembrano titoli ----
+    # Righe tutte maiuscole che sembrano titoli (escluse location)
     if (len(riga_senza_escape) > 20 and
             riga_senza_escape.isupper() and
             not riga_senza_escape.startswith("(") and
@@ -190,7 +234,7 @@ def is_header_line(riga, next_line=None):
         if len(riga_senza_escape.split()) > 4:
             return True
 
-    # ---- 4) Nuovo: titolo in maiuscolo + data sulla riga successiva ----
+    # Titolo in maiuscolo + data sulla riga successiva
     if (riga_senza_escape.isupper() and len(riga_senza_escape.split()) > 1 and next_line):
         next_clean = next_line.strip()
         if re.search(
@@ -543,6 +587,18 @@ def converti_in_tei(percorso_txt):
                         is_page_number(next_riga) or is_continued_line(next_riga) or
                         is_more_line(next_riga) or is_scene_number(next_riga)):
                     break
+
+                # NUOVO: Controlla anche header/footer durante la raccolta battute
+                if is_header_line(next_riga):
+                    print(f"[DEBUG] Saltato piè di pagina durante raccolta battute: {next_riga}")
+                    i += 1
+                    continue
+
+                # NUOVO: Controlla anche transizioni durante la raccolta battute
+                if is_transition_line(next_riga):
+                    print(f"[DEBUG] Saltata transizione durante raccolta battute: {next_riga}")
+                    i += 1
+                    continue
 
                 if next_riga:
                     battute.append(next_riga)
