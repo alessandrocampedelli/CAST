@@ -365,13 +365,32 @@ def is_speaker(riga):
 def is_continued_line(riga):
     """Rileva righe CONTINUED in tutte le varianti comuni"""
     riga_upper = riga.strip().upper()
-    return (
-            riga_upper == "(CONTINUED)" or
+
+    # Pattern originali
+    if (riga_upper == "(CONTINUED)" or
             riga_upper == "CONTINUED" or
             riga_upper == "CONTINUED:" or
             re.match(r"CONTINUED[:\s]*\(?\d+\)?", riga_upper) or
-            re.match(r"\(CONTINUED[:\s]*\d+\)", riga_upper)
-    )
+            re.match(r"\(CONTINUED[:\s]*\d+\)", riga_upper)):
+        return True
+
+    # NUOVO: Pattern numero-CONTINUED-numero (es: "2        CONTINUED:                                                            2")
+    # Questo deve essere controllato PRIMA del pattern numero-descrizione-numero in is_location_line
+    riga_clean = riga.strip().replace("\xa0", " ").replace("\u00A0", " ")
+    riga_clean = re.sub(r'\s+', ' ', riga_clean).upper()
+
+    # Pattern: numero + CONTINUED (con o senza :) + numero
+    if re.match(r'^\d+[A-Za-z]*\s+CONTINUED:?\s+\d+[A-Za-z]*\s*$', riga_clean):
+        print(f"[DEBUG] ✅ MATCH CONTINUED numero-desc-numero: '{riga_clean}'")
+        return True
+
+    # Pattern: solo CONTINUED con spazi e numeri intorno
+    if re.match(r'^\d+[A-Za-z]*\s+CONTINUED:?\s*$', riga_clean) or \
+            re.match(r'^\s*CONTINUED:?\s+\d+[A-Za-z]*\s*$', riga_clean):
+        print(f"[DEBUG] ✅ MATCH CONTINUED con numeri: '{riga_clean}'")
+        return True
+
+    return False
 
 
 def is_more_line(riga):
@@ -457,8 +476,15 @@ def converti_in_tei(percorso_txt):
         riga = corpo_righe[i].strip()
         next_line = corpo_righe[i + 1].strip() if i + 1 < len(corpo_righe) else None
 
-        # PRIORITÀ 1: RILEVA INIZIO NUOVA SCENA BASANDOSI SULLA LOCATION
-        # Questo deve essere controllato PRIMA dei numeri di pagina
+        # PRIORITÀ 1: Ignora righe CONTINUED (deve essere controllato PRIMA di is_location_line)
+        # Questo previene che pattern come "2 CONTINUED: 2" vengano interpretati come nuove scene
+        if is_continued_line(riga):
+            print(f"[DEBUG] Saltata riga CONTINUED (incluso pattern numero-CONTINUED-numero): {riga}")
+            i += 1
+            continue
+
+        # PRIORITÀ 2: RILEVA INIZIO NUOVA SCENA BASANDOSI SULLA LOCATION
+        # Questo deve essere controllato DOPO CONTINUED ma PRIMA dei numeri di pagina
         if is_location_line(riga):
             # Verifica se è il pattern numero-descrizione-numero sulla stessa riga
             riga_clean = riga.strip().replace("\xa0", " ").replace("\u00A0", " ")
@@ -522,7 +548,7 @@ def converti_in_tei(percorso_txt):
                 i += 1
                 continue
 
-        # PRIORITÀ 2: Ignora numeri di pagina (SOLO se non sono location)
+        # PRIORITÀ 3: Ignora numeri di pagina (SOLO se non sono location o continued)
         if is_page_number(riga):
             print(f"[DEBUG] Saltata pagina: {riga}")
             i += 1
@@ -531,12 +557,6 @@ def converti_in_tei(percorso_txt):
         # Ignora numeri di scena (ora non servono più per identificare scene)
         if is_scene_number(riga):
             print(f"[DEBUG] Saltato numero scena (ora ignorato): {riga}")
-            i += 1
-            continue
-
-        # Ignora righe CONTINUED
-        if is_continued_line(riga):
-            print(f"[DEBUG] Saltata riga CONTINUED: {riga}")
             i += 1
             continue
 
