@@ -29,7 +29,7 @@ def crea_elemento_testo(tag, testo):
 
 
 def is_scene_number(riga):
-    """Rileva se una riga è un numero di scena (cifre pure o alfanumerici come 11A, 11B, etc.)"""
+    """Rileva se una riga è un numero di scena (ora viene ignorato)"""
     riga_clean = riga.strip()
 
     # Pattern originale: solo cifre
@@ -49,41 +49,6 @@ def is_scene_number(riga):
         return True
 
     return False
-
-
-def parse_html_scene_line(riga):
-    """
-    Parsa una riga che contiene numero di scena + location in formato HTML
-    Esempio: "1   EXT. CASTLE GROUNDS - NIGHT                                1"
-    Ritorna: (numero_scena, location) o (None, None)
-    """
-    riga_clean = riga.strip()
-
-    # Pattern per righe con numero scena + location + numero scena ripetuto
-    # Esempio: "1   EXT. CASTLE GROUNDS - NIGHT                                1"
-    match = re.match(r'^(\d+[A-Za-z]*)\s+(.*?)\s+\1\s*$', riga_clean)
-    if match:
-        numero_scena = match.group(1)
-        location = match.group(2).strip()
-        if is_location_line(location):
-            return numero_scena, location
-
-    # Pattern per righe con solo numero scena + location (senza ripetizione)
-    # Esempio: "1   EXT. CASTLE GROUNDS - NIGHT"
-    match = re.match(r'^(\d+[A-Za-z]*)\s+(.*?)$', riga_clean)
-    if match:
-        numero_scena = match.group(1)
-        location = match.group(2).strip()
-        if is_location_line(location):
-            return numero_scena, location
-
-    return None, None
-
-
-def is_html_scene_line(riga):
-    """Rileva se una riga è nel formato HTML con scena+location"""
-    numero, location = parse_html_scene_line(riga)
-    return numero is not None and location is not None
 
 
 def is_page_number(riga):
@@ -190,13 +155,57 @@ def is_transition_line(riga):
 
 
 def is_header_line(riga, next_line=None):
-    """Rileva righe di intestazione (titoli con date di revisione, ecc.)"""
+    """Rileva righe di intestazione e piè di pagina (titoli con date di revisione, copyright, ecc.)"""
     riga_clean = riga.strip()
 
-    # Rimuove eventuali caratteri di escape
+    # Rimuove eventuali caratteri di escape e caratteri Unicode problematici
     riga_senza_escape = re.sub(r'^[\f\x0c]+', '', riga_clean)
+    riga_senza_escape = re.sub(r'[^\x00-\x7F]+', ' ', riga_senza_escape)  # Rimuove caratteri non-ASCII
 
-    # ---- 1) Pattern classici già presenti ----
+    # ---- PIEDI DI PAGINA (NUOVI PATTERN) ----
+
+    # Pattern copyright generale: © o (C) o simboli Unicode copyright + anno + testo
+    if re.search(r'(©|\(C\)|COPYRIGHT| )\s*\d{4}', riga_senza_escape, re.IGNORECASE):
+        return True
+
+    # Pattern specifico Disney/Pixar/Studios: "DISNEY", "PIXAR", "CONFIDENTIAL", etc.
+    footer_keywords = [
+        'DISNEY', 'PIXAR', 'MARVEL', 'LUCASFILM', 'DREAMWORKS', 'WARNER', 'PARAMOUNT',
+        'UNIVERSAL', 'SONY', 'FOX', 'MGM', 'LIONSGATE', 'A24', 'NETFLIX', 'AMAZON',
+        'CONFIDENTIAL', 'PRIVILEGED', 'PROPRIETARY', 'RESTRICTED', 'INTERNAL USE',
+        'DO NOT DISTRIBUTE', 'FOR YOUR CONSIDERATION', 'SCREENPLAY BY', 'WRITTEN BY',
+        'ALL RIGHTS RESERVED', 'PROPERTY OF'
+    ]
+
+    riga_upper = riga_senza_escape.upper()
+    for keyword in footer_keywords:
+        if keyword in riga_upper and re.search(r'\d{4}', riga_senza_escape):  # Con anno
+            return True
+
+    # Pattern "CONFIDENTIAL" anche senza anno
+    confidential_patterns = [
+        'CONFIDENTIAL', 'PRIVILEGED', 'PROPRIETARY', 'RESTRICTED',
+        'INTERNAL USE ONLY', 'DO NOT DISTRIBUTE', 'PRIVATE AND CONFIDENTIAL'
+    ]
+    for pattern in confidential_patterns:
+        if pattern in riga_upper:
+            return True
+
+    # Pattern con simboli speciali tipici di footer (es: "• 2023 STUDIO •")
+    if re.search(r'[•·▪▫■□●○◆◇★☆]+.*\d{4}.*[•·▪▫■□●○◆◇★☆]+', riga_senza_escape):
+        return True
+
+    # Pattern "Studio Name - Year" o "Year - Studio Name"
+    if re.search(r'(^|\s)\d{4}\s*[-–—]\s*[A-Z]', riga_senza_escape) or \
+            re.search(r'[A-Z]\s*[-–—]\s*\d{4}(\s|$)', riga_senza_escape):
+        return True
+
+    # Pattern con parentesi e anno: "(C) 2023" o "© 2023"
+    if re.search(r'\([Cc©]\)\s*\d{4}', riga_senza_escape):
+        return True
+
+    # ---- INTESTAZIONI ORIGINALI ----
+
     # Date di revisione tipo Rev. mm/dd/yyyy
     if re.search(r"- Rev\. \d{1,2}/\d{1,2}/\d{2,4}", riga_senza_escape):
         return True
@@ -210,13 +219,13 @@ def is_header_line(riga, next_line=None):
                  riga_senza_escape, re.IGNORECASE):
         return True
 
-    # ---- 2) Nuovo: date tra parentesi ----
+    # Date tra parentesi
     if re.search(
             r"\(\s*(January|February|March|April|May|June|July|August|September|October|November|December)\s+\d{1,2},\s+\d{4}\s*\)",
             riga_senza_escape, re.IGNORECASE):
         return True
 
-    # ---- 3) Righe tutte maiuscole che sembrano titoli ----
+    # Righe tutte maiuscole che sembrano titoli (escluse location)
     if (len(riga_senza_escape) > 20 and
             riga_senza_escape.isupper() and
             not riga_senza_escape.startswith("(") and
@@ -225,7 +234,7 @@ def is_header_line(riga, next_line=None):
         if len(riga_senza_escape.split()) > 4:
             return True
 
-    # ---- 4) Nuovo: titolo in maiuscolo + data sulla riga successiva ----
+    # Titolo in maiuscolo + data sulla riga successiva
     if (riga_senza_escape.isupper() and len(riga_senza_escape.split()) > 1 and next_line):
         next_clean = next_line.strip()
         if re.search(
@@ -237,12 +246,50 @@ def is_header_line(riga, next_line=None):
 
 
 def is_location_line(riga):
-    """Rileva righe che rappresentano location di scena (INT., EXT., I/E., ecc.)"""
-    riga_clean = riga.strip().replace("\xa0", " ").upper()
+    """Rileva righe che rappresentano location di scena (INT., EXT., I/E., ecc.)
+    QUESTA È ORA LA FUNZIONE CHIAVE PER IDENTIFICARE NUOVE SCENE"""
+
+    # Pulizia più aggressiva della riga per rimuovere caratteri problematici
+    riga_clean = riga.strip().replace("\xa0", " ").replace("\u00A0", " ")
+    # Rimuove spazi multipli e normalizza
+    riga_clean = re.sub(r'\s+', ' ', riga_clean).upper()
+
+    # Debug: stampa la riga per vedere cosa stiamo analizzando
+    print(f"[DEBUG] Analizzando location: '{riga_clean}' (lunghezza: {len(riga_clean)})")
 
     # Match iniziale con INT., EXT., I/E. o senza punto (INT, EXT, I/E)
+    # Pattern più permissivo per gestire variazioni di spaziatura
     if re.match(r"^(INT\.?|EXT\.?|I/E\.?)\s+.+", riga_clean):
+        print(f"[DEBUG] ✅ MATCH INT/EXT: '{riga_clean}'")
         return True
+
+    # Verifica alternativa: inizia con INT o EXT seguito da spazio e altro testo
+    if re.match(r"^(INT|EXT|I/E)\s+[A-Z]", riga_clean):
+        print(f"[DEBUG] ✅ MATCH INT/EXT alternativo: '{riga_clean}'")
+        return True
+
+    # NUOVO: Pattern numero - descrizione - numero (es: "4   FULL SHOT - ENTERPRISE BRIDGE                                4")
+    # Questo pattern inizia con numero, ha del testo nel mezzo e finisce con numero
+    if re.match(r"^\d+\s+.+\s+\d+\s*$", riga_clean):
+        print(f"[DEBUG] ✅ MATCH numero-desc-numero: '{riga_clean}'")
+        return True
+
+    # NUOVO: Pattern simile ma con numeri alfanumerici (es: "4A  CLOSE UP - SPOCK'S FACE  4A" o "A1 EXT. MANSION A1")
+    if re.match(r"^(\d+[A-Za-z]*|[A-Za-z]*\d+)\s+.+\s+(\d+[A-Za-z]*|[A-Za-z]*\d+)\s*$", riga_clean):
+        print(f"[DEBUG] ✅ MATCH alfanumerico: '{riga_clean}'")
+        return True
+
+    # NUOVO: Pattern con trattino centrale che indica shot/location (es: "FULL SHOT - ENTERPRISE BRIDGE")
+    # Questo cattura righe che contengono pattern descrittivi cinematografici
+    shot_keywords = [
+        "FULL SHOT", "CLOSE UP", "MEDIUM SHOT", "WIDE SHOT", "EXTREME CLOSE UP",
+        "ESTABLISHING SHOT", "MASTER SHOT", "TWO SHOT", "OVER THE SHOULDER",
+        "POINT OF VIEW", "POV", "CUTAWAY", "INSERT"
+    ]
+    for keyword in shot_keywords:
+        if keyword in riga_clean and "-" in riga_clean:
+            print(f"[DEBUG] ✅ MATCH shot keyword '{keyword}': '{riga_clean}'")
+            return True
 
     # Contiene keyword tipiche di location
     location_keywords = [
@@ -257,14 +304,16 @@ def is_location_line(riga):
     ]
     for keyword in location_keywords:
         if keyword in riga_clean:
+            print(f"[DEBUG] ✅ MATCH location keyword '{keyword}': '{riga_clean}'")
             return True
 
     # Pattern: qualcosa seguito da "-" e un'indicazione temporale (es: DAY, NIGHT, CONTINUOUS, MOMENTS LATER)
-    if re.match(r"^.+\s*[-–—]\s*(DAY|NIGHT|CONTINUOUS|MOMENTS LATER|SAME TIME|LATER)$", riga_clean):
+    if re.match(r"^.+\s*[-–—]\s*(DAY|NIGHT|CONTINUOUS|MOMENTS LATER|SAME TIME|LATER|SAME)$", riga_clean):
+        print(f"[DEBUG] ✅ MATCH temporale: '{riga_clean}'")
         return True
 
+    print(f"[DEBUG] ❌ NO MATCH: '{riga_clean}'")
     return False
-
 
 def is_speaker(riga):
     """Rileva righe che rappresentano uno speaker (personaggio che parla)"""
@@ -274,8 +323,8 @@ def is_speaker(riga):
     riga_clean = riga.strip()
     base_name = riga_clean.split("(")[0].strip()
 
-    # Ammessi: apostrofo, #, numeri e trattino
-    allowed_chars = set("'#-0123456789")
+    # Ammessi: apostrofo, #, numeri, trattino e punto (per titoli come MR., DR., etc.)
+    allowed_chars = set("'#-0123456789.")
     punctuation_check = "".join(ch for ch in string.punctuation if ch not in allowed_chars)
 
     # Esclude se contiene punteggiatura non ammessa
@@ -290,14 +339,62 @@ def is_speaker(riga):
     if base_name in ["CONTINUED", "CONTINUED:"]:
         return False
 
-    # Conta parole "non maiuscole" per permettere eccezioni tipo McGONAGALL, O'Neil, De Gaulle
-    words = base_name.split()
-    lowercase_tolerated = all(
-        w.isupper() or re.match(r"^(Mc|O'|D[ae])", w) or w[0].isupper()
-        for w in words
-    )
+    # NUOVI CONTROLLI: Esclude descrizioni che non sono speaker
 
-    # Speaker tipico: tutto maiuscolo o quasi, poche parole
+    # 1. Esclude se contiene virgole (tipico delle descrizioni narrative)
+    if "," in riga_clean:
+        return False
+
+    # 2. Esclude se contiene articoli o preposizioni tipiche delle descrizioni
+    description_words = {
+        "A", "AN", "THE", "IN", "ON", "AT", "OF", "FOR", "WITH", "BY", "FROM", "TO",
+        "LIVING", "DEAD", "OLD", "YOUNG", "SMALL", "BIG", "TALL", "SHORT", "FAT", "THIN",
+        "CONVALESCING", "SITTING", "STANDING", "WALKING", "RUNNING", "LYING", "MOVING"
+    }
+
+    # 2. Esclude se termina con punto ma non è un titolo (es. "Blake." non è speaker, ma "MR." sì)
+    if riga_clean.endswith('.') and not re.match(r'^(MR|MRS|MS|DR|PROF|SIR|LADY)\.$', riga_clean.upper()):
+        return False
+
+    words_upper = [w.upper() for w in riga_clean.split()]
+    if any(word in description_words for word in words_upper):
+        return False
+
+    # 3. Esclude se la riga è troppo lunga per essere uno speaker (probabilmente descrizione)
+    if len(riga_clean) > 50:  # Speaker raramente superano i 50 caratteri
+        return False
+
+    # 4. Esclude pattern tipici di descrizione con età: "NOME (numero)"
+    if re.search(r'\(\d+\)', riga_clean):
+        # Verifica se dopo i numeri c'è altro testo (segno di descrizione)
+        parentheses_content = re.search(r'\(([^)]+)\)', riga_clean)
+        if parentheses_content and not re.match(r'^\d+$', parentheses_content.group(1)):
+            return False
+        # Se c'è testo dopo le parentesi con età, è una descrizione
+        if re.search(r'\(\d+\).+', riga_clean):
+            return False
+
+    # Conta parole "non maiuscole" per permettere eccezioni
+    words = base_name.split()
+
+    # MODIFICA: Gestione migliorata per speaker numerati come "SPEAKER #1", "PERSON #2" etc.
+    lowercase_tolerated = True
+    for w in words:
+        # Pattern speciali ammessi:
+        # - Tutto maiuscolo (normale)
+        # - Prefissi come Mc, O', De (per nomi stranieri)
+        # - Prima lettera maiuscola (per casi misti)
+        # - Solo # seguito da numeri (per speaker numerati)
+        # - Solo numeri (per speaker numerati)
+        if not (w.isupper() or
+                re.match(r"^(Mc|O'|D[ae])", w) or
+                w[0].isupper() or
+                re.match(r"^#\d+$", w) or  # Pattern #1, #2, etc.
+                w.isdigit()):  # Numeri semplici
+            lowercase_tolerated = False
+            break
+
+    # Speaker tipico: tutto maiuscolo o quasi, poche parole (ridotto nuovamente a 4 per maggiore precisione)
     if lowercase_tolerated and len(words) <= 4 and not riga_clean.startswith("("):
         return True
 
@@ -311,17 +408,35 @@ def is_speaker(riga):
 
     return False
 
-
 def is_continued_line(riga):
     """Rileva righe CONTINUED in tutte le varianti comuni"""
     riga_upper = riga.strip().upper()
-    return (
-            riga_upper == "(CONTINUED)" or
+
+    # Pattern originali
+    if (riga_upper == "(CONTINUED)" or
             riga_upper == "CONTINUED" or
             riga_upper == "CONTINUED:" or
             re.match(r"CONTINUED[:\s]*\(?\d+\)?", riga_upper) or
-            re.match(r"\(CONTINUED[:\s]*\d+\)", riga_upper)
-    )
+            re.match(r"\(CONTINUED[:\s]*\d+\)", riga_upper)):
+        return True
+
+    # NUOVO: Pattern numero-CONTINUED-numero (es: "2        CONTINUED:                                                            2")
+    # Questo deve essere controllato PRIMA del pattern numero-descrizione-numero in is_location_line
+    riga_clean = riga.strip().replace("\xa0", " ").replace("\u00A0", " ")
+    riga_clean = re.sub(r'\s+', ' ', riga_clean).upper()
+
+    # Pattern: numero + CONTINUED (con o senza :) + numero
+    if re.match(r'^\d+[A-Za-z]*\s+CONTINUED:?\s+\d+[A-Za-z]*\s*$', riga_clean):
+        print(f"[DEBUG] ✅ MATCH CONTINUED numero-desc-numero: '{riga_clean}'")
+        return True
+
+    # Pattern: solo CONTINUED con spazi e numeri intorno
+    if re.match(r'^\d+[A-Za-z]*\s+CONTINUED:?\s*$', riga_clean) or \
+            re.match(r'^\s*CONTINUED:?\s+\d+[A-Za-z]*\s*$', riga_clean):
+        print(f"[DEBUG] ✅ MATCH CONTINUED con numeri: '{riga_clean}'")
+        return True
+
+    return False
 
 
 def is_more_line(riga):
@@ -370,42 +485,11 @@ def extract_title_from_filename(filename):
         return normalized_title
 
 
-def detect_source_type(righe):
-    """
-    Rileva se il copione proviene da fonte HTML o PDF analizzando la struttura.
-    Ritorna: 'html' o 'pdf'
-    """
-    html_indicators = 0
-    pdf_indicators = 0
-
-    for i, riga in enumerate(righe):
-        # Indicatori formato HTML
-        if is_html_scene_line(riga):
-            html_indicators += 2
-
-        # Indicatori formato PDF
-        if is_scene_number(riga) and i + 1 < len(righe):
-            next_riga = righe[i + 1].strip()
-            if is_location_line(next_riga):
-                pdf_indicators += 2
-
-    print(f"[DEBUG] HTML indicators: {html_indicators}, PDF indicators: {pdf_indicators}")
-
-    if html_indicators > pdf_indicators:
-        return 'html'
-    else:
-        return 'pdf'
-
-
 def converti_in_tei(percorso_txt):
     with open(percorso_txt, 'r', encoding='utf-8') as f:
         righe = [r.strip() for r in f if r.strip()]
 
     print(f"[DEBUG] Totale righe lette: {len(righe)}")
-
-    # Rileva il tipo di sorgente
-    source_type = detect_source_type(righe)
-    print(f"[DEBUG] Tipo sorgente rilevato: {source_type}")
 
     # Estrae il titolo dal nome del file invece che dalla prima riga
     filename = os.path.basename(percorso_txt)
@@ -428,26 +512,99 @@ def converti_in_tei(percorso_txt):
     body = ET.SubElement(text, "body")
 
     scena_corrente = None
-    numeri_scene_gia_creati = set()
+    scene_counter = 1  # Contatore progressivo delle scene
     speaker_corrente = None
     ultimo_sp_element = None
     speech_in_continuazione = False
-    scene_counter = 1  # Contatore per scene senza numero esplicito
     i = 0
 
     while i < len(corpo_righe):
         riga = corpo_righe[i].strip()
         next_line = corpo_righe[i + 1].strip() if i + 1 < len(corpo_righe) else None
 
-        # Ignora numeri di pagina
+        # PRIORITÀ 1: Ignora righe CONTINUED (deve essere controllato PRIMA di is_location_line)
+        # Questo previene che pattern come "2 CONTINUED: 2" vengano interpretati come nuove scene
+        if is_continued_line(riga):
+            print(f"[DEBUG] Saltata riga CONTINUED (incluso pattern numero-CONTINUED-numero): {riga}")
+            i += 1
+            continue
+
+        # PRIORITÀ 2: RILEVA INIZIO NUOVA SCENA BASANDOSI SULLA LOCATION
+        # Questo deve essere controllato DOPO CONTINUED ma PRIMA dei numeri di pagina
+        if is_location_line(riga):
+            # Verifica se è il pattern numero-descrizione-numero sulla stessa riga
+            riga_clean = riga.strip().replace("\xa0", " ").replace("\u00A0", " ")
+            riga_clean = re.sub(r'\s+', ' ', riga_clean)
+
+            # Pattern: numero/alfanumerico + descrizione + numero/alfanumerico
+            # (es: "4 FULL SHOT - ENTERPRISE BRIDGE 4" o "A1 EXT. ADDAMS MANSION FRONT STEPS - CHRISTMAS EVE A1")
+            numero_desc_numero_match = re.match(r'^([A-Za-z]*\d+[A-Za-z]*)\s+(.+?)\s+([A-Za-z]*\d+[A-Za-z]*)$',
+                                                riga_clean)
+
+            if numero_desc_numero_match:
+                # Estrae SOLO la descrizione, ignora il numero originale
+                location_description = numero_desc_numero_match.group(2).strip()
+                # Usa numerazione automatica
+                numero_scena = str(scene_counter)
+
+                print(f"[DEBUG] === NUOVA SCENA {numero_scena} (auto-generata da pattern numero-desc-numero) ===")
+                print(f"[DEBUG] Location estratta: {location_description}")
+                print(f"[DEBUG] Numero originale ignorato: {numero_desc_numero_match.group(1)}")
+
+                # Crea la scena usando numerazione automatica
+                scena_corrente = ET.SubElement(body, "div", type="scene")
+                scena_corrente.set("n", numero_scena)
+
+                # Aggiunge la location estratta
+                ET.SubElement(scena_corrente, "stage", type="location").text = location_description
+
+                # Reset dello speaker quando inizia nuova scena
+                speaker_corrente = None
+                ultimo_sp_element = None
+                speech_in_continuazione = False
+
+                # Incrementa il contatore delle scene
+                scene_counter += 1
+
+                print(f"[DEBUG] Scena {numero_scena} creata con location: {location_description}")
+                i += 1
+                continue
+            else:
+                # Location line normale (INT./EXT./etc.) - usa numerazione automatica
+                numero_scena = str(scene_counter)
+                location_line = riga
+
+                print(f"[DEBUG] === NUOVA SCENA {numero_scena} (auto-generata) ===")
+                print(f"[DEBUG] Location: {location_line}")
+
+                # Crea la scena con numerazione automatica
+                scena_corrente = ET.SubElement(body, "div", type="scene")
+                scena_corrente.set("n", numero_scena)
+
+                # Aggiunge la location
+                ET.SubElement(scena_corrente, "stage", type="location").text = location_line
+
+                # Reset dello speaker quando inizia nuova scena
+                speaker_corrente = None
+                ultimo_sp_element = None
+                speech_in_continuazione = False
+
+                # Incrementa il contatore delle scene
+                scene_counter += 1
+
+                print(f"[DEBUG] Scena {numero_scena} creata con location: {location_line}")
+                i += 1
+                continue
+
+        # PRIORITÀ 3: Ignora numeri di pagina (SOLO se non sono location o continued)
         if is_page_number(riga):
             print(f"[DEBUG] Saltata pagina: {riga}")
             i += 1
             continue
 
-        # Ignora righe CONTINUED
-        if is_continued_line(riga):
-            print(f"[DEBUG] Saltata riga CONTINUED: {riga}")
+        # Ignora numeri di scena (ora non servono più per identificare scene)
+        if is_scene_number(riga):
+            print(f"[DEBUG] Saltato numero scena (ora ignorato): {riga}")
             i += 1
             continue
 
@@ -470,117 +627,8 @@ def converti_in_tei(percorso_txt):
             i += 1
             continue
 
-        # GESTIONE FORMATO HTML: scene+location sulla stessa riga
-        if source_type == 'html' and is_html_scene_line(riga):
-            numero_scena, location_line = parse_html_scene_line(riga)
-
-            if numero_scena in numeri_scene_gia_creati:
-                print(f"[DEBUG] Scena {numero_scena} già creata, salto")
-                i += 1
-                continue
-
-            print(f"[DEBUG] === NUOVA SCENA HTML {numero_scena} ===")
-
-            scena_corrente = ET.SubElement(body, "div", type="scene")
-            scena_corrente.set("n", numero_scena)
-            numeri_scene_gia_creati.add(numero_scena)
-
-            if location_line:
-                ET.SubElement(scena_corrente, "stage", type="location").text = location_line
-
-            print(f"[DEBUG] Scena HTML {numero_scena} creata con location: {location_line}")
-            i += 1
-            continue
-
-        # GESTIONE FORMATO PDF: RILEVA INIZIO NUOVA SCENA (numero separato)
-        if source_type == 'pdf' and is_scene_number(riga):
-            numero_scena = riga
-
-            # Verifica se la scena è già stata creata
-            if numero_scena in numeri_scene_gia_creati:
-                print(f"[DEBUG] Scena {numero_scena} già creata, salto")
-                i += 1
-                continue
-
-            print(f"[DEBUG] === NUOVA SCENA PDF {numero_scena} ===")
-
-            # Prossima riga: location
-            i += 1
-            location_line = None
-
-            # Salta eventuali numeri di pagina o ripetizioni
-            while i < len(corpo_righe):
-                possibile_location = corpo_righe[i].strip()
-
-                if is_page_number(possibile_location):
-                    print(f"[DEBUG] Saltata pagina durante ricerca location: {possibile_location}")
-                    i += 1
-                    continue
-                elif possibile_location == numero_scena:
-                    print(f"[DEBUG] Saltato numero scena ripetuto: {possibile_location}")
-                    i += 1
-                    continue
-                elif is_continued_line(possibile_location):
-                    print(f"[DEBUG] Saltata riga CONTINUED durante ricerca location: {possibile_location}")
-                    i += 1
-                    continue
-                else:
-                    break
-
-            # Verifica se è una location
-            if i < len(corpo_righe):
-                possibile_location = corpo_righe[i].strip()
-                if is_location_line(possibile_location):
-                    location_line = possibile_location
-                    print(f"[DEBUG] Location trovata: {location_line}")
-                    i += 1
-                else:
-                    print(f"[DEBUG] Nessuna location trovata, riga: '{possibile_location}'")
-
-            # Crea la scena
-            scena_corrente = ET.SubElement(body, "div", type="scene")
-            scena_corrente.set("n", numero_scena)
-            numeri_scene_gia_creati.add(numero_scena)
-
-            if location_line:
-                ET.SubElement(scena_corrente, "stage", type="location").text = location_line
-
-            print(f"[DEBUG] Scena PDF {numero_scena} creata con location: {location_line}")
-            continue
-
-        # GESTIONE LOCATION: ogni location inizia una nuova scena automatica
-        if is_location_line(riga):
-            numero_scena_auto = f"auto_{scene_counter}"
-            print(f"[DEBUG] === NUOVA SCENA AUTOMATICA PER LOCATION {numero_scena_auto} ===")
-
-            # Crea sempre una nuova scena quando si incontra una location
-            scena_corrente = ET.SubElement(body, "div", type="scene")
-            scena_corrente.set("n", numero_scena_auto)
-            numeri_scene_gia_creati.add(numero_scena_auto)
-            scene_counter += 1
-
-            # Reset dei riferimenti al speaker precedente per la nuova scena
-            speaker_corrente = None
-            ultimo_sp_element = None
-            speech_in_continuazione = False
-
-            ET.SubElement(scena_corrente, "stage", type="location").text = riga
-            print(f"[DEBUG] Scena automatica {numero_scena_auto} creata con location: {riga}")
-            i += 1
-            continue
-
         # RILEVA SPEAKER E BATTUTE
-        if is_speaker(riga):
-            # Se non c'è una scena corrente, creane una automatica
-            if scena_corrente is None:
-                numero_scena_auto = f"auto_{scene_counter}"
-                print(f"[DEBUG] === CREAZIONE SCENA AUTOMATICA PER SPEAKER {numero_scena_auto} ===")
-
-                scena_corrente = ET.SubElement(body, "div", type="scene")
-                scena_corrente.set("n", numero_scena_auto)
-                numeri_scene_gia_creati.add(numero_scena_auto)
-                scene_counter += 1
-
+        if is_speaker(riga) and scena_corrente is not None:
             speaker_name = extract_speaker_name(riga)
             is_continuation = is_continuation_speaker(riga)
 
@@ -602,12 +650,23 @@ def converti_in_tei(percorso_txt):
             while i < len(corpo_righe):
                 next_riga = corpo_righe[i].strip()
 
-                # Stop conditions
-                if (is_speaker(next_riga) or is_scene_number(next_riga) or
-                        is_location_line(next_riga) or is_page_number(next_riga) or
-                        is_continued_line(next_riga) or is_more_line(next_riga) or
-                        is_html_scene_line(next_riga)):
+                # Stop conditions - MODIFICATO: non più is_scene_number ma is_location_line
+                if (is_speaker(next_riga) or is_location_line(next_riga) or
+                        is_page_number(next_riga) or is_continued_line(next_riga) or
+                        is_more_line(next_riga) or is_scene_number(next_riga)):
                     break
+
+                # NUOVO: Controlla anche header/footer durante la raccolta battute
+                if is_header_line(next_riga):
+                    print(f"[DEBUG] Saltato piè di pagina durante raccolta battute: {next_riga}")
+                    i += 1
+                    continue
+
+                # NUOVO: Controlla anche transizioni durante la raccolta battute
+                if is_transition_line(next_riga):
+                    print(f"[DEBUG] Saltata transizione durante raccolta battute: {next_riga}")
+                    i += 1
+                    continue
 
                 if next_riga:
                     battute.append(next_riga)
@@ -639,18 +698,8 @@ def converti_in_tei(percorso_txt):
                     print(f"[DEBUG] Creata nuova speech con {len(battute)} battute")
             continue
 
-        # DESCRIZIONI SCENE
-        if riga:
-            # Se non c'è una scena corrente, creane una automatica
-            if scena_corrente is None:
-                numero_scena_auto = f"auto_{scene_counter}"
-                print(f"[DEBUG] === CREAZIONE SCENA AUTOMATICA PER DESCRIZIONE {numero_scena_auto} ===")
-
-                scena_corrente = ET.SubElement(body, "div", type="scene")
-                scena_corrente.set("n", numero_scena_auto)
-                numeri_scene_gia_creati.add(numero_scena_auto)
-                scene_counter += 1
-
+        # DESCRIZIONI SCENE (stage directions)
+        if scena_corrente is not None and riga:
             ET.SubElement(scena_corrente, "stage").text = riga
             print(f"[DEBUG] Aggiunta descrizione: {riga[:50]}...")
 
