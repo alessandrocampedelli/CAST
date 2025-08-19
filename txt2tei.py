@@ -351,6 +351,11 @@ def is_speaker(riga):
         "LIVING", "DEAD", "OLD", "YOUNG", "SMALL", "BIG", "TALL", "SHORT", "FAT", "THIN",
         "CONVALESCING", "SITTING", "STANDING", "WALKING", "RUNNING", "LYING", "MOVING"
     }
+
+    # 2. Esclude se termina con punto ma non è un titolo (es. "Blake." non è speaker, ma "MR." sì)
+    if riga_clean.endswith('.') and not re.match(r'^(MR|MRS|MS|DR|PROF|SIR|LADY)\.$', riga_clean.upper()):
+        return False
+
     words_upper = [w.upper() for w in riga_clean.split()]
     if any(word in description_words for word in words_upper):
         return False
