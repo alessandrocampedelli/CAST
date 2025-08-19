@@ -340,14 +340,57 @@ def is_speaker(riga):
     if base_name in ["CONTINUED", "CONTINUED:"]:
         return False
 
-    # Conta parole "non maiuscole" per permettere eccezioni tipo McGONAGALL, O'Neil, De Gaulle
-    words = base_name.split()
-    lowercase_tolerated = all(
-        w.isupper() or re.match(r"^(Mc|O'|D[ae])", w) or w[0].isupper()
-        for w in words
-    )
+    # NUOVI CONTROLLI: Esclude descrizioni che non sono speaker
 
-    # Speaker tipico: tutto maiuscolo o quasi, poche parole
+    # 1. Esclude se contiene virgole (tipico delle descrizioni narrative)
+    if "," in riga_clean:
+        return False
+
+    # 2. Esclude se contiene articoli o preposizioni tipiche delle descrizioni
+    description_words = {
+        "A", "AN", "THE", "IN", "ON", "AT", "OF", "FOR", "WITH", "BY", "FROM", "TO",
+        "LIVING", "DEAD", "OLD", "YOUNG", "SMALL", "BIG", "TALL", "SHORT", "FAT", "THIN",
+        "CONVALESCING", "SITTING", "STANDING", "WALKING", "RUNNING", "LYING", "MOVING"
+    }
+    words_upper = [w.upper() for w in riga_clean.split()]
+    if any(word in description_words for word in words_upper):
+        return False
+
+    # 3. Esclude se la riga è troppo lunga per essere uno speaker (probabilmente descrizione)
+    if len(riga_clean) > 50:  # Speaker raramente superano i 50 caratteri
+        return False
+
+    # 4. Esclude pattern tipici di descrizione con età: "NOME (numero)"
+    if re.search(r'\(\d+\)', riga_clean):
+        # Verifica se dopo i numeri c'è altro testo (segno di descrizione)
+        parentheses_content = re.search(r'\(([^)]+)\)', riga_clean)
+        if parentheses_content and not re.match(r'^\d+$', parentheses_content.group(1)):
+            return False
+        # Se c'è testo dopo le parentesi con età, è una descrizione
+        if re.search(r'\(\d+\).+', riga_clean):
+            return False
+
+    # Conta parole "non maiuscole" per permettere eccezioni
+    words = base_name.split()
+
+    # MODIFICA: Gestione migliorata per speaker numerati come "SPEAKER #1", "PERSON #2" etc.
+    lowercase_tolerated = True
+    for w in words:
+        # Pattern speciali ammessi:
+        # - Tutto maiuscolo (normale)
+        # - Prefissi come Mc, O', De (per nomi stranieri)
+        # - Prima lettera maiuscola (per casi misti)
+        # - Solo # seguito da numeri (per speaker numerati)
+        # - Solo numeri (per speaker numerati)
+        if not (w.isupper() or
+                re.match(r"^(Mc|O'|D[ae])", w) or
+                w[0].isupper() or
+                re.match(r"^#\d+$", w) or  # Pattern #1, #2, etc.
+                w.isdigit()):  # Numeri semplici
+            lowercase_tolerated = False
+            break
+
+    # Speaker tipico: tutto maiuscolo o quasi, poche parole (ridotto nuovamente a 4 per maggiore precisione)
     if lowercase_tolerated and len(words) <= 4 and not riga_clean.startswith("("):
         return True
 
