@@ -165,7 +165,7 @@ def is_header_line(riga, next_line=None):
     # ---- PIEDI DI PAGINA (NUOVI PATTERN) ----
 
     # Pattern copyright generale: © o (C) o simboli Unicode copyright + anno + testo
-    if re.search(r'(©|\(C\)|COPYRIGHT|�)\s*\d{4}', riga_senza_escape, re.IGNORECASE):
+    if re.search(r'(©|\(C\)|COPYRIGHT| )\s*\d{4}', riga_senza_escape, re.IGNORECASE):
         return True
 
     # Pattern specifico Disney/Pixar/Studios: "DISNEY", "PIXAR", "CONFIDENTIAL", etc.
