@@ -315,7 +315,6 @@ def is_location_line(riga):
     print(f"[DEBUG] ❌ NO MATCH: '{riga_clean}'")
     return False
 
-
 def is_speaker(riga):
     """Rileva righe che rappresentano uno speaker (personaggio che parla)"""
     if not riga.strip():
@@ -324,8 +323,8 @@ def is_speaker(riga):
     riga_clean = riga.strip()
     base_name = riga_clean.split("(")[0].strip()
 
-    # Ammessi: apostrofo, #, numeri e trattino
-    allowed_chars = set("'#-0123456789")
+    # Ammessi: apostrofo, #, numeri, trattino e punto (per titoli come MR., DR., etc.)
+    allowed_chars = set("'#-0123456789.")
     punctuation_check = "".join(ch for ch in string.punctuation if ch not in allowed_chars)
 
     # Esclude se contiene punteggiatura non ammessa
@@ -403,7 +402,6 @@ def is_speaker(riga):
         return True
 
     return False
-
 
 def is_continued_line(riga):
     """Rileva righe CONTINUED in tutte le varianti comuni"""
