@@ -6,7 +6,7 @@ from bs4 import BeautifulSoup
 from pdfminer.high_level import extract_text_to_fp
 from pdfminer.layout import LAParams
 
-INPUT_DIR = "copioni_pdf"
+INPUT_DIR = "input/copioni_pdf"
 OUTPUT_DIR = "copioni_txt"
 
 def estrai_da_imsdb(url, output_path):
@@ -75,7 +75,7 @@ def main():
     os.makedirs(OUTPUT_DIR, exist_ok=True)
 
     # --- Estrazione da file siti.txt ---
-    path_siti = "siti.txt"
+    path_siti = "input/siti.txt"
     if os.path.exists(path_siti):
         with open(path_siti, 'r', encoding='utf-8') as f:
             urls = [riga.strip() for riga in f if riga.strip()]
