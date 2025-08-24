@@ -249,65 +249,115 @@ def is_location_line(riga):
 
     # Pulizia più aggressiva della riga per rimuovere caratteri problematici
     riga_clean = riga.strip().replace("\xa0", " ").replace("\u00A0", " ")
-    # Rimuove spazi multipli e normalizza
+    riga_original = riga_clean  # Mantieni versione originale per alcuni controlli
     riga_clean = re.sub(r'\s+', ' ', riga_clean).upper()
 
-    # Debug: stampa la riga per vedere cosa stiamo analizzando
     print(f"[DEBUG] Analizzando location: '{riga_clean}' (lunghezza: {len(riga_clean)})")
 
-    # Match iniziale con INT., EXT., I/E. o senza punto (INT, EXT, I/E)
-    # Pattern più permissivo per gestire variazioni di spaziatura
+    # ====== MATCH DEFINITIVI - ALTA PRIORITÀ ======
+
+    # 1. Standard cinematografici: INT., EXT., I/E.
     if re.match(r"^(INT\.?|EXT\.?|I/E\.?)\s+.+", riga_clean):
         print(f"[DEBUG] ✅ MATCH INT/EXT: '{riga_clean}'")
         return True
 
-    # Verifica alternativa: inizia con INT o EXT seguito da spazio e altro testo
-    if re.match(r"^(INT|EXT|I/E)\s+[A-Z]", riga_clean):
-        print(f"[DEBUG] ✅ MATCH INT/EXT alternativo: '{riga_clean}'")
-        return True
-
-    # NUOVO: Pattern numero - descrizione - numero (es: "4   FULL SHOT - ENTERPRISE BRIDGE                                4")
-    # Questo pattern inizia con numero, ha del testo nel mezzo e finisce con numero
-    if re.match(r"^\d+\s+.+\s+\d+\s*$", riga_clean):
-        print(f"[DEBUG] ✅ MATCH numero-desc-numero: '{riga_clean}'")
-        return True
-
-    # NUOVO: Pattern simile ma con numeri alfanumerici (es: "4A  CLOSE UP - SPOCK'S FACE  4A" o "A1 EXT. MANSION A1")
+    # 2. Pattern numerati delle scene: numero - descrizione - numero
     if re.match(r"^(\d+[A-Za-z]*|[A-Za-z]*\d+)\s+.+\s+(\d+[A-Za-z]*|[A-Za-z]*\d+)\s*$", riga_clean):
-        print(f"[DEBUG] ✅ MATCH alfanumerico: '{riga_clean}'")
+        print(f"[DEBUG] ✅ MATCH pattern numerato: '{riga_clean}'")
         return True
 
-    # NUOVO: Pattern con trattino centrale che indica shot/location (es: "FULL SHOT - ENTERPRISE BRIDGE")
-    # Questo cattura righe che contengono pattern descrittivi cinematografici
+    # ====== ESCLUSIONI IMMEDIATE - MEDIA PRIORITÀ ======
+
+    # Esclude righe che sono chiaramente stage directions narrative
+    narrative_indicators = [
+        # Connettori narrativi
+        r".*\.\s+(NO\s+RESPONSE|THIS\s+IS|HE\s+|SHE\s+|THEY\s+|IT\s+)",
+        # Azioni in corso
+        r".*(STARES?\s+UP|LOOKS?\s+DOWN|TURNS?\s+TO|WALKS?\s+TO)",
+        # Descrizioni di oggetti specifici
+        r".*LABEL.*:",  # "POV: the label - ..."
+        r".*:\s+THE\s+LABEL",  # "POV: the label"
+        # Pattern narrativi con punteggiatura specifica
+        r".*\.\s+[A-Z][a-z]",  # Maiuscola seguita da minuscola dopo punto (prosa)
+        # Frasi che continuano oltre la riga
+        r".*[,;]\s*$",  # Termina con virgola o punto e virgola (continua)
+        r".*\s+OF\s+",  # "a sea of dripping" (tipico di descrizioni)
+    ]
+
+    for pattern in narrative_indicators:
+        if re.match(pattern, riga_clean):
+            print(f"[DEBUG] ❌ ESCLUSO per indicatore narrativo '{pattern}': '{riga_clean}'")
+            return False
+
+    # Esclude POV che sono chiaramente descrizioni narrative
+    if riga_clean.startswith("POV"):
+        # Se contiene punteggiatura complessa o parole narrative, è stage direction
+        if (re.search(r"[.,:;]\s+[A-Z]", riga_original) or  # Frasi multiple
+                re.search(r"\b(no\s+response|this\s+is|going|stares?|looks?)\b", riga_clean) or
+                len(riga_clean.split()) > 10 or  # Troppo lungo per essere header
+                riga_clean.count("-") > 2):  # Troppi trattini (tipico di descrizioni)
+            print(f"[DEBUG] ❌ POV escluso come stage direction: '{riga_clean}'")
+            return False
+
+    # ====== CONTROLLI STRUTTURALI - MEDIA PRIORITÀ ======
+
+    # Esclude righe che iniziano con articoli/possessivi (tipico di stage directions)
+    if re.match(r"^(THE\s+|A\s+|AN\s+|\w+'S\s+|TWO\s+|THREE\s+|FOUR\s+|SEVERAL\s+)", riga_clean):
+        print(f"[DEBUG] ❌ ESCLUSO per articolo/possessivo: '{riga_clean}'")
+        return False
+
+    # Esclude descrizioni di azioni specifiche
+    action_patterns = [
+        r".*\b(LEAN\s+ON|PLAYS?\s+ON|DRIPPING|UMBRELLAS)\b",
+        r".*\b(WALKING|RUNNING|SITTING|STANDING|LOOKING)\b",
+        r".*\b(HOLDS?|GRABS?|TAKES?|PUTS?|PLACES?)\b"
+    ]
+
+    for pattern in action_patterns:
+        if re.match(pattern, riga_clean):
+            print(f"[DEBUG] ❌ ESCLUSO per pattern di azione '{pattern}': '{riga_clean}'")
+            return False
+
+    # ====== MATCH CONDIZIONALI - BASSA PRIORITÀ ======
+
+    # Shot keywords SOLO se soddisfano criteri strutturali rigorosi
     shot_keywords = [
         "FULL SHOT", "CLOSE UP", "MEDIUM SHOT", "WIDE SHOT", "EXTREME CLOSE UP",
         "ESTABLISHING SHOT", "MASTER SHOT", "TWO SHOT", "OVER THE SHOULDER",
         "POINT OF VIEW", "POV", "CUTAWAY", "INSERT"
     ]
+
     for keyword in shot_keywords:
-        if keyword in riga_clean and "-" in riga_clean:
-            print(f"[DEBUG] ✅ MATCH shot keyword '{keyword}': '{riga_clean}'")
-            return True
+        if riga_clean.startswith(keyword):
+            # Criteri aggiuntivi per shot keywords:
+            # - Deve essere relativamente corto (< 80 caratteri)
+            # - Non deve contenere punteggiatura complessa
+            # - Non deve avere indicatori narrativi
+            if (len(riga_clean) < 80 and
+                    not re.search(r"[.,:;]\s+[A-Z]", riga_original) and  # No frasi multiple
+                    not re.search(r"\b(no\s+response|this\s+is|going|stares?|looks?)\b", riga_clean) and
+                    riga_clean.count(".") <= 1):  # Max un punto
+                print(f"[DEBUG] ✅ MATCH shot keyword strutturale '{keyword}': '{riga_clean}'")
+                return True
 
-    # Contiene keyword tipiche di location
+    # Location keywords specifiche
     location_keywords = [
-        "ESTABLISHING SHOT",
-        "LOCATION:",
-        "SETTING:",
-        "SCENE LOCATION:",
-        "ESTABLISHING:",
-        "SOMEPLACE",
-        "SOMEWHERE",
-        "VARIOUS LOCATIONS"
+        "ESTABLISHING SHOT", "LOCATION:", "SETTING:", "SCENE LOCATION:",
+        "ESTABLISHING:", "SOMEPLACE", "SOMEWHERE", "VARIOUS LOCATIONS"
     ]
+
     for keyword in location_keywords:
-        if keyword in riga_clean:
-            print(f"[DEBUG] ✅ MATCH location keyword '{keyword}': '{riga_clean}'")
+        if riga_clean.startswith(keyword):
+            print(f"[DEBUG] ✅ MATCH location keyword: '{riga_clean}'")
             return True
 
-    # Pattern: qualcosa seguito da "-" e un'indicazione temporale (es: DAY, NIGHT, CONTINUOUS, MOMENTS LATER)
-    if re.match(r"^.+\s*[-–—]\s*(DAY|NIGHT|CONTINUOUS|MOMENTS LATER|SAME TIME|LATER|SAME)$", riga_clean):
-        print(f"[DEBUG] ✅ MATCH temporale: '{riga_clean}'")
+    # Pattern temporale SOLO se strutturalmente appropriato
+    temporal_match = re.match(r"^(.+)\s*[-–—]\s*(DAY|NIGHT|CONTINUOUS|MOMENTS LATER|SAME TIME|LATER|SAME)$", riga_clean)
+    if (temporal_match and
+            not re.match(r"^(THE\s+|A\s+|AN\s+|\w+'S\s+)", riga_clean) and
+            len(temporal_match.group(1).split()) <= 6 and  # La parte prima del tempo non è troppo lunga
+            not re.search(r"\b(LEAN|PLAY|DRIP|WALK|RUN|LOOK|STARE)\b", riga_clean)):  # No verbi di azione
+        print(f"[DEBUG] ✅ MATCH temporale strutturale: '{riga_clean}'")
         return True
 
     print(f"[DEBUG] ❌ NO MATCH: '{riga_clean}'")
