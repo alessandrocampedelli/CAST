@@ -23,8 +23,6 @@ def estrai_da_imsdb(url, output_path):
     with open(output_path, 'w', encoding='utf-8') as f:
         f.write(testo)
 
-    print(f"[OK] Script IMSDB salvato in: {output_path}")
-
 
 
 def estrai_pdf(percorso_pdf, output_path):
@@ -54,8 +52,6 @@ def estrai_pdf(percorso_pdf, output_path):
     # Salva il testo estratto in .txt
     with open(output_path, 'w', encoding='utf-8') as f:
         f.write(testo)
-
-    print(f"[OK] Script PDF salvato in: {output_path}")
 
 def ricava_nome_film_da_url(url):
     # Per scriptslug e springfield: prendi il valore dopo "movie=" o l'ultima parte del path

@@ -252,18 +252,14 @@ def is_location_line(riga):
     riga_original = riga_clean  # Mantieni versione originale per alcuni controlli
     riga_clean = re.sub(r'\s+', ' ', riga_clean).upper()
 
-    print(f"[DEBUG] Analizzando location: '{riga_clean}' (lunghezza: {len(riga_clean)})")
-
     # ====== MATCH DEFINITIVI - ALTA PRIORITÀ ======
 
     # 1. Standard cinematografici: INT., EXT., I/E.
     if re.match(r"^(INT\.?|EXT\.?|I/E\.?)\s+.+", riga_clean):
-        print(f"[DEBUG] ✅ MATCH INT/EXT: '{riga_clean}'")
         return True
 
     # 2. Pattern numerati delle scene: numero - descrizione - numero
     if re.match(r"^(\d+[A-Za-z]*|[A-Za-z]*\d+)\s+.+\s+(\d+[A-Za-z]*|[A-Za-z]*\d+)\s*$", riga_clean):
-        print(f"[DEBUG] ✅ MATCH pattern numerato: '{riga_clean}'")
         return True
 
     # ====== ESCLUSIONI IMMEDIATE - MEDIA PRIORITÀ ======
@@ -286,7 +282,6 @@ def is_location_line(riga):
 
     for pattern in narrative_indicators:
         if re.match(pattern, riga_clean):
-            print(f"[DEBUG] ❌ ESCLUSO per indicatore narrativo '{pattern}': '{riga_clean}'")
             return False
 
     # Esclude POV che sono chiaramente descrizioni narrative
@@ -296,14 +291,12 @@ def is_location_line(riga):
                 re.search(r"\b(no\s+response|this\s+is|going|stares?|looks?)\b", riga_clean) or
                 len(riga_clean.split()) > 10 or  # Troppo lungo per essere header
                 riga_clean.count("-") > 2):  # Troppi trattini (tipico di descrizioni)
-            print(f"[DEBUG] ❌ POV escluso come stage direction: '{riga_clean}'")
             return False
 
     # ====== CONTROLLI STRUTTURALI - MEDIA PRIORITÀ ======
 
     # Esclude righe che iniziano con articoli/possessivi (tipico di stage directions)
     if re.match(r"^(THE\s+|A\s+|AN\s+|\w+'S\s+|TWO\s+|THREE\s+|FOUR\s+|SEVERAL\s+)", riga_clean):
-        print(f"[DEBUG] ❌ ESCLUSO per articolo/possessivo: '{riga_clean}'")
         return False
 
     # Esclude descrizioni di azioni specifiche
@@ -315,7 +308,6 @@ def is_location_line(riga):
 
     for pattern in action_patterns:
         if re.match(pattern, riga_clean):
-            print(f"[DEBUG] ❌ ESCLUSO per pattern di azione '{pattern}': '{riga_clean}'")
             return False
 
     # ====== MATCH CONDIZIONALI - BASSA PRIORITÀ ======
@@ -337,7 +329,6 @@ def is_location_line(riga):
                     not re.search(r"[.,:;]\s+[A-Z]", riga_original) and  # No frasi multiple
                     not re.search(r"\b(no\s+response|this\s+is|going|stares?|looks?)\b", riga_clean) and
                     riga_clean.count(".") <= 1):  # Max un punto
-                print(f"[DEBUG] ✅ MATCH shot keyword strutturale '{keyword}': '{riga_clean}'")
                 return True
 
     # Location keywords specifiche
@@ -348,7 +339,6 @@ def is_location_line(riga):
 
     for keyword in location_keywords:
         if riga_clean.startswith(keyword):
-            print(f"[DEBUG] ✅ MATCH location keyword: '{riga_clean}'")
             return True
 
     # Pattern temporale SOLO se strutturalmente appropriato
@@ -357,10 +347,8 @@ def is_location_line(riga):
             not re.match(r"^(THE\s+|A\s+|AN\s+|\w+'S\s+)", riga_clean) and
             len(temporal_match.group(1).split()) <= 6 and  # La parte prima del tempo non è troppo lunga
             not re.search(r"\b(LEAN|PLAY|DRIP|WALK|RUN|LOOK|STARE)\b", riga_clean)):  # No verbi di azione
-        print(f"[DEBUG] ✅ MATCH temporale strutturale: '{riga_clean}'")
         return True
 
-    print(f"[DEBUG] ❌ NO MATCH: '{riga_clean}'")
     return False
 
 
@@ -477,13 +465,11 @@ def is_continued_line(riga):
 
     # Pattern: numero + CONTINUED (con o senza :) + numero
     if re.match(r'^\d+[A-Za-z]*\s+CONTINUED:?\s+\d+[A-Za-z]*\s*$', riga_clean):
-        print(f"[DEBUG] ✅ MATCH CONTINUED numero-desc-numero: '{riga_clean}'")
         return True
 
     # Pattern: solo CONTINUED con spazi e numeri intorno
     if re.match(r'^\d+[A-Za-z]*\s+CONTINUED:?\s*$', riga_clean) or \
             re.match(r'^\s*CONTINUED:?\s+\d+[A-Za-z]*\s*$', riga_clean):
-        print(f"[DEBUG] ✅ MATCH CONTINUED con numeri: '{riga_clean}'")
         return True
 
     return False
@@ -526,10 +512,8 @@ def extract_title_from_filename(filename):
         year = match.group(2)
         # Sostituisce i trattini con spazi per una forma leggibile
         title = title_slug.replace('-', ' ').strip()
-        print(f"[DEBUG] Titolo estratto: '{title}', Anno: {year}")
         return title
     else:
         # Se non trova l'anno, restituisce comunque il nome "normalizzato"
         normalized_title = name_without_ext.replace('-', ' ').strip()
-        print(f"[DEBUG] Anno non trovato, uso tutto il nome: '{normalized_title}'")
         return normalized_title

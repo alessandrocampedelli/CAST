@@ -11,15 +11,12 @@ def converti_in_tei(percorso_txt):
     with open(percorso_txt, 'r', encoding='utf-8') as f:
         righe = [r.strip() for r in f if r.strip()]
 
-    print(f"[DEBUG] Totale righe lette: {len(righe)}")
-
     # Estrae il titolo dal nome del file invece che dalla prima riga
     filename = os.path.basename(percorso_txt)
     titolo = utils.extract_title_from_filename(filename)
 
     # Tutto il contenuto del file è il corpo del copione
     corpo_righe = righe
-    print(f"[DEBUG] Corpo del copione: {len(corpo_righe)} righe")
 
     root = ET.Element("TEI", xmlns="http://www.tei-c.org/ns/1.0")
 
@@ -47,7 +44,6 @@ def converti_in_tei(percorso_txt):
         # PRIORITÀ 1: Ignora righe CONTINUED (deve essere controllato PRIMA di is_location_line)
         # Questo previene che pattern come "2 CONTINUED: 2" vengano interpretati come nuove scene
         if utils.is_continued_line(riga):
-            print(f"[DEBUG] Saltata riga CONTINUED (incluso pattern numero-CONTINUED-numero): {riga}")
             i += 1
             continue
 
@@ -69,10 +65,6 @@ def converti_in_tei(percorso_txt):
                 # Usa numerazione automatica
                 numero_scena = str(scene_counter)
 
-                print(f"[DEBUG] === NUOVA SCENA {numero_scena} (auto-generata da pattern numero-desc-numero) ===")
-                print(f"[DEBUG] Location estratta: {location_description}")
-                print(f"[DEBUG] Numero originale ignorato: {numero_desc_numero_match.group(1)}")
-
                 # Crea la scena usando numerazione automatica
                 scena_corrente = ET.SubElement(body, "div", type="scene")
                 scena_corrente.set("n", numero_scena)
@@ -87,17 +79,12 @@ def converti_in_tei(percorso_txt):
 
                 # Incrementa il contatore delle scene
                 scene_counter += 1
-
-                print(f"[DEBUG] Scena {numero_scena} creata con location: {location_description}")
                 i += 1
                 continue
             else:
                 # Location line normale (INT./EXT./etc.) - usa numerazione automatica
                 numero_scena = str(scene_counter)
                 location_line = riga
-
-                print(f"[DEBUG] === NUOVA SCENA {numero_scena} (auto-generata) ===")
-                print(f"[DEBUG] Location: {location_line}")
 
                 # Crea la scena con numerazione automatica
                 scena_corrente = ET.SubElement(body, "div", type="scene")
@@ -114,38 +101,32 @@ def converti_in_tei(percorso_txt):
                 # Incrementa il contatore delle scene
                 scene_counter += 1
 
-                print(f"[DEBUG] Scena {numero_scena} creata con location: {location_line}")
                 i += 1
                 continue
 
         # PRIORITÀ 3: Ignora numeri di pagina (SOLO se non sono location o continued)
         if utils.is_page_number(riga):
-            print(f"[DEBUG] Saltata pagina: {riga}")
             i += 1
             continue
 
         # Ignora numeri di scena (ora non servono più per identificare scene)
         if utils.is_scene_number(riga):
-            print(f"[DEBUG] Saltato numero scena (ora ignorato): {riga}")
             i += 1
             continue
 
         # Ignora righe MORE (ma imposta flag di continuazione)
         if utils.is_more_line(riga):
-            print(f"[DEBUG] Saltata riga MORE: {riga}")
             speech_in_continuazione = True
             i += 1
             continue
 
         # Ignora transizioni
         if utils.is_transition_line(riga):
-            print(f"[DEBUG] Saltata transizione: {riga}")
             i += 1
             continue
 
         # Ignora intestazioni (header) - righe duplicate
         if utils.is_header_line(riga, next_line):
-            print(f"[DEBUG] Saltata intestazione duplicata: {riga}")
             i += 1
             continue
 
@@ -159,11 +140,6 @@ def converti_in_tei(percorso_txt):
                                       (speech_in_continuazione and speaker_name == speaker_corrente) or
                                       (is_continuation and speaker_name == speaker_corrente)
                               ) and ultimo_sp_element is not None
-
-            if continua_speech:
-                print(f"[DEBUG] Continua speech per {speaker_name} (continuation: {is_continuation})")
-            else:
-                print(f"[DEBUG] Nuovo speaker trovato: {speaker_name} (continuation: {is_continuation})")
 
             i += 1
             battute = []
@@ -180,13 +156,11 @@ def converti_in_tei(percorso_txt):
 
                 # NUOVO: Controlla anche header/footer durante la raccolta battute
                 if utils.is_header_line(next_riga):
-                    print(f"[DEBUG] Saltato piè di pagina durante raccolta battute: {next_riga}")
                     i += 1
                     continue
 
                 # NUOVO: Controlla anche transizioni durante la raccolta battute
                 if utils.is_transition_line(next_riga):
-                    print(f"[DEBUG] Saltata transizione durante raccolta battute: {next_riga}")
                     i += 1
                     continue
 
@@ -198,7 +172,6 @@ def converti_in_tei(percorso_txt):
             if battute and utils.is_more_line(battute[-1]):
                 battute.pop()
                 speech_in_continuazione = True
-                print(f"[DEBUG] Trovato (MORE) nelle battute, speech in continuazione per {speaker_name}")
             else:
                 speech_in_continuazione = False
 
@@ -208,7 +181,6 @@ def converti_in_tei(percorso_txt):
                     # Continua la speech precedente
                     for battuta in battute:
                         ultimo_sp_element.append(utils.crea_elemento_testo("p", battuta))
-                    print(f"[DEBUG] Aggiunte {len(battute)} battute alla speech esistente")
                 else:
                     # Crea nuova speech
                     sp = ET.SubElement(scena_corrente, "sp")
@@ -217,17 +189,13 @@ def converti_in_tei(percorso_txt):
                         sp.append(utils.crea_elemento_testo("p", battuta))
                     ultimo_sp_element = sp
                     speaker_corrente = speaker_name
-                    print(f"[DEBUG] Creata nuova speech con {len(battute)} battute")
             continue
 
         # DESCRIZIONI SCENE (stage directions)
         if scena_corrente is not None and riga:
             ET.SubElement(scena_corrente, "stage").text = riga
-            print(f"[DEBUG] Aggiunta descrizione: {riga[:50]}...")
 
         i += 1
-
-    print(f"[DEBUG] Processamento completato. Scene create: {len(body.findall('.//div[@type=\"scene\"]'))}")
 
     # Formattazione e salvataggio
     utils.indent(root)
@@ -236,7 +204,6 @@ def converti_in_tei(percorso_txt):
     os.makedirs(OUTPUT_DIR, exist_ok=True)
     percorso_finale = os.path.join(OUTPUT_DIR, nome_file)
     tree.write(percorso_finale, encoding="utf-8", xml_declaration=True)
-    print(f"File TEI salvato in: {percorso_finale}")
 
 def main():
     # Conta i file da processare
@@ -244,8 +211,6 @@ def main():
 
     if not file_txt:
         return
-
-    print(f"🔄 Processando {len(file_txt)} file...")
 
     for nome_file in file_txt:
         try:
