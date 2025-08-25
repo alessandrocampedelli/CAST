@@ -262,6 +262,10 @@ def is_location_line(riga):
     if re.match(r"^(\d+[A-Za-z]*|[A-Za-z]*\d+)\s+.+\s+(\d+[A-Za-z]*|[A-Za-z]*\d+)\s*$", riga_clean):
         return True
 
+    # 3. NUOVO: Pattern numero + spazio + INT./EXT./I/E.
+    if re.match(r"^\d+[A-Za-z]*\s+(INT\.?|EXT\.?|I/E\.?)\s+.+", riga_clean):
+        return True
+
     # ====== ESCLUSIONI IMMEDIATE - MEDIA PRIORITÀ ======
 
     # Esclude righe che sono chiaramente stage directions narrative
