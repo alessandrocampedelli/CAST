@@ -160,7 +160,48 @@ def is_header_line(riga, next_line=None):
     riga_senza_escape = re.sub(r'^[\f\x0c]+', '', riga_clean)
     riga_senza_escape = re.sub(r'[^\x00-\x7F]+', ' ', riga_senza_escape)  # Rimuove caratteri non-ASCII
 
-    # ---- PIEDI DI PAGINA (NUOVI PATTERN) ----
+    # ====== SOLUZIONE GENERALE - ALTA PRIORITÀ ======
+
+    # 1. DATE SEMPLICI (mm/dd/yy, mm/dd/yyyy, dd/mm/yy, dd/mm/yyyy)
+    if re.match(r'^\d{1,2}/\d{1,2}/\d{2,4}$', riga_senza_escape.strip()):
+        return True
+
+    # 2. PATTERN "TITOLO by AUTORE" (con eventuali dettagli dopo trattino)
+    # Es: "CONCLAVE by Peter Straughan - Pink Revisions."
+    if re.search(r'\b[A-Z][A-Z\s]+\s+by\s+[A-Z][A-Za-z\s]+', riga_senza_escape, re.IGNORECASE):
+        return True
+
+    # 3. REVISIONI E DRAFT - Pattern generali
+    revision_patterns = [
+        # Colori di revisione standard Hollywood
+        r'\b(PINK|BLUE|YELLOW|GREEN|GOLDENROD|BUFF|SALMON|CHERRY|TAN|GREY|WHITE)\s+(REVISION|REVISIONS|DRAFT|PAGES?)\b',
+        # Pattern "TITOLO REVISED/REVISION - DATA"
+        r'\b[A-Z][A-Z\s]*\s+(REVISED?|REVISION)\s*[-–—]\s*\d{1,2}/\d{1,2}/\d{2,4}',
+        # Pattern generico "qualcosa REVISED/REVISION"
+        r'\b\w+\s+(REVISED?|REVISION)\b',
+        # Draft con numeri ordinali
+        r'\b(FIRST|SECOND|THIRD|FOURTH|FIFTH|FINAL|SHOOTING|PRODUCTION)\s+(DRAFT|REVISION)\b',
+        # Pattern "Rev. X" o "Revision X"
+        r'\b(Rev\.?|Revision)\s*[#]?\d+',
+    ]
+
+    riga_upper = riga_senza_escape.upper()
+    for pattern in revision_patterns:
+        if re.search(pattern, riga_upper):
+            return True
+
+    # 4. PATTERN TITOLO-DATA (trattino seguito da data)
+    # Es: "SOMETHING - 01/10/23", "TITLE - January 2024"
+    if re.search(r'.+\s*[-–—]\s*(\d{1,2}/\d{1,2}/\d{2,4}|[A-Z][a-z]+\s+\d{4})', riga_senza_escape):
+        return True
+
+    # 5. PATTERN CON PARENTESI E DATE
+    # Es: "(January 15, 2024)", "(Rev. 3/15/23)"
+    if re.search(r'\([^)]*(\d{1,2}/\d{1,2}/\d{2,4}|[A-Z][a-z]+\s+\d{1,2},?\s+\d{4}|Rev\.?\s*\d+)[^)]*\)',
+                 riga_senza_escape, re.IGNORECASE):
+        return True
+
+    # ====== PIEDI DI PAGINA (PATTERN ORIGINALI) ======
 
     # Pattern copyright generale: © o (C) o simboli Unicode copyright + anno + testo
     if re.search(r'(©|\(C\)|COPYRIGHT| )\s*\d{4}', riga_senza_escape, re.IGNORECASE):
@@ -202,7 +243,7 @@ def is_header_line(riga, next_line=None):
     if re.search(r'\([Cc©]\)\s*\d{4}', riga_senza_escape):
         return True
 
-    # ---- INTESTAZIONI ORIGINALI ----
+    # ====== INTESTAZIONI ORIGINALI ======
 
     # Date di revisione tipo Rev. mm/dd/yyyy
     if re.search(r"- Rev\. \d{1,2}/\d{1,2}/\d{2,4}", riga_senza_escape):
@@ -240,8 +281,23 @@ def is_header_line(riga, next_line=None):
                 next_clean, re.IGNORECASE):
             return True
 
-    return False
+    # ====== PATTERN AGGIUNTIVI GENERALI ======
 
+    # 6. RIGHE CON SOLO LETTERE MAIUSCOLE E PUNTEGGIATURA (probabilmente titoli)
+    # Ma esclude location e speaker
+    if (len(riga_senza_escape) > 15 and
+            re.match(r'^[A-Z\s\-\.,:;!?]+$', riga_senza_escape) and
+            not re.match(r'^(INT\.|EXT\.|I/E\.).*', riga_senza_escape) and
+            len(riga_senza_escape.split()) > 3 and
+            '.' in riga_senza_escape):  # Contiene punto (tipico di titoli)
+        return True
+
+    # 7. PATTERN CON NUMERI DI VERSIONE
+    # Es: "v1.2", "Version 3", "Draft 2.1"
+    if re.search(r'\b(v|version|draft)\s*\d+(\.\d+)?\b', riga_senza_escape, re.IGNORECASE):
+        return True
+
+    return False
 
 def is_location_line(riga):
     """Rileva righe che rappresentano location di scena (INT., EXT., I/E., ecc.)
