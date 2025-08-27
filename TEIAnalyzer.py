@@ -93,7 +93,7 @@ class TEIAnalyzer:
             title_elem = root.find('.//{http://www.tei-c.org/ns/1.0}title')
             title = title_elem.text if title_elem is not None else os.path.basename(file_path)
 
-            # salvo tutte le scene in una lista
+            #salvo tutte le scene in una lista
             scenes = []
             scene_divs = root.findall('.//{http://www.tei-c.org/ns/1.0}div[@type="scene"]')
 
@@ -103,14 +103,14 @@ class TEIAnalyzer:
                 if scene_analysis:
                     scenes.append(asdict(scene_analysis))
 
-            # Calcola statistiche aggregate a livello di film
+            #Calcola statistiche aggregate a livello di film
             statistics = self._calculate_statistics(scenes)
 
             return {
                 'film': title,
                 'total_scenes': len(scenes),
                 'statistics': statistics,
-                'analysis_timestamp': datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+                'analysis_timestamp': datetime.now().isoformat()
             }
 
         except Exception as e:
@@ -155,10 +155,10 @@ class TEIAnalyzer:
         #creo l'oggetto vuoto
         location_info = LocationInfo()
 
-        # STEP 1: Pattern cinematografici standard
+        #STEP 1: Pattern cinematografici standard
         location_upper = location_text.upper()
 
-        # Estrai INT/EXT
+        #Estrai INT/EXT
         if location_upper.startswith('INT'):
             location_info.type = 'INT'
         elif location_upper.startswith('EXT'):
@@ -168,7 +168,7 @@ class TEIAnalyzer:
         elif 'EXT.' in location_upper:
             location_info.type = 'EXT'
 
-        # STEP 2: Analisi semantica
+        #STEP 2: Analisi semantica
         all_text = (location_text + ' ' + ' '.join(stage_texts)).lower()
 
         #dizionario vuoto che conterrà per ogni ambiente prestabilito, quante parole chiave sono state trovate
@@ -192,7 +192,7 @@ class TEIAnalyzer:
             #imposto come environment quello che ha il punteggio più alto nel dizionario
             location_info.environment = max(environment_scores, key=environment_scores.get)
 
-        # Determina setting generale
+        #Determina setting generale
         if location_info.environment in ['space', 'fantasy']:
             location_info.setting = 'fantasy/sci-fi'
         elif location_info.environment in ['urban', 'suburban']:
@@ -202,15 +202,15 @@ class TEIAnalyzer:
         else:
             location_info.setting = 'unspecified'
 
-        # STEP 3: Verifica geografica
+        #STEP 3: Verifica geografica
 
         #salvo le parole in un insieme (per evitare duplicati)
         location_words = set(location_text.lower().split())
 
-        # se c'è almeno un luogo reale contenuto in location_words marchio la scena come real
+        #se c'è almeno un luogo reale contenuto in location_words marchio la scena come real
         if any(place in location_words for place in self.real_places):
             location_info.real_imaginary = 'real'
-        # se non era reale, controllo se c'è almeno una parola immaginaria
+        #se non era reale, controllo se c'è almeno una parola immaginaria
         elif any(place in location_words for place in self.imaginary_places):
             location_info.real_imaginary = 'imaginary'
         else:
@@ -231,7 +231,7 @@ class TEIAnalyzer:
 
         all_text = (location_text + ' ' + ' '.join(stage_texts)).lower()
 
-        # Analizza periodo giornaliero
+        #Analizza periodo giornaliero
 
         #dizionario vuoto
         time_scores = {}
@@ -252,7 +252,6 @@ class TEIAnalyzer:
         if time_scores:
             temporal_info.period = max(time_scores, key=time_scores.get).upper()
 
-
         season_scores = {}
 
         #scorro tutti i tipi di tempo (stagioni)
@@ -270,7 +269,6 @@ class TEIAnalyzer:
         #per stabilire la stagione corretta, scelgo la stagione con il numero di occorrenze di parole chiave maggiore
         if season_scores:
             temporal_info.season = max(season_scores, key=season_scores.get)
-
 
         historical_scores = {}
 
@@ -297,7 +295,7 @@ class TEIAnalyzer:
         if not scenes:
             return {}
 
-        # Statistiche sui luoghi. Liste di n elementi (n scene del film)
+        #Statistiche sui luoghi. Liste di n elementi (n scene del film)
 
         #lista nella quale, per ogni cella, è salvata l'informazione di INT o EXT
         location_types = [s['location']['type'] for s in scenes if s['location']['type']]
@@ -305,18 +303,18 @@ class TEIAnalyzer:
         #lista nella quale, per ogni cella, è salvata l'informazione del tipo di enviroment
         environments = [s['location']['environment'] for s in scenes if s['location']['environment']]
 
-        # lista nella quale, per ogni cella, è salvata l'informazione del tipo reale o immaginario
+        #lista nella quale, per ogni cella, è salvata l'informazione del tipo reale o immaginario
         real_imaginary = [s['location']['real_imaginary'] for s in scenes if s['location']['real_imaginary']]
 
-        # Statistiche temporali. Liste di n elementi (n scene: somma di tutte le scene dei film analizzati)
+        #Statistiche temporali. Liste di n elementi (n scene: somma di tutte le scene dei film analizzati)
 
-        # lista nella quale, per ogni cella, è salvata l'informazione relativo al periodo della giornata
+        #lista nella quale, per ogni cella, è salvata l'informazione relativo al periodo della giornata
         periods = [s['temporal']['period'] for s in scenes if s['temporal']['period']]
 
-        # lista nella quale, per ogni cella, è salvata l'informazione relativo alla stagione della scena
+        #lista nella quale, per ogni cella, è salvata l'informazione relativo alla stagione della scena
         seasons = [s['temporal']['season'] for s in scenes if s['temporal']['season']]
 
-        # lista nella quale, per ogni cella, è salvata l'informazione relativo al periodo storico
+        #lista nella quale, per ogni cella, è salvata l'informazione relativo al periodo storico
         historical = [s['temporal']['historical'] for s in scenes if s['temporal']['historical']]
 
         return {
@@ -334,19 +332,208 @@ class TEIAnalyzer:
             }
         }
 
+    def _calculate_macro_statistics(self, all_results: List[Dict]) -> Dict[str, Any]:
+        """Calcola statistiche aggregate per tutti i film analizzati"""
+
+        # Filtra solo i risultati senza errori
+        valid_results = [r for r in all_results if 'error' not in r]
+
+        if not valid_results:
+            return {'error': 'Nessun file valido analizzato'}
+
+        # Statistiche generali
+        total_films = len(valid_results)
+        total_scenes = sum(r['total_scenes'] for r in valid_results)
+
+        # Aggregazione dati di tutti i film
+        all_location_types = []
+        all_environments = []
+        all_real_imaginary = []
+        all_periods = []
+        all_seasons = []
+        all_historical = []
+
+        film_summaries = []
+
+        for result in valid_results:
+            stats = result.get('statistics', {})
+
+            # Estrai dati location
+            locations = stats.get('locations', {})
+            int_ext = locations.get('int_ext_distribution', {})
+            environments = locations.get('environment_distribution', {})
+            real_img = locations.get('real_imaginary_distribution', {})
+
+            # Estrai dati temporali
+            temporal = stats.get('temporal', {})
+            periods = temporal.get('day_night_distribution', {})
+            seasons = temporal.get('season_distribution', {})
+            historical = temporal.get('historical_distribution', {})
+
+            # Aggiungi ai totali
+            for location_type, count in int_ext.items():
+                all_location_types.extend([location_type] * count)
+
+            for env, count in environments.items():
+                all_environments.extend([env] * count)
+
+            for ri, count in real_img.items():
+                all_real_imaginary.extend([ri] * count)
+
+            for period, count in periods.items():
+                all_periods.extend([period] * count)
+
+            for season, count in seasons.items():
+                all_seasons.extend([season] * count)
+
+            for hist, count in historical.items():
+                all_historical.extend([hist] * count)
+
+            # Sommario per film
+            film_summaries.append({
+                'film': result['film'],
+                'scenes': result['total_scenes'],
+                'dominant_environment': locations.get('most_common_environment'),
+                'dominant_period': temporal.get('most_common_period')
+            })
+
+        # Calcola percentuali
+        def calculate_percentages(counter_dict, total):
+            return {k: round((v / total) * 100, 1) for k, v in counter_dict.items()}
+
+        location_counter = dict(Counter(all_location_types))
+        environment_counter = dict(Counter(all_environments))
+        real_img_counter = dict(Counter(all_real_imaginary))
+        period_counter = dict(Counter(all_periods))
+        season_counter = dict(Counter(all_seasons))
+        historical_counter = dict(Counter(all_historical))
+
+        return {
+            'analysis_summary': {
+                'total_films_analyzed': total_films,
+                'total_scenes_analyzed': total_scenes,
+                'average_scenes_per_film': round(total_scenes / total_films, 1),
+                'analysis_timestamp': datetime.now().isoformat()
+            },
+            'aggregated_statistics': {
+                'locations': {
+                    'int_ext_totals': location_counter,
+                    'int_ext_percentages': calculate_percentages(location_counter,
+                                                                 sum(location_counter.values())) if location_counter else {},
+                    'environment_totals': environment_counter,
+                    'environment_percentages': calculate_percentages(environment_counter,
+                                                                     sum(environment_counter.values())) if environment_counter else {},
+                    'real_imaginary_totals': real_img_counter,
+                    'real_imaginary_percentages': calculate_percentages(real_img_counter,
+                                                                        sum(real_img_counter.values())) if real_img_counter else {},
+                    'most_common_overall': {
+                        'location_type': Counter(all_location_types).most_common(1)[0][
+                            0] if all_location_types else None,
+                        'environment': Counter(all_environments).most_common(1)[0][0] if all_environments else None,
+                        'reality_type': Counter(all_real_imaginary).most_common(1)[0][0] if all_real_imaginary else None
+                    }
+                },
+                'temporal': {
+                    'period_totals': period_counter,
+                    'period_percentages': calculate_percentages(period_counter,
+                                                                sum(period_counter.values())) if period_counter else {},
+                    'season_totals': season_counter,
+                    'season_percentages': calculate_percentages(season_counter,
+                                                                sum(season_counter.values())) if season_counter else {},
+                    'historical_totals': historical_counter,
+                    'historical_percentages': calculate_percentages(historical_counter,
+                                                                    sum(historical_counter.values())) if historical_counter else {},
+                    'most_common_overall': {
+                        'period': Counter(all_periods).most_common(1)[0][0] if all_periods else None,
+                        'season': Counter(all_seasons).most_common(1)[0][0] if all_seasons else None,
+                        'historical_period': Counter(all_historical).most_common(1)[0][0] if all_historical else None
+                    }
+                }
+            },
+            'films_summary': film_summaries,
+            'top_insights': {
+                'most_common_combinations': self._find_common_combinations(valid_results),
+                'genre_patterns': self._identify_genre_patterns(valid_results)
+            }
+        }
+
+    def _find_common_combinations(self, results: List[Dict]) -> Dict[str, Any]:
+        """Trova combinazioni comuni di caratteristiche"""
+        combinations = []
+
+        for result in results:
+            stats = result.get('statistics', {})
+            locations = stats.get('locations', {})
+            temporal = stats.get('temporal', {})
+
+            # Estrai caratteristiche dominanti
+            dom_env = locations.get('most_common_environment')
+            dom_period = temporal.get('most_common_period')
+            dom_historical = list(temporal.get('historical_distribution', {}).keys())
+            dom_historical = dom_historical[0] if dom_historical else 'contemporary'
+
+            if dom_env and dom_period:
+                combo = f"{dom_env}_{dom_period}_{dom_historical}"
+                combinations.append(combo)
+
+        combo_counter = Counter(combinations)
+        return {
+            'most_frequent': combo_counter.most_common(5),
+            'total_unique_combinations': len(combo_counter)
+        }
+
+    def _identify_genre_patterns(self, results: List[Dict]) -> Dict[str, Any]:
+        """Identifica pattern tipici di generi cinematografici"""
+        patterns = {
+            'sci_fi_indicators': 0,
+            'fantasy_indicators': 0,
+            'contemporary_drama': 0,
+            'historical_pieces': 0
+        }
+
+        for result in results:
+            stats = result.get('statistics', {})
+            locations = stats.get('locations', {})
+            temporal = stats.get('temporal', {})
+
+            env_dist = locations.get('environment_distribution', {})
+            hist_dist = temporal.get('historical_distribution', {})
+
+            # Indicatori sci-fi
+            if env_dist.get('space', 0) > 0 or hist_dist.get('future', 0) > 0:
+                patterns['sci_fi_indicators'] += 1
+
+            # Indicatori fantasy
+            if env_dist.get('fantasy', 0) > 0 or hist_dist.get('medieval', 0) > 0:
+                patterns['fantasy_indicators'] += 1
+
+            # Drama contemporaneo
+            if (env_dist.get('urban', 0) > 0 or env_dist.get('suburban', 0) > 0) and \
+                    hist_dist.get('contemporary', 0) > 0:
+                patterns['contemporary_drama'] += 1
+
+            # Pezzi storici
+            historical_periods = ['medieval', 'victorian', '1920s', '1960s', '1980s']
+            if any(hist_dist.get(period, 0) > 0 for period in historical_periods):
+                patterns['historical_pieces'] += 1
+
+        total_films = len(results)
+        return {
+            'absolute_counts': patterns,
+            'percentages': {k: round((v / total_films) * 100, 1) for k, v in patterns.items()},
+            'dominant_genre_pattern': max(patterns, key=patterns.get) if patterns else None
+        }
+
     def analyze_directory(self, tei_dir: str, output_file: str = 'analysis_results.json'):
         """Analizza tutti i file TEI in una directory"""
         results = []
 
-        #controllo se la cartella esiste
         if not os.path.exists(tei_dir):
             print(f"Directory {tei_dir} non trovata")
             return
 
-        #raccolgo i file che mi interessano, quelli xml
         tei_files = [f for f in os.listdir(tei_dir) if f.endswith('.xml')]
 
-        #analisso ogni file
         for tei_file in tei_files:
             file_path = os.path.join(tei_dir, tei_file)
             print(f"Analizzando: {tei_file}")
@@ -354,11 +541,19 @@ class TEIAnalyzer:
             analysis = self.analyze_tei_file(file_path)
             results.append(analysis)
 
-        # Salva risultati su file json
+        # Salva risultati per singoli film
         with open(output_file, 'w', encoding='utf-8') as f:
             json.dump(results, f, indent=2, ensure_ascii=False)
 
+        # Genera e salva statistiche macro
+        macro_stats = self._calculate_macro_statistics(results)
+        macro_output_file = output_file.replace('.json', '_macro_stats.json')
+
+        with open(macro_output_file, 'w', encoding='utf-8') as f:
+            json.dump(macro_stats, f, indent=2, ensure_ascii=False)
+
         print(f"Analisi completata. Risultati salvati in: {output_file}")
+        print(f"Statistiche macro salvate in: {macro_output_file}")
         return results
 
 
@@ -367,5 +562,7 @@ def main():
 
     # Analizza directory di file TEI
     results = analyzer.analyze_directory('output', 'screenplay_analysis.json')
+
+
 if __name__ == "__main__":
     main()
