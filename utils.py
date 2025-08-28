@@ -463,26 +463,37 @@ def is_speaker(riga):
     if "," in riga_clean:
         return False
 
-    # 2. Esclude se contiene articoli o preposizioni tipiche delle descrizioni
+    # 2. MODIFICATO: Lista più specifica delle parole che escludono uno speaker
+    # Rimuoviamo aggettivi comuni che possono essere parte di nomi di personaggi
     description_words = {
+        # Manteniamo solo articoli, preposizioni e verbi che chiaramente indicano descrizioni
         "A", "AN", "THE", "IN", "ON", "AT", "OF", "FOR", "WITH", "BY", "FROM", "TO",
-        "LIVING", "DEAD", "OLD", "YOUNG", "SMALL", "BIG", "TALL", "SHORT", "FAT", "THIN",
-        "CONVALESCING", "SITTING", "STANDING", "WALKING", "RUNNING", "LYING", "MOVING"
+        # Verbi di azione che indicano descrizioni narrative
+        "CONVALESCING", "SITTING", "STANDING", "WALKING", "RUNNING", "LYING", "MOVING",
+        "STARING", "LOOKING", "HOLDING", "CARRYING", "WEARING"
     }
+    # RIMOSSI: "LIVING", "DEAD", "OLD", "YOUNG", "SMALL", "BIG", "TALL", "SHORT", "FAT", "THIN"
+    # perché possono essere parte legittima di nomi di personaggi
 
-    # 2. Esclude se termina con punto ma non è un titolo (es. "Blake." non è speaker, ma "MR." sì)
+    # 3. Esclude se termina con punto ma non è un titolo (es. "Blake." non è speaker, ma "MR." sì)
     if riga_clean.endswith('.') and not re.match(r'^(MR|MRS|MS|DR|PROF|SIR|LADY)\.$', riga_clean.upper()):
         return False
 
     words_upper = [w.upper() for w in riga_clean.split()]
-    if any(word in description_words for word in words_upper):
+
+    # NUOVO: Controllo più intelligente per description_words
+    # Esclude solo se la riga inizia con articoli/preposizioni O contiene verbi di azione
+    starts_with_article = any(words_upper[0] == word for word in ["A", "AN", "THE"] if words_upper)
+    contains_action_verb = any(word in description_words for word in words_upper)
+
+    if starts_with_article or contains_action_verb:
         return False
 
-    # 3. Esclude se la riga è troppo lunga per essere uno speaker (probabilmente descrizione)
-    if len(riga_clean) > 50:  # Speaker raramente superano i 50 caratteri
+    # 4. Esclude se la riga è troppo lunga per essere uno speaker (probabilmente descrizione)
+    if len(riga_clean) > 60:  # AUMENTATO da 50 a 60 per permettere nomi più lunghi
         return False
 
-    # 4. Esclude pattern tipici di descrizione con età: "NOME (numero)"
+    # 5. MODIFICATO: Gestione migliorata per descrizioni con età
     if re.search(r'\(\d+\)', riga_clean):
         # Verifica se dopo i numeri c'è altro testo (segno di descrizione)
         parentheses_content = re.search(r'\(([^)]+)\)', riga_clean)
@@ -492,10 +503,26 @@ def is_speaker(riga):
         if re.search(r'\(\d+\).+', riga_clean):
             return False
 
-    # Conta parole "non maiuscole" per permettere eccezioni
+    # 6. NUOVO: Controllo specifico per pattern di speaker descrittivi
+    # Permette pattern come "AGGETTIVO NOME" tipici degli screenplay
     words = base_name.split()
 
-    # MODIFICA: Gestione migliorata per speaker numerati come "SPEAKER #1", "PERSON #2" etc.
+    # Pattern comuni per speaker descrittivi negli screenplay
+    descriptive_patterns = [
+        # Aggettivo + Nome: "BIG JOHN", "OLD MARY", "YOUNG PETER"
+        r'^(BIG|SMALL|OLD|YOUNG|TALL|SHORT|FAT|THIN|LITTLE|LARGE)\s+[A-Z]+$',
+        # Professione/Ruolo + Nome/Numero: "COP #1", "DOCTOR SMITH", "WAITER"
+        r'^(COP|DOCTOR|NURSE|WAITER|GUARD|SOLDIER|OFFICER|DETECTIVE|LAWYER)\s*(#?\d+|[A-Z]+)?$',
+        # Titolo + Aggettivo + Nome: "MR. BIG", "DR. YOUNG"
+        r'^(MR|MRS|MS|DR|PROF)\.\s+(BIG|SMALL|OLD|YOUNG|TALL|SHORT)\s*[A-Z]*$'
+    ]
+
+    # Se corrisponde a un pattern descrittivo, è probabilmente uno speaker
+    for pattern in descriptive_patterns:
+        if re.match(pattern, base_name.upper()):
+            return True
+
+    # Conta parole "non maiuscole" per permettere eccezioni
     lowercase_tolerated = True
     for w in words:
         # Pattern speciali ammessi:
@@ -512,8 +539,8 @@ def is_speaker(riga):
             lowercase_tolerated = False
             break
 
-    # Speaker tipico: tutto maiuscolo o quasi, poche parole (ridotto nuovamente a 4 per maggiore precisione)
-    if lowercase_tolerated and len(words) <= 4 and not riga_clean.startswith("("):
+    # Speaker tipico: tutto maiuscolo o quasi, poche parole (aumentato a 5 per nomi descrittivi)
+    if lowercase_tolerated and len(words) <= 5 and not riga_clean.startswith("("):
         return True
 
     # Speaker con CONT'D o CONTINUED in varie forme
