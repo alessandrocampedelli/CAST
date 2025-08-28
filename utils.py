@@ -299,8 +299,9 @@ def is_header_line(riga, next_line=None):
 
     return False
 
+
 def is_location_line(riga):
-    """Rileva righe che rappresentano location di scena (INT., EXT., I/E., ecc.)
+    """Rileva righe che rappresentano location di scena (INT., EXT., I/E., EXT./INT., ecc.)
     QUESTA È ORA LA FUNZIONE CHIAVE PER IDENTIFICARE NUOVE SCENE"""
 
     # Pulizia più aggressiva della riga per rimuovere caratteri problematici
@@ -310,17 +311,37 @@ def is_location_line(riga):
 
     # ====== MATCH DEFINITIVI - ALTA PRIORITÀ ======
 
-    # 1. Standard cinematografici: INT., EXT., I/E.
-    if re.match(r"^(INT\.?|EXT\.?|I/E\.?)\s+.+", riga_clean):
-        return True
+    # 1. Standard cinematografici: INT., EXT., I/E. e TUTTE LE VARIANTI EXT./INT.
+    location_patterns = [
+        r"^(INT\.?|EXT\.?|I/E\.?)\s+.+",  # Pattern originali
+        r"^(EXT\.?/INT\.?|INT\.?/EXT\.?)\s+.+",  # EXT./INT. o INT./EXT.
+        r"^(EXT\./INT\.|INT\./EXT\.)\s+.+",  # Con punti obbligatori
+        r"^(EXT/INT|INT/EXT)\s+.+",  # Senza punti
+        r"^(EXTERIOR/INTERIOR|INTERIOR/EXTERIOR)\s+.+",  # Forme complete
+        r"^(EXT-INT|INT-EXT)\s+.+",  # Con trattino
+        r"^(EXT\.?\s*-\s*INT\.?|INT\.?\s*-\s*EXT\.?)\s+.+",  # Con trattino e spazi
+    ]
+
+    for pattern in location_patterns:
+        if re.match(pattern, riga_clean):
+            return True
 
     # 2. Pattern numerati delle scene: numero - descrizione - numero
     if re.match(r"^(\d+[A-Za-z]*|[A-Za-z]*\d+)\s+.+\s+(\d+[A-Za-z]*|[A-Za-z]*\d+)\s*$", riga_clean):
         return True
 
-    # 3. NUOVO: Pattern numero + spazio + INT./EXT./I/E.
-    if re.match(r"^\d+[A-Za-z]*\s+(INT\.?|EXT\.?|I/E\.?)\s+.+", riga_clean):
-        return True
+    # 3. Pattern numero + spazio + location patterns
+    number_location_patterns = [
+        r"^\d+[A-Za-z]*\s+(INT\.?|EXT\.?|I/E\.?)\s+.+",
+        r"^\d+[A-Za-z]*\s+(EXT\.?/INT\.?|INT\.?/EXT\.?)\s+.+",
+        r"^\d+[A-Za-z]*\s+(EXT\./INT\.|INT\./EXT\.)\s+.+",
+        r"^\d+[A-Za-z]*\s+(EXT/INT|INT/EXT)\s+.+",
+        r"^\d+[A-Za-z]*\s+(EXT\.?\s*-\s*INT\.?|INT\.?\s*-\s*EXT\.?)\s+.+",
+    ]
+
+    for pattern in number_location_patterns:
+        if re.match(pattern, riga_clean):
+            return True
 
     # ====== ESCLUSIONI IMMEDIATE - MEDIA PRIORITÀ ======
 
