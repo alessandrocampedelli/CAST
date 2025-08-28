@@ -528,7 +528,7 @@ def is_speaker(riga):
 
 
 def is_continued_line(riga):
-    """Rileva righe CONTINUED in tutte le varianti comuni"""
+    """Rileva righe CONTINUED in tutte le varianti comuni, incluso il formato con parentesi"""
     riga_upper = riga.strip().upper()
 
     # Pattern originali
@@ -539,19 +539,43 @@ def is_continued_line(riga):
             re.match(r"\(CONTINUED[:\s]*\d+\)", riga_upper)):
         return True
 
-    # NUOVO: Pattern numero-CONTINUED-numero (es: "2        CONTINUED:                                                            2")
-    # Questo deve essere controllato PRIMA del pattern numero-descrizione-numero in is_location_line
+    # Pulizia della riga per pattern complessi
     riga_clean = riga.strip().replace("\xa0", " ").replace("\u00A0", " ")
     riga_clean = re.sub(r'\s+', ' ', riga_clean).upper()
 
-    # Pattern: numero + CONTINUED (con o senza :) + numero
+    # NUOVO: Pattern numero-CONTINUED-numero (es: "2 CONTINUED: 2")
     if re.match(r'^\d+[A-Za-z]*\s+CONTINUED:?\s+\d+[A-Za-z]*\s*$', riga_clean):
         return True
 
-    # Pattern: solo CONTINUED con spazi e numeri intorno
+    # NUOVO: Pattern numero-CONTINUED:(numero)-numero
+    # Es: "4   CONTINUED: (2)                                                                   4"
+    if re.match(r'^\d+[A-Za-z]*\s+CONTINUED:?\s*\(\d+\)\s+\d+[A-Za-z]*\s*$', riga_clean):
+        return True
+
+    # NUOVO: Pattern più generale per CONTINUED con parentesi
+    # Es: "CONTINUED: (2)", "5 CONTINUED: (3) 5", etc.
+    if re.search(r'CONTINUED:?\s*\(\d+\)', riga_clean):
+        return True
+
+    # NUOVO: Pattern solo CONTINUED con spazi e numeri intorno
     if re.match(r'^\d+[A-Za-z]*\s+CONTINUED:?\s*$', riga_clean) or \
             re.match(r'^\s*CONTINUED:?\s+\d+[A-Za-z]*\s*$', riga_clean):
         return True
+
+    # NUOVO: Pattern con numeri di pagina in parentesi e numeri ai lati
+    # Es: "4 CONTINUED: (2) 4", "A1 CONTINUED (5) A1"
+    if re.match(r'^\d+[A-Za-z]*\s+CONTINUED:?\s*\([^)]+\)\s*\d+[A-Za-z]*\s*$', riga_clean):
+        return True
+
+    # NUOVO: Pattern flessibile che cattura varianti con molto spazio bianco
+    # Rileva pattern dove CONTINUED è circondato da numeri, anche con spazi estesi
+    continued_flexible = re.match(r'^(\d+[A-Za-z]*)\s+(CONTINUED:?)\s*(\([^)]*\))?\s*(\d+[A-Za-z]*)\s*$', riga_clean)
+    if continued_flexible:
+        # Verifica che i numeri all'inizio e alla fine corrispondano (tipico delle righe continued)
+        start_num = continued_flexible.group(1)
+        end_num = continued_flexible.group(4)
+        if start_num == end_num:  # Stesso numero all'inizio e alla fine
+            return True
 
     return False
 
