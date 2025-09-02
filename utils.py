@@ -160,8 +160,6 @@ def is_header_line(riga, next_line=None):
     riga_senza_escape = re.sub(r'^[\f\x0c]+', '', riga_clean)
     riga_senza_escape = re.sub(r'[^\x00-\x7F]+', ' ', riga_senza_escape)  # Rimuove caratteri non-ASCII
 
-    # ====== SOLUZIONE GENERALE - ALTA PRIORITÀ ======
-
     # 1. DATE SEMPLICI (mm/dd/yy, mm/dd/yyyy, dd/mm/yy, dd/mm/yyyy)
     if re.match(r'^\d{1,2}/\d{1,2}/\d{2,4}$', riga_senza_escape.strip()):
         return True
@@ -243,8 +241,6 @@ def is_header_line(riga, next_line=None):
     if re.search(r'\([Cc©]\)\s*\d{4}', riga_senza_escape):
         return True
 
-    # ====== INTESTAZIONI ORIGINALI ======
-
     # Date di revisione tipo Rev. mm/dd/yyyy
     if re.search(r"- Rev\. \d{1,2}/\d{1,2}/\d{2,4}", riga_senza_escape):
         return True
@@ -281,8 +277,6 @@ def is_header_line(riga, next_line=None):
                 next_clean, re.IGNORECASE):
             return True
 
-    # ====== PATTERN AGGIUNTIVI GENERALI ======
-
     # 6. RIGHE CON SOLO LETTERE MAIUSCOLE E PUNTEGGIATURA (probabilmente titoli)
     # Ma esclude location e speaker
     if (len(riga_senza_escape) > 15 and
@@ -300,8 +294,7 @@ def is_header_line(riga, next_line=None):
     return False
 
 def is_location_line(riga):
-    """Rileva righe che rappresentano location di scena (INT., EXT., I/E., ecc.)
-    QUESTA È ORA LA FUNZIONE CHIAVE PER IDENTIFICARE NUOVE SCENE"""
+    """Rileva righe che rappresentano location di scena (INT., EXT., I/E., ecc.)"""
 
     # Pulizia più aggressiva della riga per rimuovere caratteri problematici
     riga_clean = riga.strip().replace("\xa0", " ").replace("\u00A0", " ")
@@ -318,7 +311,7 @@ def is_location_line(riga):
     if re.match(r"^(\d+[A-Za-z]*|[A-Za-z]*\d+)\s+.+\s+(\d+[A-Za-z]*|[A-Za-z]*\d+)\s*$", riga_clean):
         return True
 
-    # 3. NUOVO: Pattern numero + spazio + INT./EXT./I/E.
+    # 3. NUOVO: Pattern numero + INT./EXT./I/E.
     if re.match(r"^\d+[A-Za-z]*\s+(INT\.?|EXT\.?|I/E\.?)\s+.+", riga_clean):
         return True
 
@@ -436,8 +429,6 @@ def is_speaker(riga):
     if base_name in ["CONTINUED", "CONTINUED:"]:
         return False
 
-    # NUOVI CONTROLLI: Esclude descrizioni che non sono speaker
-
     # 1. Esclude se contiene virgole (tipico delle descrizioni narrative)
     if "," in riga_clean:
         return False
@@ -474,7 +465,7 @@ def is_speaker(riga):
     # Conta parole "non maiuscole" per permettere eccezioni
     words = base_name.split()
 
-    # MODIFICA: Gestione migliorata per speaker numerati come "SPEAKER #1", "PERSON #2" etc.
+    # Gestione migliorata per speaker numerati come "SPEAKER #1", "PERSON #2" etc.
     lowercase_tolerated = True
     for w in words:
         # Pattern speciali ammessi:
@@ -518,8 +509,7 @@ def is_continued_line(riga):
             re.match(r"\(CONTINUED[:\s]*\d+\)", riga_upper)):
         return True
 
-    # NUOVO: Pattern numero-CONTINUED-numero (es: "2        CONTINUED:                                                            2")
-    # Questo deve essere controllato PRIMA del pattern numero-descrizione-numero in is_location_line
+    # Pattern numero-CONTINUED-numero (es: "2        CONTINUED:                                                            2")
     riga_clean = riga.strip().replace("\xa0", " ").replace("\u00A0", " ")
     riga_clean = re.sub(r'\s+', ' ', riga_clean).upper()
 
@@ -569,7 +559,7 @@ def extract_title_from_filename(filename):
 
     if match:
         title_slug = match.group(1)
-        year = match.group(2)
+        match.group(2)
         # Sostituisce i trattini con spazi per una forma leggibile
         title = title_slug.replace('-', ' ').strip()
         return title
