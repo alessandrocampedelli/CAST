@@ -49,23 +49,23 @@ def converti_in_tei(percorso_txt):
 
         # PRIORITÀ 2: RILEVA INIZIO NUOVA SCENA BASANDOSI SULLA LOCATION
         if utils.is_location_line(riga):
-            # Verifica se è il pattern numero-descrizione-numero sulla stessa riga
+            #1) pulizia della riga: normalizzo tutti gli spazi multipli in un singolo spazio
             riga_clean = riga.strip().replace("\xa0", " ").replace("\u00A0", " ")
             riga_clean = re.sub(r'\s+', ' ', riga_clean)
 
+            #2)riconoscimento dei pattern
             # Pattern 1: numero/alfanumerico + descrizione + numero/alfanumerico
-            # (es: "4 FULL SHOT - ENTERPRISE BRIDGE 4" o "A1 EXT. ADDAMS MANSION FRONT STEPS - CHRISTMAS EVE A1")
             numero_desc_numero_match = re.match(r'^([A-Za-z]*\d+[A-Za-z]*)\s+(.+?)\s+([A-Za-z]*\d+[A-Za-z]*)$',
                                                 riga_clean)
 
-            # Pattern 2: NUOVO - numero + spazio + INT./EXT./I/E. + descrizione
-            # (es: "2   EXT. PLACE DE CONCORDE - DAY")
+            # Pattern 2: numero + INT./EXT./I/E. + descrizione
             numero_location_match = re.match(r'^(\d+[A-Za-z]*)\s+((?:INT\.?|EXT\.?|I/E\.?)\s+.+)$',
                                              riga_clean, re.IGNORECASE)
 
             if numero_desc_numero_match:
                 # Estrae SOLO la descrizione, ignora il numero originale
                 location_description = numero_desc_numero_match.group(2).strip()
+
                 # Usa numerazione automatica
                 numero_scena = str(scene_counter)
 
@@ -77,22 +77,21 @@ def converti_in_tei(percorso_txt):
                 ET.SubElement(scena_corrente, "stage", type="location").text = location_description
 
             elif numero_location_match:
-                # NUOVO: Estrae SOLO la parte location (senza il numero iniziale)
+                #stesso identico approccio per questo pattern
                 location_description = numero_location_match.group(2).strip()
-                # Usa numerazione automatica
+
                 numero_scena = str(scene_counter)
 
-                # Crea la scena usando numerazione automatica
                 scena_corrente = ET.SubElement(body, "div", type="scene")
                 scena_corrente.set("n", numero_scena)
 
-                # Aggiunge la location estratta
                 ET.SubElement(scena_corrente, "stage", type="location").text = location_description
 
             else:
-                # Location line normale (INT./EXT./etc.) - usa numerazione automatica
-                numero_scena = str(scene_counter)
+                #location standard
                 location_line = riga
+
+                numero_scena = str(scene_counter)
 
                 # Crea la scena con numerazione automatica
                 scena_corrente = ET.SubElement(body, "div", type="scene")
@@ -116,89 +115,124 @@ def converti_in_tei(percorso_txt):
             i += 1
             continue
 
-        # Ignora numeri di scena (ora non servono più per identificare scene)
+        # PRIORITÀ 4: Ignora numeri di scena (ora non servono più per identificare scene)
         if utils.is_scene_number(riga):
             i += 1
             continue
 
-        # Ignora righe MORE (ma imposta flag di continuazione)
+        # PRIORITÀ 5: Ignora righe MORE (ma imposta flag di continuazione)
         if utils.is_more_line(riga):
             speech_in_continuazione = True
             i += 1
             continue
 
-        # Ignora transizioni
+        # PRIORITÀ 6: Ignora transizioni
         if utils.is_transition_line(riga):
             i += 1
             continue
 
-        # Ignora intestazioni (header) - righe duplicate
+        # PRIORITÀ 7: Ignora intestazioni (header) - righe duplicate
         if utils.is_header_line(riga, next_line):
             i += 1
             continue
 
-        # RILEVA SPEAKER E BATTUTE
+        # PRIORITÀ 8: RILEVA SPEAKER E BATTUTE
         if utils.is_speaker(riga) and scena_corrente is not None:
             speaker_name = utils.extract_speaker_name(riga)
             is_continuation = utils.is_continuation_speaker(riga)
 
             # Determina se continuare la speech precedente
+            '''
+             due scenari possibili: 
+                JOHN
+                    Hello there!
+                    (MORE)                  #speech_in_continuazione = True
+                
+                [pagina successiva]
+                
+                JOHN                        #speaker_name == speaker_corrente
+                    How are you doing?
+                -----------------------
+                JOHN
+                    I was saying...
+                
+                JOHN (CONT'D)               #is_continuation = True dato che c'è (CONT'D)
+                    that we should leave.
+            '''
             continua_speech = (
                                       (speech_in_continuazione and speaker_name == speaker_corrente) or
                                       (is_continuation and speaker_name == speaker_corrente)
                               ) and ultimo_sp_element is not None
 
+            #salto la riga dello speaker
             i += 1
             battute = []
 
-            # Raccoglie le battute del personaggio
+            # loop per raccogliere tutte le righe di dialogo del personaggio corrente
             while i < len(corpo_righe):
                 next_riga = corpo_righe[i].strip()
 
-                # Stop conditions - MODIFICATO: non più is_scene_number ma is_location_line
+                # Stop conditions: il loop si ferma quando incontra:
+                '''
+                    Nuovo speaker: "MARY"
+                    Nuova scena: "INT. KITCHEN - DAY"
+                    Numero pagina: "15"
+                    Continued: "CONTINUED"
+                    More: "(MORE)"
+                    Numero scena: "12A"
+                '''
                 if (utils.is_speaker(next_riga) or utils.is_location_line(next_riga) or
                         utils.is_page_number(next_riga) or utils.is_continued_line(next_riga) or
                         utils.is_more_line(next_riga) or utils.is_scene_number(next_riga)):
                     break
 
-                # NUOVO: Controlla anche header/footer durante la raccolta battute
+                # durante la raccolta se individuo righe header le ignoro
                 if utils.is_header_line(next_riga):
                     i += 1
                     continue
 
-                # NUOVO: Controlla anche transizioni durante la raccolta battute
+                # durante raccolta se individuo parole di transizioni le ignoro
                 if utils.is_transition_line(next_riga):
                     i += 1
                     continue
 
+                #raccolta effettiva: salvo la riga nella lista battute
                 if next_riga:
                     battute.append(next_riga)
                 i += 1
 
             # Verifica se c'è (MORE) alla fine delle battute raccolte
+            '''
+            Se l'ultima battuta è (MORE), la rimuovo e imposto il flag. esso verrà usato
+            per la prossima speech dello stesso personaggio, in questo modo (MORE) non appare nell'xml finale 
+            '''
             if battute and utils.is_more_line(battute[-1]):
+                #rimuove (MORE) dalle battute
                 battute.pop()
                 speech_in_continuazione = True
             else:
                 speech_in_continuazione = False
 
-            # Aggiunge le battute
+            # creazione/aggiornamento xml aggiungendo le battute
             if battute:
                 if continua_speech:
                     # Continua la speech precedente
                     for battuta in battute:
+                        #inserisco tutti gli elementi p in sp
                         ultimo_sp_element.append(utils.crea_elemento_testo("p", battuta))
                 else:
                     # Crea nuova speech
                     sp = ET.SubElement(scena_corrente, "sp")
                     ET.SubElement(sp, "speaker").text = speaker_name
                     for battuta in battute:
+                        # inserisco tutti gli elementi p in sp
                         sp.append(utils.crea_elemento_testo("p", battuta))
+                    #aggiorno il riferimento all'ultimo elemento <sp>
                     ultimo_sp_element = sp
                     speaker_corrente = speaker_name
             continue
 
-        # DESCRIZIONI SCENE (stage directions)
+        # PRIORITÀ 9: tutto ciò che non è stato catturato lo catturo come DESCRIZIONI SCENE (stage directions)
         if scena_corrente is not None and riga:
             ET.SubElement(scena_corrente, "stage").text = riga
 
