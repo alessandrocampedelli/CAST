@@ -131,6 +131,195 @@ class StreamlitDashboard:
         )
         st.plotly_chart(fig6, use_container_width=True)
 
+        # ================================
+        # NUOVA SEZIONE: ANALISI SINGOLI FILM
+        # ================================
+        st.markdown("---")
+        st.header("📊 Analisi Dettagliata Singoli Film")
+
+        # Selezione film
+        film_names = [film['film'] for film in self.individual_stats]
+        selected_film = st.selectbox("Seleziona un film per l'analisi dettagliata:", film_names)
+
+        # Trova i dati del film selezionato
+        film_data = None
+        for film in self.individual_stats:
+            if film['film'] == selected_film:
+                film_data = film
+                break
+
+        if film_data:
+            self.display_individual_film_analysis(film_data)
+
+    def display_individual_film_analysis(self, film_data):
+        """Visualizza l'analisi dettagliata di un singolo film"""
+
+        # Info generale del film
+        col1, col2, col3 = st.columns(3)
+        with col1:
+            st.metric("🎬 Film", film_data['film'])
+        with col2:
+            st.metric("🎭 Scene Totali", film_data['total_scenes'])
+        with col3:
+            timestamp = film_data['analysis_timestamp'].split('T')[0]
+            st.metric("📅 Analisi", timestamp)
+
+        stats = film_data['statistics']
+
+        # Row 1: Locations del singolo film
+        st.subheader(f"🏞️ Analisi Locations - {film_data['film']}")
+        col1, col2 = st.columns(2)
+
+        with col1:
+            # INT vs EXT per il film
+            st.markdown("**Interni vs Esterni**")
+            int_ext_data = stats['locations']['int_ext_distribution']
+            fig_int_ext = px.pie(
+                values=list(int_ext_data.values()),
+                names=list(int_ext_data.keys()),
+                title=f"INT vs EXT - {film_data['film']}",
+                color_discrete_sequence=['#667eea', '#764ba2']
+            )
+            st.plotly_chart(fig_int_ext, use_container_width=True)
+
+        with col2:
+            # Ambienti per il film
+            st.markdown("**Distribuzione Ambienti**")
+            env_data = stats['locations']['environment_distribution']
+            if env_data:  # Controlla se ci sono dati
+                fig_env = px.bar(
+                    x=list(env_data.keys()),
+                    y=list(env_data.values()),
+                    title=f"Ambienti - {film_data['film']}",
+                    color_discrete_sequence=['#FF6B6B']
+                )
+                fig_env.update_layout(xaxis_title="Ambiente", yaxis_title="Scene")
+                st.plotly_chart(fig_env, use_container_width=True)
+            else:
+                st.info("Nessun dato ambientale disponibile per questo film")
+
+        # Row 2: Temporal del singolo film
+        st.subheader(f"⏰ Analisi Temporale - {film_data['film']}")
+        col1, col2 = st.columns(2)
+
+        with col1:
+            # Periodi del giorno
+            st.markdown("**Periodi del Giorno**")
+            day_data = stats['temporal']['day_night_distribution']
+            if day_data:
+                fig_day = px.pie(
+                    values=list(day_data.values()),
+                    names=list(day_data.keys()),
+                    title=f"Periodi Giorno - {film_data['film']}",
+                    color_discrete_sequence=['#FFD93D', '#6BCF7F', '#4834DF', '#686DE0']
+                )
+                st.plotly_chart(fig_day, use_container_width=True)
+            else:
+                st.info("Nessun dato sui periodi del giorno per questo film")
+
+        with col2:
+            # Stagioni
+            st.markdown("**Distribuzione Stagionale**")
+            season_data = stats['temporal']['season_distribution']
+            if season_data:
+                # Traduci i nomi delle stagioni
+                season_labels = {
+                    'spring': 'Primavera',
+                    'summer': 'Estate',
+                    'winter': 'Inverno',
+                    'autumn': 'Autunno'
+                }
+                translated_names = [season_labels.get(k, k) for k in season_data.keys()]
+
+                fig_season = px.pie(
+                    values=list(season_data.values()),
+                    names=translated_names,
+                    title=f"Stagioni - {film_data['film']}",
+                    color_discrete_sequence=['#FF6B6B', '#4ECDC4', '#FECA57', '#FF9FF3']
+                )
+                st.plotly_chart(fig_season, use_container_width=True)
+            else:
+                st.info("Nessun dato stagionale per questo film")
+
+        # Row 3: Periodi storici del film (full width)
+        st.markdown("**Periodi Storici**")
+        historical_data = stats['temporal']['historical_distribution']
+        if historical_data:
+            fig_hist = px.bar(
+                x=list(historical_data.keys()),
+                y=list(historical_data.values()),
+                title=f"Periodi Storici - {film_data['film']}",
+                color_discrete_sequence=['#4ECDC4']
+            )
+            fig_hist.update_layout(xaxis_title="Periodo Storico", yaxis_title="Scene")
+            st.plotly_chart(fig_hist, use_container_width=True)
+        else:
+            st.info("Nessun dato sui periodi storici per questo film")
+
+        # Row 4: Reale vs Immaginario del film
+        reality_data = stats['locations']['real_imaginary_distribution']
+        if reality_data and len(reality_data) > 1:  # Solo se ci sono dati significativi
+            st.markdown("**Classificazione Realtà**")
+            reality_labels = {
+                'unknown': 'Sconosciuto',
+                'real': 'Reale',
+                'imaginary': 'Immaginario'
+            }
+            translated_reality_names = [reality_labels.get(k, k) for k in reality_data.keys()]
+
+            fig_reality = px.pie(
+                values=list(reality_data.values()),
+                names=translated_reality_names,
+                title=f"Reale vs Immaginario - {film_data['film']}",
+                color_discrete_sequence=['#95A5A6', '#27AE60', '#E74C3C']
+            )
+            st.plotly_chart(fig_reality, use_container_width=True)
+
+        # Summary insights del film
+        st.subheader(f"🎯 Insights - {film_data['film']}")
+        col1, col2, col3 = st.columns(3)
+
+        with col1:
+            most_common_env = stats['locations'].get('most_common_environment', 'N/A')
+            st.info(f"**Ambiente Dominante:** {most_common_env}")
+
+        with col2:
+            most_common_period = stats['temporal'].get('most_common_period', 'N/A')
+            st.info(f"**Periodo Dominante:** {most_common_period}")
+
+        with col3:
+            # Calcola percentuale INT vs EXT
+            int_scenes = int_ext_data.get('INT', 0)
+            total_int_ext = sum(int_ext_data.values())
+            int_percentage = (int_scenes / total_int_ext * 100) if total_int_ext > 0 else 0
+            st.info(f"**% Scene Interne:** {int_percentage:.1f}%")
+
+        # Comparazione con la media generale
+        st.subheader("📈 Confronto con la Media Generale")
+
+        # Calcola alcune metriche comparative
+        general_stats = self.aggregated_stats['aggregated_statistics']
+        general_int_perc = general_stats['locations']['int_ext_percentages']['INT']
+
+        col1, col2 = st.columns(2)
+        with col1:
+            difference = int_percentage - general_int_perc
+            if difference > 0:
+                st.success(
+                    f"Questo film ha **{difference:.1f}%** in più di scene interne rispetto alla media generale ({general_int_perc}%)")
+            else:
+                st.warning(
+                    f"Questo film ha **{abs(difference):.1f}%** in meno di scene interne rispetto alla media generale ({general_int_perc}%)")
+
+        with col2:
+            avg_scenes_per_film = self.aggregated_stats['analysis_summary']['average_scenes_per_film']
+            scene_difference = film_data['total_scenes'] - avg_scenes_per_film
+            if scene_difference > 0:
+                st.info(f"**{scene_difference:.0f} scene** in più rispetto alla media ({avg_scenes_per_film:.1f})")
+            else:
+                st.info(
+                    f"**{abs(scene_difference):.0f} scene** in meno rispetto alla media ({avg_scenes_per_film:.1f})")
+
 if __name__ == "__main__":
     dashboard = StreamlitDashboard('screenplay_analysis.json', 'screenplay_analysis_macro_stats.json')
     dashboard.run_dashboard()
