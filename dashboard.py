@@ -100,39 +100,8 @@ class StreamlitDashboard:
             )
             st.plotly_chart(fig4, use_container_width=True)
 
-        # Row 3: Periodi storici (full width)
-        st.subheader("Periodi Storici")
-        historical_data = stats['temporal']['historical_totals']
-        fig5 = px.bar(
-            x=list(historical_data.keys()),
-            y=list(historical_data.values()),
-            title="Distribuzione per Periodo Storico",
-            color_discrete_sequence=['#4ECDC4']
-        )
-        fig5.update_layout(xaxis_title="Periodo Storico", yaxis_title="Numero Scene")
-        st.plotly_chart(fig5, use_container_width=True)
-
-        # Row 4: Reale vs Immaginario
-        st.subheader("Classificazione Realtà")
-        reality_data = stats['locations']['real_imaginary_totals']
-        # Traduci le etichette
-        reality_labels = {
-            'unknown': 'Sconosciuto',
-            'real': 'Reale',
-            'imaginary': 'Immaginario'
-        }
-        translated_reality_names = [reality_labels.get(k, k) for k in reality_data.keys()]
-
-        fig6 = px.pie(
-            values=list(reality_data.values()),
-            names=translated_reality_names,
-            title="Distribuzione Reale vs Immaginario",
-            color_discrete_sequence=['#95A5A6', '#27AE60', '#E74C3C']
-        )
-        st.plotly_chart(fig6, use_container_width=True)
-
         # ================================
-        # NUOVA SEZIONE: ANALISI SINGOLI FILM
+        # SEZIONE: ANALISI SINGOLI FILM
         # ================================
         st.markdown("---")
         st.header("📊 Analisi Dettagliata Singoli Film")
@@ -240,40 +209,6 @@ class StreamlitDashboard:
                 st.plotly_chart(fig_season, use_container_width=True)
             else:
                 st.info("Nessun dato stagionale per questo film")
-
-        # Row 3: Periodi storici del film (full width)
-        st.markdown("**Periodi Storici**")
-        historical_data = stats['temporal']['historical_distribution']
-        if historical_data:
-            fig_hist = px.bar(
-                x=list(historical_data.keys()),
-                y=list(historical_data.values()),
-                title=f"Periodi Storici - {film_data['film']}",
-                color_discrete_sequence=['#4ECDC4']
-            )
-            fig_hist.update_layout(xaxis_title="Periodo Storico", yaxis_title="Scene")
-            st.plotly_chart(fig_hist, use_container_width=True)
-        else:
-            st.info("Nessun dato sui periodi storici per questo film")
-
-        # Row 4: Reale vs Immaginario del film
-        reality_data = stats['locations']['real_imaginary_distribution']
-        if reality_data and len(reality_data) > 1:  # Solo se ci sono dati significativi
-            st.markdown("**Classificazione Realtà**")
-            reality_labels = {
-                'unknown': 'Sconosciuto',
-                'real': 'Reale',
-                'imaginary': 'Immaginario'
-            }
-            translated_reality_names = [reality_labels.get(k, k) for k in reality_data.keys()]
-
-            fig_reality = px.pie(
-                values=list(reality_data.values()),
-                names=translated_reality_names,
-                title=f"Reale vs Immaginario - {film_data['film']}",
-                color_discrete_sequence=['#95A5A6', '#27AE60', '#E74C3C']
-            )
-            st.plotly_chart(fig_reality, use_container_width=True)
 
         # Summary insights del film
         st.subheader(f"🎯 Insights - {film_data['film']}")
