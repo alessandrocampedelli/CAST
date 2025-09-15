@@ -17,7 +17,6 @@ class StreamlitDashboard:
     # ============================
 
     def plot_pie(self, data, title, colors=None, translate_seasons=False):
-        """Genera un grafico a torta"""
         if not data:
             st.info("Nessun dato disponibile")
             return
@@ -41,7 +40,6 @@ class StreamlitDashboard:
         st.plotly_chart(fig, use_container_width=True)
 
     def plot_bar(self, data, title, x_title="Categoria", y_title="Valore", colors=None):
-        """Genera un grafico a barre"""
         if not data:
             st.info("Nessun dato disponibile")
             return
@@ -107,6 +105,65 @@ class StreamlitDashboard:
                           translate_seasons=True)
 
         # ============================
+        # NUOVI ISTOGRAMMI PER FILM
+        # ============================
+        st.markdown("---")
+        st.header("📊 Confronto tra Film")
+
+        # --- 1. INT/EXT per film ---
+        int_ext_data = []
+        for film in self.individual_stats:
+            film_name = film.get('film', 'N/A')
+            stats = film.get('statistics', {})
+            locations = stats.get('locations', {})
+            dist = locations.get('int_ext_distribution', {})
+            for k, v in dist.items():
+                int_ext_data.append({"Film": film_name, "Categoria": k, "Scene": v})
+
+        if int_ext_data:
+            fig1 = px.bar(int_ext_data, x="Film", y="Scene", color="Categoria",
+                          barmode="group", title="Distribuzione INT/EXT per film")
+            st.plotly_chart(fig1, use_container_width=True)
+        else:
+            st.info("Nessun dato INT/EXT disponibile per i film.")
+
+        # --- 2. Fasi del giorno per film ---
+        daytime_data = []
+        for film in self.individual_stats:
+            film_name = film.get('film', 'N/A')
+            stats = film.get('statistics', {})
+            temporal = stats.get('temporal', {})
+            dist = temporal.get('day_night_distribution', {})
+            for k, v in dist.items():
+                daytime_data.append({"Film": film_name, "Categoria": k, "Scene": v})
+
+        if daytime_data:
+            fig2 = px.bar(daytime_data, x="Film", y="Scene", color="Categoria",
+                          barmode="group", title="Distribuzione fasi del giorno per film")
+            st.plotly_chart(fig2, use_container_width=True)
+        else:
+            st.info("Nessun dato sulle fasi del giorno disponibile per i film.")
+
+        # --- 3. Stagioni per film ---
+        season_data = []
+        season_labels = {'spring': 'Primavera','summer': 'Estate','winter': 'Inverno','autumn': 'Autunno'}
+        for film in self.individual_stats:
+            film_name = film.get('film', 'N/A')
+            stats = film.get('statistics', {})
+            temporal = stats.get('temporal', {})
+            dist = temporal.get('season_distribution', {})
+            for k, v in dist.items():
+                label = season_labels.get(k, k)
+                season_data.append({"Film": film_name, "Categoria": label, "Scene": v})
+
+        if season_data:
+            fig3 = px.bar(season_data, x="Film", y="Scene", color="Categoria",
+                          barmode="group", title="Distribuzione stagioni per film")
+            st.plotly_chart(fig3, use_container_width=True)
+        else:
+            st.info("Nessun dato stagionale disponibile per i film.")
+
+        # ============================
         # SEZIONE: ANALISI SINGOLI FILM
         # ============================
         st.markdown("---")
@@ -119,6 +176,9 @@ class StreamlitDashboard:
         if film_data:
             self.display_individual_film_analysis(film_data)
 
+    # ============================
+    # ANALISI SINGOLO FILM
+    # ============================
     def display_individual_film_analysis(self, film_data):
         col1, col2, col3 = st.columns(3)
         with col1:
@@ -129,16 +189,16 @@ class StreamlitDashboard:
             timestamp = film_data['analysis_timestamp'].split('T')[0]
             st.metric("📅 Analisi", timestamp)
 
-        stats = film_data['statistics']
+        stats = film_data.get('statistics', {})
 
         # Row 1: Locations del film
         st.subheader(f"🏞️ Analisi Locations - {film_data['film']}")
         col1, col2 = st.columns(2)
         with col1:
-            self.plot_pie(stats['locations']['int_ext_distribution'],
+            self.plot_pie(stats.get('locations', {}).get('int_ext_distribution', {}),
                           f"INT vs EXT - {film_data['film']}", colors=['#667eea', '#764ba2'])
         with col2:
-            self.plot_bar(stats['locations']['environment_distribution'],
+            self.plot_bar(stats.get('locations', {}).get('environment_distribution', {}),
                           f"Ambienti - {film_data['film']}",
                           x_title="Ambiente", y_title="Scene", colors=['#FF6B6B'])
 
@@ -146,11 +206,11 @@ class StreamlitDashboard:
         st.subheader(f"⏰ Analisi Temporale - {film_data['film']}")
         col1, col2 = st.columns(2)
         with col1:
-            self.plot_pie(stats['temporal']['day_night_distribution'],
+            self.plot_pie(stats.get('temporal', {}).get('day_night_distribution', {}),
                           f"Periodi Giorno - {film_data['film']}",
                           colors=['#FFD93D', '#6BCF7F', '#4834DF', '#686DE0'])
         with col2:
-            self.plot_pie(stats['temporal']['season_distribution'],
+            self.plot_pie(stats.get('temporal', {}).get('season_distribution', {}),
                           f"Stagioni - {film_data['film']}",
                           colors=['#FF6B6B', '#4ECDC4', '#FECA57', '#FF9FF3'],
                           translate_seasons=True)
