@@ -122,10 +122,10 @@ class StreamlitDashboard:
 
         if int_ext_data:
             fig1 = px.bar(int_ext_data, x="Film", y="Scene", color="Categoria",
-                          barmode="group", title="Distribuzione INT/EXT per film")
+                          barmode="group", title="Distribuzione INT/EXT per film",
+                          color_discrete_map={'INT': '#764ba2', 'EXT': '#667eea'})
+            fig1.update_layout(xaxis=dict(showticklabels=False))  # Rimuove i nomi dei film
             st.plotly_chart(fig1, use_container_width=True)
-        else:
-            st.info("Nessun dato INT/EXT disponibile per i film.")
 
         # --- 2. Fasi del giorno per film ---
         daytime_data = []
@@ -137,16 +137,22 @@ class StreamlitDashboard:
             for k, v in dist.items():
                 daytime_data.append({"Film": film_name, "Categoria": k, "Scene": v})
 
+        day_colors = {
+            'MORNING': '#6BCF7F', 'DAY': '#FFD93D', 'NIGHT': '#4834DF', 'EVENING': '#686DE0'
+        }
+
         if daytime_data:
             fig2 = px.bar(daytime_data, x="Film", y="Scene", color="Categoria",
-                          barmode="group", title="Distribuzione fasi del giorno per film")
+                          barmode="group", title="Distribuzione fasi del giorno per film",
+                          color_discrete_map=day_colors)
+            fig2.update_layout(xaxis=dict(showticklabels=False))
             st.plotly_chart(fig2, use_container_width=True)
-        else:
-            st.info("Nessun dato sulle fasi del giorno disponibile per i film.")
 
         # --- 3. Stagioni per film ---
         season_data = []
-        season_labels = {'spring': 'Primavera','summer': 'Estate','winter': 'Inverno','autumn': 'Autunno'}
+        season_labels = {'spring': 'Primavera', 'summer': 'Estate', 'winter': 'Inverno', 'autumn': 'Autunno'}
+        season_colors = {'Primavera': '#FF6B6B', 'Estate': '#4ECDC4', 'Inverno': '#FECA57', 'Autunno': '#FF9FF3'}
+
         for film in self.individual_stats:
             film_name = film.get('film', 'N/A')
             stats = film.get('statistics', {})
@@ -158,10 +164,10 @@ class StreamlitDashboard:
 
         if season_data:
             fig3 = px.bar(season_data, x="Film", y="Scene", color="Categoria",
-                          barmode="group", title="Distribuzione stagioni per film")
+                          barmode="group", title="Distribuzione stagioni per film",
+                          color_discrete_map=season_colors)
+            fig3.update_layout(xaxis=dict(showticklabels=False))
             st.plotly_chart(fig3, use_container_width=True)
-        else:
-            st.info("Nessun dato stagionale disponibile per i film.")
 
         # ============================
         # SEZIONE: ANALISI SINGOLI FILM
