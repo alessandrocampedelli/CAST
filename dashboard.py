@@ -64,12 +64,13 @@ class StreamlitDashboard:
             layout="wide"
         )
 
-        st.title("🎬 Dashboard Statistiche Film")
-        st.markdown("Analisi di 100 film e 15.615 scene cinematografiche")
-
         # Metriche principali
         col1, col2, col3, col4 = st.columns(4)
         summary = self.aggregated_stats['analysis_summary']
+
+        st.title("🎬 Dashboard Statistiche Film")
+        st.markdown(f"Analisi di {summary['total_films_analyzed']} film e {summary['total_scenes_analyzed']:,} scene cinematografiche")
+
         with col1:
             st.metric("Film Analizzati", summary['total_films_analyzed'])
         with col2:
