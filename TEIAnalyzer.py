@@ -362,7 +362,7 @@ class TEIAnalyzer:
                     }
                 }
             },
-            'films_summary': film_summaries,
+            'films_summary': film_summaries
         }
 
     def _find_common_combinations(self, results: List[Dict]) -> Dict[str, Any]:
