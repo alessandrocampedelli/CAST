@@ -1,26 +1,24 @@
-import re
 import json
 import os
 import xml.etree.ElementTree as ET
-from datetime import datetime
-from typing import Dict, List, Optional, Any, Tuple
-from dataclasses import dataclass, asdict
 from collections import Counter
+from dataclasses import dataclass, asdict
+from datetime import datetime
+from typing import Dict, List, Optional, Any
+
 
 @dataclass
 class LocationInfo:
     """Informazioni estratte sui luoghi"""
     type: Optional[str] = None  # INT/EXT
     setting: Optional[str] = None  # suburban, fantasy, etc.
-    environment: Optional[str] = None  # sea, mountain, urban, etc.
-    real_imaginary: Optional[str] = None  # real/imaginary
+    environment: Optional[str] = None  # sea, mountain, urban, etc
 
 @dataclass
 class TemporalInfo:
     """Informazioni estratte sui tempi"""
     period: Optional[str] = None  # DAY/NIGHT/MORNING/EVENING
     season: Optional[str] = None  # winter/spring/summer/autumn
-    historical: Optional[str] = None  # contemporary/medieval/future/1920s
 
 @dataclass
 class SceneAnalysis:
@@ -28,9 +26,6 @@ class SceneAnalysis:
     scene_n: str
     location: LocationInfo
     temporal: TemporalInfo
-    #info non inserite nel file json. TODO: capire cosa farci -> se tenerle o meno
-    raw_location_text: str
-    stage_texts: List[str]
 
 
 class TEIAnalyzer:
@@ -72,81 +67,6 @@ class TEIAnalyzer:
                        'sunbathing', 'barbecue'],
             'autumn': ['autumn', 'fall', 'leaves', 'harvest', 'october', 'november', 'september', 'pumpkin',
                        'thanksgiving', 'foliage', 'rake']
-        }
-
-        self.historical_keywords = {
-            'ancient': ['ancient', 'rome', 'greece', 'egypt', 'babylon', 'gladiator', 'colosseum', 'pharaoh', 'pyramid',
-                        'temple', 'toga', 'chariot', 'caesar', 'emperor'],
-            'medieval': ['medieval', 'castle', 'knight', 'sword', 'armor', 'kingdom', 'throne', 'king', 'queen',
-                         'noble', 'peasant', 'feudal', 'crusade', 'monastery', 'cathedral', 'plague', 'blacksmith',
-                         'minstrel'],
-            'renaissance': ['renaissance', 'florence', 'venice', 'michelangelo', 'leonardo', 'art', 'painter',
-                            'sculpture', 'patron', 'merchant', 'guild'],
-            'victorian': ['victorian', '1800s', 'carriage', 'corset', 'gentleman', 'lady', 'gaslight', 'telegraph',
-                          'steam', 'industrial', 'factory', 'chimney', 'top hat', 'parasol'],
-            '1920s': ['1920', 'jazz', 'prohibition', 'flapper', 'speakeasy', 'charleston', 'gangster', 'bootlegger',
-                      'radio', 'automobile', 'model t'],
-            '1930s': ['1930', 'depression', 'dust bowl', 'new deal', 'hollywood', 'swing', 'art deco'],
-            '1940s': ['1940', 'world war', 'wwii', 'nazi', 'hitler', 'churchill', 'roosevelt', 'rationing', 'victory',
-                      'liberation', 'blitz'],
-            '1950s': ['1950', 'suburban', 'television', 'rock roll', 'elvis', 'drive-in', 'diner', 'housewife',
-                      'nuclear', 'cold war'],
-            '1960s': ['1960', 'hippie', 'vietnam', 'beatles', 'woodstock', 'protest', 'civil rights', 'moon landing',
-                      'kennedy', 'psychedelic'],
-            '1970s': ['1970', 'disco', 'watergate', 'oil crisis', 'punk', 'afro', 'polyester', 'skateboard'],
-            '1980s': ['1980', 'neon', 'arcade', 'walkman', 'disco', 'yuppie', 'mtv', 'personal computer', 'reagan',
-                      'berlin wall'],
-            '1990s': ['1990', 'internet', 'grunge', 'clinton', 'cell phone', 'cd', 'hip hop', 'dot com'],
-            '2000s': ['2000', 'millennium', 'smartphone', 'social media', 'youtube', 'ipod', 'wifi', 'facebook'],
-            'contemporary': ['smartphone', 'instagram', 'tesla', 'uber', 'airbnb', 'netflix', 'zoom', 'covid',
-                             'pandemic', 'tiktok', 'iphone', 'android', 'laptop', 'tablet', 'wifi', 'bluetooth',
-                             'streaming'],
-            'future': ['future', 'robot', 'laser', 'spacecraft', 'cyberpunk', 'ai', '2050', 'hologram',
-                       'virtual reality', 'android', 'cyborg', 'teleportation', 'time travel', 'dystopia', 'utopia']
-        }
-
-        # Liste di luoghi reali e immaginari
-        self.real_places = {
-            # Città principali del mondo
-            'london', 'paris', 'new york', 'rome', 'tokyo', 'moscow', 'berlin',
-            'madrid', 'sydney', 'cairo', 'mumbai', 'beijing', 'chicago',
-            'los angeles', 'san francisco', 'miami', 'boston', 'seattle',
-            'amsterdam', 'barcelona', 'vienna', 'prague', 'budapest',
-            'istanbul', 'athens', 'lisbon', 'dublin', 'edinburgh',
-            'stockholm', 'copenhagen', 'oslo', 'helsinki',
-            # Stati e regioni
-            'california', 'texas', 'florida', 'new york state', 'italy', 'france',
-            'germany', 'spain', 'england', 'scotland', 'ireland', 'wales',
-            'australia', 'canada', 'japan', 'china', 'india', 'brazil',
-            # Luoghi geografici famosi
-            'alps', 'himalayas', 'sahara', 'amazon', 'mississippi', 'nile',
-            'mediterranean', 'atlantic', 'pacific', 'indian ocean',
-            'mount everest', 'grand canyon', 'niagara falls'
-        }
-
-        self.imaginary_places = {
-            # Fantasy
-            'hogwarts', 'rivendell', 'mordor', 'narnia', 'middle earth',
-            'atlantis', 'asgard', 'valhalla', 'olympus', 'camelot',
-            'neverland', 'wonderland', 'oz', 'shangri-la',
-            # Sci-fi
-            'gotham', 'metropolis', 'wakanda', 'pandora', 'tatooine',
-            'vulcan', 'krypton', 'coruscant', 'endor',
-            # Altri universi finzionali
-            'westeros', 'essos', 'middle-earth', 'discworld'
-        }
-
-        # Indicatori geografici reali
-        self.real_place_indicators = {
-            'airport', 'international', 'highway', 'interstate', 'state',
-            'university', 'college', 'hospital', 'museum', 'embassy',
-            'consulate', 'border', 'customs', 'passport', 'visa'
-        }
-
-        # Indicatori fantastici
-        self.fantasy_indicators = {
-            'magical', 'enchanted', 'mystical', 'supernatural', 'otherworldly',
-            'dimension', 'realm', 'parallel universe', 'alternate reality'
         }
 
     def _analyze_location(self, location_text: str, stage_texts: List[str]) -> LocationInfo:
@@ -201,76 +121,7 @@ class TEIAnalyzer:
         else:
             location_info.setting = 'unspecified'
 
-        # STEP 3: Verifica geografica
-        location_info.real_imaginary = self._determine_reality_type(location_text, stage_texts, location_info)
-
         return location_info
-
-    def _determine_reality_type(self, location_text: str, stage_texts: List[str], location_info: LocationInfo) -> str:
-        """Determina se un luogo è reale o immaginario"""
-        all_text = (location_text + ' ' + ' '.join(stage_texts)).lower()
-
-        # Punteggi per reale vs immaginario
-        real_score = 0
-        imaginary_score = 0
-
-        # Verifica luoghi esplicitamente reali
-        for place in self.real_places:
-            if place in all_text:
-                # Punteggio maggiore per match esatti
-                real_score += 5
-
-        # Verifica luoghi esplicitamente immaginari
-        for place in self.imaginary_places:
-            if place in all_text:
-                imaginary_score += 5
-
-        # Indicatori di luoghi reali
-        for indicator in self.real_place_indicators:
-            if indicator in all_text:
-                real_score += 2
-
-        # Indicatori fantastici
-        for indicator in self.fantasy_indicators:
-            if indicator in all_text:
-                imaginary_score += 3
-
-        # Logica basata sull'ambiente
-        if location_info.environment == 'fantasy':
-            imaginary_score += 3
-        elif location_info.environment == 'space':
-            # Space può essere reale (ISS, NASA) o immaginario
-            if any(word in all_text for word in ['nasa', 'iss', 'houston', 'kennedy', 'cape canaveral']):
-                real_score += 2
-            else:
-                imaginary_score += 1
-        elif location_info.environment in ['urban', 'suburban']:
-            real_score += 1
-
-        # Pattern linguistici che indicano luoghi reali
-        real_patterns = [
-            r'\b\d+\s+(street|avenue|road|boulevard|drive|lane)\b',
-            r'\b(north|south|east|west|downtown|uptown)\b',
-            r'\b(state|county|district|province)\b',
-        ]
-
-        for pattern in real_patterns:
-            if re.search(pattern, all_text, re.IGNORECASE):
-                real_score += 2
-
-        # Decisione finale
-        if real_score > imaginary_score:
-            return 'real'
-        elif imaginary_score > real_score:
-            return 'imaginary'
-        else:
-            # Se i punteggi sono uguali, usa euristica basata sull'ambiente
-            if location_info.environment in ['fantasy', 'space']:
-                return 'imaginary'
-            elif location_info.environment in ['urban', 'suburban']:
-                return 'real'
-            else:
-                return 'unknown'
 
     def _analyze_temporal(self, location_text: str, stage_texts: List[str]) -> TemporalInfo:
         """Analisi temporale migliorata con logica più sofisticata"""
@@ -322,62 +173,7 @@ class TEIAnalyzer:
         if season_scores:
             temporal_info.season = max(season_scores, key=season_scores.get)
 
-        # Analisi storica con logica gerarchica
-        temporal_info.historical = self._determine_historical_period(all_text)
-
         return temporal_info
-
-    def _determine_historical_period(self, text: str) -> str:
-        """Determina il periodo storico con logica migliorata"""
-        period_scores = {}
-
-        # Prima verifica: indicatori espliciti di periodo
-        for period, keywords in self.historical_keywords.items():
-            score = 0
-            for keyword in keywords:
-                occurrences = text.count(keyword)
-                if occurrences > 0:
-                    # Pesi diversi per diversi tipi di indicatori
-                    if any(year in keyword for year in
-                           ['1920', '1930', '1940', '1950', '1960', '1970', '1980', '1990', '2000']):
-                        weight = 5  # Anni specifici hanno peso massimo
-                    elif keyword in ['medieval', 'victorian', 'renaissance', 'ancient']:
-                        weight = 4  # Periodi storici ben definiti
-                    elif keyword in ['contemporary', 'modern', 'future']:
-                        weight = 3  # Periodi generali
-                    else:
-                        weight = 1  # Altri indicatori
-
-                    score += occurrences * weight
-
-            if score > 0:
-                period_scores[period] = score
-
-        #scelgo il periodo storico che ha più occorrenze di parole chiave trovate
-        if not period_scores:
-            # Verifica tecnologie moderne
-            modern_tech = ['smartphone', 'computer', 'internet', 'car', 'phone', 'tv', 'radio']
-            if any(tech in text for tech in modern_tech):
-                return 'contemporary'
-
-            # Verifica indicatori storici generici
-            historical_terms = ['old', 'ancient', 'historical', 'traditional', 'classic']
-            if any(term in text for term in historical_terms):
-                return 'medieval'  # Fallback generico per "storico"
-
-            # Default
-            return 'contemporary'
-
-        # Ritorna il periodo con punteggio più alto
-        best_period = max(period_scores, key=period_scores.get)
-
-        # Post-processing: risolvi conflitti comuni
-        if best_period == 'modern' and period_scores.get('contemporary', 0) > 0:
-            # Se sia "modern" che "contemporary" sono presenti, preferisci il più recente
-            if period_scores['contemporary'] >= period_scores['modern'] * 0.8:
-                return 'contemporary'
-
-        return best_period
 
     # [Il resto dei metodi rimane uguale: analyze_tei_file, _analyze_scene, _calculate_statistics, etc.]
     def analyze_tei_file(self, file_path: str) -> Dict[str, Any]:
@@ -430,9 +226,7 @@ class TEIAnalyzer:
         return SceneAnalysis(
             scene_n=scene_n,
             location=location_info,
-            temporal=temporal_info,
-            raw_location_text=raw_location_text,
-            stage_texts=stage_texts
+            temporal=temporal_info
         )
 
     def _calculate_statistics(self, scenes: List[Dict]) -> Dict[str, Any]:
@@ -449,9 +243,6 @@ class TEIAnalyzer:
         #lista nella quale, per ogni cella, è salvata l'informazione del tipo di enviroment
         environments = [s['location']['environment'] for s in scenes if s['location']['environment']]
 
-        #lista nella quale, per ogni cella, è salvata l'informazione del tipo reale o immaginario
-        real_imaginary = [s['location']['real_imaginary'] for s in scenes if s['location']['real_imaginary']]
-
         #Statistiche temporali. Liste di n elementi (n scene: somma di tutte le scene dei film analizzati)
 
         #lista nella quale, per ogni cella, è salvata l'informazione relativo al periodo della giornata
@@ -460,20 +251,15 @@ class TEIAnalyzer:
         #lista nella quale, per ogni cella, è salvata l'informazione relativo alla stagione della scena
         seasons = [s['temporal']['season'] for s in scenes if s['temporal']['season']]
 
-        #lista nella quale, per ogni cella, è salvata l'informazione relativo al periodo storico
-        historical = [s['temporal']['historical'] for s in scenes if s['temporal']['historical']]
-
         return {
             'locations': {
                 'int_ext_distribution': dict(Counter(location_types)),
                 'environment_distribution': dict(Counter(environments)),
-                'real_imaginary_distribution': dict(Counter(real_imaginary)),
                 'most_common_environment': Counter(environments).most_common(1)[0][0] if environments else None
             },
             'temporal': {
                 'day_night_distribution': dict(Counter(periods)),
                 'season_distribution': dict(Counter(seasons)),
-                'historical_distribution': dict(Counter(historical)),
                 'most_common_period': Counter(periods).most_common(1)[0][0] if periods else None
             }
         }
@@ -494,10 +280,8 @@ class TEIAnalyzer:
         # Aggregazione dati di tutti i film
         all_location_types = []
         all_environments = []
-        all_real_imaginary = []
         all_periods = []
         all_seasons = []
-        all_historical = []
 
         film_summaries = []
 
@@ -508,13 +292,11 @@ class TEIAnalyzer:
             locations = stats.get('locations', {})
             int_ext = locations.get('int_ext_distribution', {})
             environments = locations.get('environment_distribution', {})
-            real_img = locations.get('real_imaginary_distribution', {})
 
             # Estrai dati temporali
             temporal = stats.get('temporal', {})
             periods = temporal.get('day_night_distribution', {})
             seasons = temporal.get('season_distribution', {})
-            historical = temporal.get('historical_distribution', {})
 
             # Aggiungi ai totali
             for location_type, count in int_ext.items():
@@ -523,17 +305,11 @@ class TEIAnalyzer:
             for env, count in environments.items():
                 all_environments.extend([env] * count)
 
-            for ri, count in real_img.items():
-                all_real_imaginary.extend([ri] * count)
-
             for period, count in periods.items():
                 all_periods.extend([period] * count)
 
             for season, count in seasons.items():
                 all_seasons.extend([season] * count)
-
-            for hist, count in historical.items():
-                all_historical.extend([hist] * count)
 
             # Sommario per film
             film_summaries.append({
@@ -549,10 +325,8 @@ class TEIAnalyzer:
 
         location_counter = dict(Counter(all_location_types))
         environment_counter = dict(Counter(all_environments))
-        real_img_counter = dict(Counter(all_real_imaginary))
         period_counter = dict(Counter(all_periods))
         season_counter = dict(Counter(all_seasons))
-        historical_counter = dict(Counter(all_historical))
 
         return {
             'analysis_summary': {
@@ -569,14 +343,10 @@ class TEIAnalyzer:
                     'environment_totals': environment_counter,
                     'environment_percentages': calculate_percentages(environment_counter,
                                                                      sum(environment_counter.values())) if environment_counter else {},
-                    'real_imaginary_totals': real_img_counter,
-                    'real_imaginary_percentages': calculate_percentages(real_img_counter,
-                                                                        sum(real_img_counter.values())) if real_img_counter else {},
                     'most_common_overall': {
                         'location_type': Counter(all_location_types).most_common(1)[0][
                             0] if all_location_types else None,
                         'environment': Counter(all_environments).most_common(1)[0][0] if all_environments else None,
-                        'reality_type': Counter(all_real_imaginary).most_common(1)[0][0] if all_real_imaginary else None
                     }
                 },
                 'temporal': {
@@ -586,13 +356,9 @@ class TEIAnalyzer:
                     'season_totals': season_counter,
                     'season_percentages': calculate_percentages(season_counter,
                                                                 sum(season_counter.values())) if season_counter else {},
-                    'historical_totals': historical_counter,
-                    'historical_percentages': calculate_percentages(historical_counter,
-                                                                    sum(historical_counter.values())) if historical_counter else {},
                     'most_common_overall': {
                         'period': Counter(all_periods).most_common(1)[0][0] if all_periods else None,
-                        'season': Counter(all_seasons).most_common(1)[0][0] if all_seasons else None,
-                        'historical_period': Counter(all_historical).most_common(1)[0][0] if all_historical else None
+                        'season': Counter(all_seasons).most_common(1)[0][0] if all_seasons else None
                     }
                 }
             },
@@ -615,12 +381,6 @@ class TEIAnalyzer:
             # Estrai caratteristiche dominanti
             dom_env = locations.get('most_common_environment')
             dom_period = temporal.get('most_common_period')
-            dom_historical = list(temporal.get('historical_distribution', {}).keys())
-            dom_historical = dom_historical[0] if dom_historical else 'contemporary'
-
-            if dom_env and dom_period:
-                combo = f"{dom_env}_{dom_period}_{dom_historical}"
-                combinations.append(combo)
 
         combo_counter = Counter(combinations)
         return {
@@ -633,35 +393,14 @@ class TEIAnalyzer:
         patterns = {
             'sci_fi_indicators': 0,
             'fantasy_indicators': 0,
-            'contemporary_drama': 0,
-            'historical_pieces': 0
+            'contemporary_drama': 0
         }
 
         for result in results:
             stats = result.get('statistics', {})
             locations = stats.get('locations', {})
-            temporal = stats.get('temporal', {})
 
             env_dist = locations.get('environment_distribution', {})
-            hist_dist = temporal.get('historical_distribution', {})
-
-            # Indicatori sci-fi
-            if env_dist.get('space', 0) > 0 or hist_dist.get('future', 0) > 0:
-                patterns['sci_fi_indicators'] += 1
-
-            # Indicatori fantasy
-            if env_dist.get('fantasy', 0) > 0 or hist_dist.get('medieval', 0) > 0:
-                patterns['fantasy_indicators'] += 1
-
-            # Drama contemporaneo
-            if (env_dist.get('urban', 0) > 0 or env_dist.get('suburban', 0) > 0) and \
-                    hist_dist.get('contemporary', 0) > 0:
-                patterns['contemporary_drama'] += 1
-
-            # Pezzi storici
-            historical_periods = ['medieval', 'victorian', '1920s', '1960s', '1980s', 'ancient', 'renaissance']
-            if any(hist_dist.get(period, 0) > 0 for period in historical_periods):
-                patterns['historical_pieces'] += 1
 
         total_films = len(results)
         return {
@@ -705,7 +444,7 @@ class TEIAnalyzer:
 
 def main():
     analyzer = TEIAnalyzer()
-    results = analyzer.analyze_directory('output', 'screenplay_analysis.json')
+    analyzer.analyze_directory('output', 'screenplay_analysis.json')
 
 
 if __name__ == "__main__":
