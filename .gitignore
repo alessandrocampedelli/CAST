@@ -1,4 +1,6 @@
-/copioni_txt
-/output
-/input/copioni_pdf
-input/siti.txt
+/txt_scripts
+/tei_scripts
+/input/pdf_scripts
+input/sites.txt
+screenplay_analysis.json
+screenplay_analysis_macro_stats.json

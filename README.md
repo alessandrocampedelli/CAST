@@ -30,7 +30,7 @@ Esegue automaticamente entrambe le fasi in sequenza con gestione degli errori.
 
 #### Fase 1: Estrazione TXT
 ```bash
-python estrazione_txt.py
+python extract_txt.py
 ```
 - **Input**: File PDF in `input/copioni_pdf/` + URL in `input/siti.txt`
 - **Output**: File TXT in `copioni_txt/`
@@ -57,7 +57,7 @@ pip install requests beautifulsoup4 pdfminer.six
 ### Preparazione Iniziale
 1. Crea la struttura delle cartelle:
    ```bash
-   mkdir -p input/copioni_pdf copioni_txt output
+   mkdir -p input/pdf_scripts txt_scripts tei_scripts
    ```
 
 2. **Per file PDF**: Inserisci i file PDF in `input/copioni_pdf/`
@@ -74,7 +74,7 @@ pip install requests beautifulsoup4 pdfminer.six
 python main.py
 
 # 🔧 Metodo manuale (se necessario)
-python estrazione_txt.py
+python extract_txt.py
 python txt2tei.py
 ```
 

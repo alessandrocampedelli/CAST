@@ -293,8 +293,10 @@ def is_header_line(riga, next_line=None):
 
     return False
 
+
 def is_location_line(riga):
-    """Rileva righe che rappresentano location di scena (INT., EXT., I/E., ecc.)"""
+    """Rileva righe che rappresentano location di scena (INT., EXT., I/E., EXT./INT., ecc.)
+        QUESTA È ORA LA FUNZIONE CHIAVE PER IDENTIFICARE NUOVE SCENE"""
 
     # Pulizia più aggressiva della riga per rimuovere caratteri problematici
     riga_clean = riga.strip().replace("\xa0", " ").replace("\u00A0", " ")
@@ -303,17 +305,37 @@ def is_location_line(riga):
 
     # ====== MATCH DEFINITIVI - ALTA PRIORITÀ ======
 
-    # 1. Standard cinematografici: INT., EXT., I/E.
-    if re.match(r"^(INT\.?|EXT\.?|I/E\.?)\s+.+", riga_clean):
-        return True
+    # 1. Standard cinematografici: INT., EXT., I/E. e TUTTE LE VARIANTI EXT./INT.
+    location_patterns = [
+        r"^(INT\.?|EXT\.?|I/E\.?)\s+.+",  # Pattern originali
+        r"^(EXT\.?/INT\.?|INT\.?/EXT\.?)\s+.+",  # EXT./INT. o INT./EXT.
+        r"^(EXT\./INT\.|INT\./EXT\.)\s+.+",  # Con punti obbligatori
+        r"^(EXT/INT|INT/EXT)\s+.+",  # Senza punti
+        r"^(EXTERIOR/INTERIOR|INTERIOR/EXTERIOR)\s+.+",  # Forme complete
+        r"^(EXT-INT|INT-EXT)\s+.+",  # Con trattino
+        r"^(EXT\.?\s*-\s*INT\.?|INT\.?\s*-\s*EXT\.?)\s+.+",  # Con trattino e spazi
+    ]
+
+    for pattern in location_patterns:
+        if re.match(pattern, riga_clean):
+            return True
 
     # 2. Pattern numerati delle scene: numero - descrizione - numero
     if re.match(r"^(\d+[A-Za-z]*|[A-Za-z]*\d+)\s+.+\s+(\d+[A-Za-z]*|[A-Za-z]*\d+)\s*$", riga_clean):
         return True
 
-    # 3. NUOVO: Pattern numero + INT./EXT./I/E.
-    if re.match(r"^\d+[A-Za-z]*\s+(INT\.?|EXT\.?|I/E\.?)\s+.+", riga_clean):
-        return True
+# 3. Pattern numero + spazio + location patterns
+    number_location_patterns = [
+        r"^\d+[A-Za-z]*\s+(INT\.?|EXT\.?|I/E\.?)\s+.+",
+        r"^\d+[A-Za-z]*\s+(EXT\.?/INT\.?|INT\.?/EXT\.?)\s+.+",
+        r"^\d+[A-Za-z]*\s+(EXT\./INT\.|INT\./EXT\.)\s+.+",
+        r"^\d+[A-Za-z]*\s+(EXT/INT|INT/EXT)\s+.+",
+        r"^\d+[A-Za-z]*\s+(EXT\.?\s*-\s*INT\.?|INT\.?\s*-\s*EXT\.?)\s+.+",
+    ]
+
+    for pattern in number_location_patterns:
+        if re.match(pattern, riga_clean):
+            return True
 
     # ====== ESCLUSIONI IMMEDIATE - MEDIA PRIORITÀ ======
 
@@ -433,26 +455,37 @@ def is_speaker(riga):
     if "," in riga_clean:
         return False
 
-    # 2. Esclude se contiene articoli o preposizioni tipiche delle descrizioni
+    # 2. MODIFICATO: Lista più specifica delle parole che escludono uno speaker
+    # Rimuoviamo aggettivi comuni che possono essere parte di nomi di personaggi
     description_words = {
+        # Manteniamo solo articoli, preposizioni e verbi che chiaramente indicano descrizioni
         "A", "AN", "THE", "IN", "ON", "AT", "OF", "FOR", "WITH", "BY", "FROM", "TO",
-        "LIVING", "DEAD", "OLD", "YOUNG", "SMALL", "BIG", "TALL", "SHORT", "FAT", "THIN",
-        "CONVALESCING", "SITTING", "STANDING", "WALKING", "RUNNING", "LYING", "MOVING"
+        # Verbi di azione che indicano descrizioni narrative
+        "CONVALESCING", "SITTING", "STANDING", "WALKING", "RUNNING", "LYING", "MOVING",
+        "STARING", "LOOKING", "HOLDING", "CARRYING", "WEARING"
     }
+    # RIMOSSI: "LIVING", "DEAD", "OLD", "YOUNG", "SMALL", "BIG", "TALL", "SHORT", "FAT", "THIN"
+    # perché possono essere parte legittima di nomi di personaggi
 
-    # 2. Esclude se termina con punto ma non è un titolo (es. "Blake." non è speaker, ma "MR." sì)
+    # 3. Esclude se termina con punto ma non è un titolo (es. "Blake." non è speaker, ma "MR." sì)
     if riga_clean.endswith('.') and not re.match(r'^(MR|MRS|MS|DR|PROF|SIR|LADY)\.$', riga_clean.upper()):
         return False
 
     words_upper = [w.upper() for w in riga_clean.split()]
-    if any(word in description_words for word in words_upper):
+
+    # NUOVO: Controllo più intelligente per description_words
+    # Esclude solo se la riga inizia con articoli/preposizioni O contiene verbi di azione
+    starts_with_article = any(words_upper[0] == word for word in ["A", "AN", "THE"] if words_upper)
+    contains_action_verb = any(word in description_words for word in words_upper)
+
+    if starts_with_article or contains_action_verb:
         return False
 
-    # 3. Esclude se la riga è troppo lunga per essere uno speaker (probabilmente descrizione)
-    if len(riga_clean) > 50:  # Speaker raramente superano i 50 caratteri
+    # 4. Esclude se la riga è troppo lunga per essere uno speaker (probabilmente descrizione)
+    if len(riga_clean) > 60:  # AUMENTATO da 50 a 60 per permettere nomi più lunghi
         return False
 
-    # 4. Esclude pattern tipici di descrizione con età: "NOME (numero)"
+    # 5. MODIFICATO: Gestione migliorata per descrizioni con età
     if re.search(r'\(\d+\)', riga_clean):
         # Verifica se dopo i numeri c'è altro testo (segno di descrizione)
         parentheses_content = re.search(r'\(([^)]+)\)', riga_clean)
@@ -462,10 +495,26 @@ def is_speaker(riga):
         if re.search(r'\(\d+\).+', riga_clean):
             return False
 
-    # Conta parole "non maiuscole" per permettere eccezioni
+    # 6. NUOVO: Controllo specifico per pattern di speaker descrittivi
+    # Permette pattern come "AGGETTIVO NOME" tipici degli screenplay
     words = base_name.split()
 
-    # Gestione migliorata per speaker numerati come "SPEAKER #1", "PERSON #2" etc.
+    # Pattern comuni per speaker descrittivi negli screenplay
+    descriptive_patterns = [
+        # Aggettivo + Nome: "BIG JOHN", "OLD MARY", "YOUNG PETER"
+        r'^(BIG|SMALL|OLD|YOUNG|TALL|SHORT|FAT|THIN|LITTLE|LARGE)\s+[A-Z]+$',
+        # Professione/Ruolo + Nome/Numero: "COP #1", "DOCTOR SMITH", "WAITER"
+        r'^(COP|DOCTOR|NURSE|WAITER|GUARD|SOLDIER|OFFICER|DETECTIVE|LAWYER)\s*(#?\d+|[A-Z]+)?$',
+        # Titolo + Aggettivo + Nome: "MR. BIG", "DR. YOUNG"
+        r'^(MR|MRS|MS|DR|PROF)\.\s+(BIG|SMALL|OLD|YOUNG|TALL|SHORT)\s*[A-Z]*$'
+    ]
+
+    # Se corrisponde a un pattern descrittivo, è probabilmente uno speaker
+    for pattern in descriptive_patterns:
+        if re.match(pattern, base_name.upper()):
+            return True
+
+    # Conta parole "non maiuscole" per permettere eccezioni
     lowercase_tolerated = True
     for w in words:
         # Pattern speciali ammessi:
@@ -482,8 +531,8 @@ def is_speaker(riga):
             lowercase_tolerated = False
             break
 
-    # Speaker tipico: tutto maiuscolo o quasi, poche parole (ridotto nuovamente a 4 per maggiore precisione)
-    if lowercase_tolerated and len(words) <= 4 and not riga_clean.startswith("("):
+    # Speaker tipico: tutto maiuscolo o quasi, poche parole (aumentato a 5 per nomi descrittivi)
+    if lowercase_tolerated and len(words) <= 5 and not riga_clean.startswith("("):
         return True
 
     # Speaker con CONT'D o CONTINUED in varie forme
@@ -498,7 +547,7 @@ def is_speaker(riga):
 
 
 def is_continued_line(riga):
-    """Rileva righe CONTINUED in tutte le varianti comuni"""
+    """Rileva righe CONTINUED in tutte le varianti comuni, incluso il formato con parentesi"""
     riga_upper = riga.strip().upper()
 
     # Pattern originali
@@ -513,14 +562,39 @@ def is_continued_line(riga):
     riga_clean = riga.strip().replace("\xa0", " ").replace("\u00A0", " ")
     riga_clean = re.sub(r'\s+', ' ', riga_clean).upper()
 
-    # Pattern: numero + CONTINUED (con o senza :) + numero
+    # NUOVO: Pattern numero-CONTINUED-numero (es: "2 CONTINUED: 2")
     if re.match(r'^\d+[A-Za-z]*\s+CONTINUED:?\s+\d+[A-Za-z]*\s*$', riga_clean):
         return True
 
-    # Pattern: solo CONTINUED con spazi e numeri intorno
+    # NUOVO: Pattern numero-CONTINUED:(numero)-numero
+    # Es: "4   CONTINUED: (2)                                                                   4"
+    if re.match(r'^\d+[A-Za-z]*\s+CONTINUED:?\s*\(\d+\)\s+\d+[A-Za-z]*\s*$', riga_clean):
+        return True
+
+    # NUOVO: Pattern più generale per CONTINUED con parentesi
+    # Es: "CONTINUED: (2)", "5 CONTINUED: (3) 5", etc.
+    if re.search(r'CONTINUED:?\s*\(\d+\)', riga_clean):
+        return True
+
+    # NUOVO: Pattern solo CONTINUED con spazi e numeri intorno
     if re.match(r'^\d+[A-Za-z]*\s+CONTINUED:?\s*$', riga_clean) or \
             re.match(r'^\s*CONTINUED:?\s+\d+[A-Za-z]*\s*$', riga_clean):
         return True
+
+    # NUOVO: Pattern con numeri di pagina in parentesi e numeri ai lati
+    # Es: "4 CONTINUED: (2) 4", "A1 CONTINUED (5) A1"
+    if re.match(r'^\d+[A-Za-z]*\s+CONTINUED:?\s*\([^)]+\)\s*\d+[A-Za-z]*\s*$', riga_clean):
+        return True
+
+    # NUOVO: Pattern flessibile che cattura varianti con molto spazio bianco
+    # Rileva pattern dove CONTINUED è circondato da numeri, anche con spazi estesi
+    continued_flexible = re.match(r'^(\d+[A-Za-z]*)\s+(CONTINUED:?)\s*(\([^)]*\))?\s*(\d+[A-Za-z]*)\s*$', riga_clean)
+    if continued_flexible:
+        # Verifica che i numeri all'inizio e alla fine corrispondano (tipico delle righe continued)
+        start_num = continued_flexible.group(1)
+        end_num = continued_flexible.group(4)
+        if start_num == end_num:  # Stesso numero all'inizio e alla fine
+            return True
 
     return False
 
