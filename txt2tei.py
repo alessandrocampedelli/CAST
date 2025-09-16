@@ -3,8 +3,8 @@ import re
 import xml.etree.ElementTree as ET
 import utils
 
-INPUT_TXT_DIR = "copioni_txt"
-OUTPUT_DIR = "output"
+INPUT_TXT_DIR = "txt_scripts"
+OUTPUT_DIR = "tei_scripts"
 
 
 def converti_in_tei(percorso_txt):

@@ -6,8 +6,8 @@ from bs4 import BeautifulSoup
 from pdfminer.high_level import extract_text_to_fp
 from pdfminer.layout import LAParams
 
-INPUT_DIR = "input/copioni_pdf"
-OUTPUT_DIR = "copioni_txt"
+INPUT_DIR = "input/pdf_scripts"
+OUTPUT_DIR = "txt_scripts"
 
 def estrai_da_imsdb(url, output_path):
     print(f"[INFO] Scaricamento da IMSDB: {url}")
@@ -70,8 +70,8 @@ def ricava_nome_film_da_url(url):
 def main():
     os.makedirs(OUTPUT_DIR, exist_ok=True)
 
-    # --- Estrazione da file siti.txt ---
-    path_siti = "input/siti.txt"
+    # --- Estrazione da file sites.txt ---
+    path_siti = "input/sites.txt"
     if os.path.exists(path_siti):
         with open(path_siti, 'r', encoding='utf-8') as f:
             urls = [riga.strip() for riga in f if riga.strip()]

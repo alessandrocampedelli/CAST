@@ -429,7 +429,7 @@ class TEIAnalyzer:
             analysis = self.analyze_tei_file(file_path)
             results.append(analysis)
 
-        # Percorso completo per i file di output nella cartella analysis
+        # Percorso completo per i file di tei_scripts nella cartella analysis
         output_path = os.path.join(analysis_dir, output_file)
         macro_output_file = output_file.replace('.json', '_macro_stats.json')
         macro_output_path = os.path.join(analysis_dir, macro_output_file)
@@ -451,7 +451,7 @@ class TEIAnalyzer:
 
 def main():
     analyzer = TEIAnalyzer()
-    analyzer.analyze_directory('output', 'screenplay_analysis.json')
+    analyzer.analyze_directory('tei_scripts', 'screenplay_analysis.json')
 
 
 if __name__ == "__main__":
