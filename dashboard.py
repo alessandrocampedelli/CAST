@@ -1,12 +1,16 @@
 import streamlit as st
 import plotly.express as px
 import json
+import os
 
 
 class StreamlitDashboard:
-    def __init__(self, stats_file1, stats_file2):
-        self.individual_stats = self.load_json(stats_file1)
-        self.aggregated_stats = self.load_json(stats_file2)
+    def __init__(self, analysis_dir, stats_file1, stats_file2):
+        self.individual_stats_path = os.path.join(analysis_dir, stats_file1)
+        self.aggregated_stats_path = os.path.join(analysis_dir, stats_file2)
+
+        self.individual_stats = self.load_json(self.individual_stats_path)
+        self.aggregated_stats = self.load_json(self.aggregated_stats_path)
 
     def load_json(self, filepath):
         with open(filepath, 'r', encoding='utf-8') as f:
@@ -259,5 +263,5 @@ class StreamlitDashboard:
 
 
 if __name__ == "__main__":
-    dashboard = StreamlitDashboard('screenplay_analysis.json', 'screenplay_analysis_macro_stats.json')
+    dashboard = StreamlitDashboard('analysis', 'screenplay_analysis.json', 'screenplay_analysis_macro_stats.json')
     dashboard.run_dashboard()

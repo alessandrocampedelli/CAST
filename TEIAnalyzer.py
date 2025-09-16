@@ -14,11 +14,13 @@ class LocationInfo:
     setting: Optional[str] = None  # suburban, fantasy, etc.
     environment: Optional[str] = None  # sea, mountain, urban, etc
 
+
 @dataclass
 class TemporalInfo:
     """Informazioni estratte sui tempi"""
     period: Optional[str] = None  # DAY/NIGHT/MORNING/EVENING
     season: Optional[str] = None  # winter/spring/summer/autumn
+
 
 @dataclass
 class SceneAnalysis:
@@ -76,22 +78,22 @@ class TEIAnalyzer:
         # STEP 1: Pattern cinematografici standard
         location_upper = location_text.upper()
 
-        #Estrai INT/EXT
+        # Estrai INT/EXT
         if location_upper.startswith('INT') or 'INT.' in location_upper:
             location_info.type = 'INT'
         elif location_upper.startswith('EXT') or 'EXT.' in location_upper:
             location_info.type = 'EXT'
 
-        #STEP 2: Analisi semantica
+        # STEP 2: Analisi semantica
         all_text = (location_text + ' ' + ' '.join(stage_texts)).lower()
 
-        #dizionario vuoto che conterrà per ogni ambiente prestabilito, quante parole chiave sono state trovate
-        #nella scena
+        # dizionario vuoto che conterrà per ogni ambiente prestabilito, quante parole chiave sono state trovate
+        # nella scena
         environment_scores = {}
 
-        #scorro su tutti i tipi di ambienti definiti nel dizionario
-        #env_type: stringa che rappresenta il tipo di ambiente
-        #keywords: lista di parole associate a quell'ambiente
+        # scorro su tutti i tipi di ambienti definiti nel dizionario
+        # env_type: stringa che rappresenta il tipo di ambiente
+        # keywords: lista di parole associate a quell'ambiente
         for env_type, keywords in self.environment_keywords.items():
             score = 0
             for keyword in keywords:
@@ -111,7 +113,7 @@ class TEIAnalyzer:
             # imposto come environment quello che ha il punteggio più alto nel dizionario
             location_info.environment = max(environment_scores, key=environment_scores.get)
 
-        #Determina setting generale
+        # Determina setting generale
         if location_info.environment in ['space', 'fantasy']:
             location_info.setting = 'fantasy/sci-fi'
         elif location_info.environment in ['urban', 'suburban']:
@@ -142,17 +144,17 @@ class TEIAnalyzer:
                         score += occurrences * weight
 
                 if score > 0:
-                    #per ogni fase della giornata assegno quante parole chiave sono state trovate nella scena
+                    # per ogni fase della giornata assegno quante parole chiave sono state trovate nella scena
                     time_scores[time_type] = score
 
-        #per decretare il vero momento della giornata, viene selezionato il momento che ha più occorrenze di parole
-        #chiave associate nel testo della scena
+        # per decretare il vero momento della giornata, viene selezionato il momento che ha più occorrenze di parole
+        # chiave associate nel testo della scena
         if time_scores:
             temporal_info.period = max(time_scores, key=time_scores.get).upper()
 
         season_scores = {}
 
-        #scorro tutti i tipi di tempo (stagioni)
+        # scorro tutti i tipi di tempo (stagioni)
         for season, keywords in self.time_keywords.items():
             if season in ['winter', 'spring', 'summer', 'autumn']:
 
@@ -166,16 +168,15 @@ class TEIAnalyzer:
                         score += occurrences * weight
 
                 if score > 0:
-                    #assegno ad ogni stagione il numero di keywords relative trovate nel testo
+                    # assegno ad ogni stagione il numero di keywords relative trovate nel testo
                     season_scores[season] = score
 
-        #per stabilire la stagione corretta, scelgo la stagione con il numero di occorrenze di parole chiave maggiore
+        # per stabilire la stagione corretta, scelgo la stagione con il numero di occorrenze di parole chiave maggiore
         if season_scores:
             temporal_info.season = max(season_scores, key=season_scores.get)
 
         return temporal_info
 
-    # [Il resto dei metodi rimane uguale: analyze_tei_file, _analyze_scene, _calculate_statistics, etc.]
     def analyze_tei_file(self, file_path: str) -> Dict[str, Any]:
         """Analizza un file TEI completo"""
         try:
@@ -231,24 +232,24 @@ class TEIAnalyzer:
 
     def _calculate_statistics(self, scenes: List[Dict]) -> Dict[str, Any]:
         """Calcola statistiche aggregate del film"""
-        #prende in input una lista di dizionari, ognuno dei quali contiene le info di una scena
+        # prende in input una lista di dizionari, ognuno dei quali contiene le info di una scena
         if not scenes:
             return {}
 
-        #Statistiche sui luoghi. Liste di n elementi (n scene del film)
+        # Statistiche sui luoghi. Liste di n elementi (n scene del film)
 
-        #lista nella quale, per ogni cella, è salvata l'informazione di INT o EXT
+        # lista nella quale, per ogni cella, è salvata l'informazione di INT o EXT
         location_types = [s['location']['type'] for s in scenes if s['location']['type']]
 
-        #lista nella quale, per ogni cella, è salvata l'informazione del tipo di enviroment
+        # lista nella quale, per ogni cella, è salvata l'informazione del tipo di enviroment
         environments = [s['location']['environment'] for s in scenes if s['location']['environment']]
 
-        #Statistiche temporali. Liste di n elementi (n scene: somma di tutte le scene dei film analizzati)
+        # Statistiche temporali. Liste di n elementi (n scene: somma di tutte le scene dei film analizzati)
 
-        #lista nella quale, per ogni cella, è salvata l'informazione relativo al periodo della giornata
+        # lista nella quale, per ogni cella, è salvata l'informazione relativo al periodo della giornata
         periods = [s['temporal']['period'] for s in scenes if s['temporal']['period']]
 
-        #lista nella quale, per ogni cella, è salvata l'informazione relativo alla stagione della scena
+        # lista nella quale, per ogni cella, è salvata l'informazione relativo alla stagione della scena
         seasons = [s['temporal']['season'] for s in scenes if s['temporal']['season']]
 
         return {
@@ -405,13 +406,19 @@ class TEIAnalyzer:
             'dominant_genre_pattern': max(patterns, key=patterns.get) if patterns else None
         }
 
-    def analyze_directory(self, tei_dir: str, output_file: str = 'analysis_results.json'):
-        """Analizza tutti i file TEI in una directory"""
+    def analyze_directory(self, tei_dir: str, output_file: str = 'screenplay_analysis.json'):
+        """Analizza tutti i file TEI in una directory e salva i risultati nella cartella analysis"""
         results = []
 
         if not os.path.exists(tei_dir):
             print(f"Directory {tei_dir} non trovata")
             return
+
+        # Crea la cartella analysis se non esiste
+        analysis_dir = 'analysis'
+        if not os.path.exists(analysis_dir):
+            os.makedirs(analysis_dir)
+            print(f"Cartella '{analysis_dir}' creata")
 
         tei_files = [f for f in os.listdir(tei_dir) if f.endswith('.xml')]
 
@@ -422,19 +429,23 @@ class TEIAnalyzer:
             analysis = self.analyze_tei_file(file_path)
             results.append(analysis)
 
+        # Percorso completo per i file di output nella cartella analysis
+        output_path = os.path.join(analysis_dir, output_file)
+        macro_output_file = output_file.replace('.json', '_macro_stats.json')
+        macro_output_path = os.path.join(analysis_dir, macro_output_file)
+
         # Salva risultati per singoli film
-        with open(output_file, 'w', encoding='utf-8') as f:
+        with open(output_path, 'w', encoding='utf-8') as f:
             json.dump(results, f, indent=2, ensure_ascii=False)
 
         # Genera e salva statistiche macro
         macro_stats = self._calculate_macro_statistics(results)
-        macro_output_file = output_file.replace('.json', '_macro_stats.json')
 
-        with open(macro_output_file, 'w', encoding='utf-8') as f:
+        with open(macro_output_path, 'w', encoding='utf-8') as f:
             json.dump(macro_stats, f, indent=2, ensure_ascii=False)
 
-        print(f"Analisi completata. Risultati salvati in: {output_file}")
-        print(f"Statistiche macro salvate in: {macro_output_file}")
+        print(f"Analisi completata. Risultati salvati in: {output_path}")
+        print(f"Statistiche macro salvate in: {macro_output_path}")
         return results
 
 
