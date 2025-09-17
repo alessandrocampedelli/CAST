@@ -1,21 +1,26 @@
-# Convertitore Copioni HTML/PDF → TEI-XML
+# Convertitore e Analizzatore Copioni HTML/PDF → TEI-XML
 
-Questo progetto converte copioni cinematografici da HTML e PDF nel formato standard TEI-XML attraverso un workflow a due fasi.
+Questo progetto converte copioni cinematografici da HTML e PDF nel formato standard TEI-XML e genera analisi statistiche
 
 ## Struttura del Progetto
 
 ```
 progetto/
 ├── main.py             # Script principale (esegue tutto)
-├── estrazione_txt.py   # Fase 1: Estrae TXT da HTML/PDF
+├── extract_txt.py      # Fase 1: Estrae TXT da HTML/PDF
 ├── txt2tei.py          # Fase 2: Converte TXT → TEI-XML  
+├── TEIAnalyzer.py      # Fase 3: Analizza i copioni TEI
+├── dashboard.py        # Fase 4: Dashboard interattiva Streamlit
 ├── utils.py            # Funzioni di utilità per txt2tei
 ├── README.md           # Documentazione
 ├── input/              # Sorgenti originali
-│   ├── copioni_pdf/    # File PDF dei copioni
-│   └── siti.txt        # URL HTML da scaricare (IMSDB)
-├── copioni_txt/        # File TXT intermedi (generati automaticamente)
-└── output/             # File XML finali
+│   ├── pdf_scripts/    # File PDF dei copioni
+│   └── sites.txt       # URL HTML da scaricare (IMSDB)
+├── txt_scripts/        # File TXT intermedi (generati automaticamente)
+├── tei_scripts/        # File XML TEI (generati automaticamente)
+└── analysis/           # Risultati analisi (generati automaticamente)
+    ├── screenplay_analysis.json
+    └── screenplay_analysis_macro_stats.json
 ```
 
 ## Workflow Completo
@@ -24,7 +29,11 @@ progetto/
 ```bash
 python main.py
 ```
-Esegue automaticamente entrambe le fasi in sequenza con gestione degli errori.
+Esegue automaticamente tutte e quattro le fasi in sequenza:
+1. Estrazione testo da PDF/HTML
+2. Conversione in formato TEI-XML
+3. Analisi statistica dei copioni
+4. Avvio dashboard interattiva
 
 ### Esecuzione Manuale (Avanzata)
 
@@ -32,37 +41,57 @@ Esegue automaticamente entrambe le fasi in sequenza con gestione degli errori.
 ```bash
 python extract_txt.py
 ```
-- **Input**: File PDF in `input/copioni_pdf/` + URL in `input/siti.txt`
-- **Output**: File TXT in `copioni_txt/`
+- **Input**: File PDF in `input/pdf_scripts/` + URL in `input/sites.txt`
+- **Output**: File TXT in `txt_scripts/`
 
 #### Fase 2: Conversione TEI-XML  
 ```bash
 python txt2tei.py
 ```
-- **Input**: File TXT in `copioni_txt/`
-- **Output**: File XML in `output/`
+- **Input**: File TXT in `txt_scripts/`
+- **Output**: File XML in `tei_scripts/`
+
+#### Fase 3: Analisi Statistiche
+```bash
+python TEIAnalyzer.py
+```
+- **Input**: File XML in `tei_scripts/`
+- **Output**: File JSON di analisi in `analysis/`
+
+#### Fase 4: Dashboard Interattiva
+```bash
+streamlit run dashboard.py
+```
+- **Input**: File JSON da `analysis/`
+- **Output**: Dashboard web interattiva
 
 ## Installazione
 
-### Dipendenze Fase 1 (estrazione_txt.py)
+### Dipendenze Complete
 ```bash
-pip install requests beautifulsoup4 pdfminer.six
+pip install requests beautifulsoup4 pdfminer.six streamlit plotly
 ```
 
-### Dipendenze Fase 2 (txt2tei.py)
-- Solo librerie standard Python (nessuna installazione aggiuntiva)
+### Dipendenze per Fase
+- **Fase 1**: `requests (download righe dalla pagina web),
+               beautifulsoup4 (estrazione testo da html),
+               pdfminer.six (estrazione testo da pdf)`
+- **Fase 2**: Solo librerie standard Python
+- **Fase 3**: Solo librerie standard Python
+- **Fase 4**: `streamlit (creazione pagina web con interfaccia utente), 
+               plotly (creazione di grafici interattivi)`
 
 ## Utilizzo
 
 ### Preparazione Iniziale
 1. Crea la struttura delle cartelle:
    ```bash
-   mkdir -p input/pdf_scripts txt_scripts tei_scripts
+   mkdir -p input/pdf_scripts txt_scripts tei_scripts analysis
    ```
 
-2. **Per file PDF**: Inserisci i file PDF in `input/copioni_pdf/`
+2. **Per file PDF**: Inserisci i file PDF in `input/pdf_scripts/`
 
-3. **Per siti web**: Crea `input/siti.txt` con gli URL IMSDB:
+3. **Per siti web**: Crea `input/sites.txt` con gli URL IMSDB:
    ```
    https://imsdb.com/scripts/Film1.html
    https://imsdb.com/scripts/Film2.html
@@ -70,16 +99,20 @@ pip install requests beautifulsoup4 pdfminer.six
 
 ### Esecuzione Completa
 ```bash
-# ⚡ Metodo rapido (consigliato)
+# Metodo rapido (consigliato)
 python main.py
 
-# 🔧 Metodo manuale (se necessario)
+# Metodo manuale (se necessario)
 python extract_txt.py
 python txt2tei.py
+python TEIAnalyzer.py
+streamlit run dashboard.py
 ```
 
-### Risultato
-- File XML pronti nella cartella `output/`
+### Risultati
+- **File XML**: Copioni convertiti in `tei_scripts/`
+- **Analisi JSON**: Statistiche dettagliate in `analysis/`
+- **Dashboard Web**: Visualizzazioni interattive accessibili via browser
 
 ## Formato Input
 
@@ -96,6 +129,7 @@ I file TXT intermedi seguono il formato standard dei copioni cinematografici:
 
 ## Formato Output
 
+### File TEI-XML
 I file XML seguono lo standard TEI (Text Encoding Initiative):
 
 ```xml
@@ -123,86 +157,82 @@ I file XML seguono lo standard TEI (Text Encoding Initiative):
 </TEI>
 ```
 
+### File di Analisi JSON
+Le statistiche vengono salvate in due file:
+
+- `screenplay_analysis.json`: Analisi dettagliate per ogni singolo film
+- `screenplay_analysis_macro_stats.json`: Statistiche aggregate di tutti i film
+
 ## Funzionalità
 
-### Riconoscimento Automatico
+### Conversione TEI-XML
+#### Riconoscimento Automatico
 - **Scene**: Identificate tramite location lines (INT./EXT.)
 - **Personaggi**: Nomi in maiuscolo con gestione delle continuazioni
 - **Dialoghi**: Testo associato ai personaggi
 - **Descrizioni**: Stage directions e indicazioni sceniche
 
-### Filtri Intelligenti
+#### Filtri Intelligenti
 - Rimuove numeri di pagina
 - Ignora intestazioni e piè di pagina
 - Salta transizioni cinematografiche (`CUT TO:`, `FADE OUT`, etc.)
 - Gestisce righe `CONTINUED` e `(MORE)`
 
-### Gestione Errori
-- Verifica della struttura delle cartelle
-- Rapporto dettagliato sui file processati
-- Gestione degli errori per singoli file
+### Analisi Statistiche
+#### Analisi per Location
+- **Tipo**: Classificazione INT/EXT
+- **Ambiente**: urban, suburban, rural, sea, mountain, desert, space, fantasy
+- **Setting**: contemporary, natural, fantasy/sci-fi
+
+#### Analisi Temporale
+- **Periodi giornalieri**: MORNING, DAY, EVENING, NIGHT
+- **Stagioni**: spring, summer, autumn, winter
+
+#### Statistiche Aggregate
+- Distribuzione percentuale per tutti i parametri
+- Confronti tra film
+- Identificazione di pattern e tendenze
+
+### Dashboard Interattiva
+- **Grafici a torta**: Distribuzione INT/EXT, periodi giornalieri, stagioni
+- **Grafici a barre**: Ambienti, confronti tra film
+- **Analisi individuali**: Dettagli per ogni singolo film
+- **Metriche comparative**: Confronto con le medie generali
+- **Visualizzazioni responsive**: Grafici interattivi con Plotly
 
 ## File del Progetto
 
-### `main.py` 🎯
-Script orchestratore che:
-- Esegue automaticamente l'intero workflow
-- Verifica la presenza dei file necessari
-- Gestisce gli errori e fornisce feedback dettagliato
-- Mostra il riepilogo finale
+### `main.py`
+Script orchestratore che esegue l'intero pipeline con gestione degli errori.
 
-### `estrazione_txt.py`
-Script di estrazione che:
-- Scarica copioni da URL IMSDB
-- Estrae testo da file PDF usando pdfminer
-- Genera file TXT nella cartella `copioni_txt/`
+### `extract_txt.py`
+Estrazione testo da PDF (pdfminer) e HTML (IMSDB via requests e BeautifulSoup).
 
 ### `txt2tei.py`
-Script di conversione che:
-- Legge i file TXT da `copioni_txt/`
-- Converte in formato TEI-XML
-- Salva i risultati in `output/`
+Conversione da formato screenplay a TEI-XML con parsing intelligente.
 
 ### `utils.py`
-Libreria di funzioni di utilità per `txt2tei.py`:
-- `is_location_line()`: Identifica nuove scene
-- `is_speaker()`: Riconosce i nomi dei personaggi  
-- `is_page_number()`: Filtra numeri di pagina
-- `extract_title_from_filename()`: Estrae il titolo dal nome file
-- E molte altre funzioni di supporto
+Libreria completa di funzioni per il riconoscimento degli elementi screenplay:
+- `is_location_line()`: Identifica nuove scene con pattern multipli
+- `is_speaker()`: Riconosce personaggi e continuazioni
+- `is_page_number()`, `is_header_line()`: Filtri per contenuto non rilevante
+- `extract_title_from_filename()`: Estrazione titoli
+- E oltre 10 funzioni specializzate
 
-## Personalizzazione
+### `TEIAnalyzer.py`
+Analizzatore avanzato che:
+- Classifica semanticamente location e temporalità
+- Calcola statistiche per film singoli e aggregate
+- Genera report JSON strutturati
+- Utilizza dizionari di keyword per classificazione automatica
 
-### Modifica dei Pattern
-Puoi personalizzare il riconoscimento modificando le funzioni in `utils.py`:
-
-- **Personaggi**: Modifica `is_speaker()` per pattern specifici
-- **Location**: Aggiorna `is_location_line()` per nuovi formati
-- **Filtri**: Estendi `is_header_line()` per rimuovere contenuti specifici
-
-### Struttura TEI
-Puoi modificare la struttura XML generata nella funzione `converti_in_tei()` in `txt2tei.py`.
-
-## Risoluzione Problemi
-
-### Cartelle non trovate
-Lo script crea automaticamente le cartelle mancanti. Assicurati di avere i permessi di scrittura.
-
-### Nessun file processato
-Verifica che:
-- Hai eseguito prima `estrazione_txt.py`
-- I file TXT siano nella cartella `copioni_txt/`
-- I file abbiano estensione `.txt`
-- I file non siano vuoti
-
-### Errori di estrazione
-Se `estrazione_txt.py` non funziona:
-- Verifica la connessione internet per gli URL IMSDB
-- Controlla che i file PDF non siano corrotti
-- Installa le dipendenze: `pip install requests beautifulsoup4 pdfminer.six`
-
-### Errori di encoding
-I file devono essere in encoding UTF-8. Se hai problemi, converti i file prima dell'elaborazione.
+### `dashboard.py`
+Dashboard Streamlit con:
+- Visualizzazioni aggregate multi-film
+- Analisi dettagliate per singoli film
+- Grafici interattivi (Plotly)
+- Metriche comparative
+- Interface responsive
 
 ## Licenza
 
