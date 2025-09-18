@@ -365,46 +365,6 @@ class TEIAnalyzer:
             'films_summary': film_summaries
         }
 
-    def _find_common_combinations(self, results: List[Dict]) -> Dict[str, Any]:
-        """Trova combinazioni comuni di caratteristiche"""
-        combinations = []
-
-        for result in results:
-            stats = result.get('statistics', {})
-            locations = stats.get('locations', {})
-            temporal = stats.get('temporal', {})
-
-            # Estrai caratteristiche dominanti
-            dom_env = locations.get('most_common_environment')
-            dom_period = temporal.get('most_common_period')
-
-        combo_counter = Counter(combinations)
-        return {
-            'most_frequent': combo_counter.most_common(5),
-            'total_unique_combinations': len(combo_counter)
-        }
-
-    def _identify_genre_patterns(self, results: List[Dict]) -> Dict[str, Any]:
-        """Identifica pattern tipici di generi cinematografici"""
-        patterns = {
-            'sci_fi_indicators': 0,
-            'fantasy_indicators': 0,
-            'contemporary_drama': 0
-        }
-
-        for result in results:
-            stats = result.get('statistics', {})
-            locations = stats.get('locations', {})
-
-            env_dist = locations.get('environment_distribution', {})
-
-        total_films = len(results)
-        return {
-            'absolute_counts': patterns,
-            'percentages': {k: round((v / total_films) * 100, 1) for k, v in patterns.items()},
-            'dominant_genre_pattern': max(patterns, key=patterns.get) if patterns else None
-        }
-
     def analyze_directory(self, tei_dir: str, output_file: str = 'screenplay_analysis.json'):
         """Analizza tutti i file TEI in una directory"""
         results = []
