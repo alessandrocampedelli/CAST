@@ -27,7 +27,7 @@ def crea_elemento_testo(tag, testo):
 
 
 def is_scene_number(riga):
-    """Rileva se una riga è un numero di scena (ora viene ignorato)"""
+    """Rileva se una riga è un numero di scena"""
     riga_clean = riga.strip()
 
     # Pattern originale: solo cifre
@@ -199,7 +199,7 @@ def is_header_line(riga, next_line=None):
                  riga_senza_escape, re.IGNORECASE):
         return True
 
-    # ====== PIEDI DI PAGINA (PATTERN ORIGINALI) ======
+    # PIEDI DI PAGINA (PATTERN ORIGINALI)
 
     # Pattern copyright generale: © o (C) o simboli Unicode copyright + anno + testo
     if re.search(r'(©|\(C\)|COPYRIGHT| )\s*\d{4}', riga_senza_escape, re.IGNORECASE):
@@ -295,17 +295,19 @@ def is_header_line(riga, next_line=None):
 
 
 def is_location_line(riga):
-    """Rileva righe che rappresentano location di scena (INT., EXT., I/E., EXT./INT., ecc.)
-        QUESTA È ORA LA FUNZIONE CHIAVE PER IDENTIFICARE NUOVE SCENE"""
+    """Rileva righe che rappresentano location di scena (INT., EXT., I/E., EXT./INT., ecc.)"""
 
-    # Pulizia più aggressiva della riga per rimuovere caratteri problematici
+    # Rimuove spazi non-breaking e normalizza gli spazi
     riga_clean = riga.strip().replace("\xa0", " ").replace("\u00A0", " ")
-    riga_original = riga_clean  # Mantieni versione originale per alcuni controlli
+
+    # Mantieni versione originale per alcuni controlli
+    riga_original = riga_clean
+
+    #Converte in maiuscolo per pattern matching case-insensitive
     riga_clean = re.sub(r'\s+', ' ', riga_clean).upper()
 
-    # ====== MATCH DEFINITIVI - ALTA PRIORITÀ ======
-
-    # 1. Standard cinematografici: INT., EXT., I/E. e TUTTE LE VARIANTI EXT./INT.
+    # MATCH ALTA PRIORITÀ
+    # 1. Standard cinematografici
     location_patterns = [
         r"^(INT\.?|EXT\.?|I/E\.?)\s+.+",  # Pattern originali
         r"^(EXT\.?/INT\.?|INT\.?/EXT\.?)\s+.+",  # EXT./INT. o INT./EXT.
@@ -324,7 +326,7 @@ def is_location_line(riga):
     if re.match(r"^(\d+[A-Za-z]*|[A-Za-z]*\d+)\s+.+\s+(\d+[A-Za-z]*|[A-Za-z]*\d+)\s*$", riga_clean):
         return True
 
-# 3. Pattern numero + spazio + location patterns
+    # 3. Pattern numero + spazio + location patterns
     number_location_patterns = [
         r"^\d+[A-Za-z]*\s+(INT\.?|EXT\.?|I/E\.?)\s+.+",
         r"^\d+[A-Za-z]*\s+(EXT\.?/INT\.?|INT\.?/EXT\.?)\s+.+",
@@ -337,8 +339,7 @@ def is_location_line(riga):
         if re.match(pattern, riga_clean):
             return True
 
-    # ====== ESCLUSIONI IMMEDIATE - MEDIA PRIORITÀ ======
-
+    # ESCLUSIONI IMMEDIATE - MEDIA PRIORITÀ
     # Esclude righe che sono chiaramente stage directions narrative
     narrative_indicators = [
         # Connettori narrativi
@@ -368,7 +369,7 @@ def is_location_line(riga):
                 riga_clean.count("-") > 2):  # Troppi trattini (tipico di descrizioni)
             return False
 
-    # ====== CONTROLLI STRUTTURALI - MEDIA PRIORITÀ ======
+    # CONTROLLI STRUTTURALI - MEDIA PRIORITÀ
 
     # Esclude righe che iniziano con articoli/possessivi (tipico di stage directions)
     if re.match(r"^(THE\s+|A\s+|AN\s+|\w+'S\s+|TWO\s+|THREE\s+|FOUR\s+|SEVERAL\s+)", riga_clean):
@@ -385,7 +386,7 @@ def is_location_line(riga):
         if re.match(pattern, riga_clean):
             return False
 
-    # ====== MATCH CONDIZIONALI - BASSA PRIORITÀ ======
+    # MATCH CONDIZIONALI - BASSA PRIORITÀ
 
     # Shot keywords SOLO se soddisfano criteri strutturali rigorosi
     shot_keywords = [
@@ -547,10 +548,12 @@ def is_speaker(riga):
 
 
 def is_continued_line(riga):
-    """Rileva righe CONTINUED in tutte le varianti comuni, incluso il formato con parentesi"""
+    """Rileva righe CONTINUED in tutte le varianti comuni"""
+
+    #elimino spazi iniziali e finali e imposto maiuscolo
     riga_upper = riga.strip().upper()
 
-    # Pattern originali
+    # Pattern originali più comuni
     if (riga_upper == "(CONTINUED)" or
             riga_upper == "CONTINUED" or
             riga_upper == "CONTINUED:" or
@@ -559,41 +562,46 @@ def is_continued_line(riga):
         return True
 
     # Pattern numero-CONTINUED-numero (es: "2        CONTINUED:                                                            2")
+    '''
+    Rimuove caratteri di spazio non-breaking (\xa0 e \u00A0)
+    Normalizza tutti gli spazi multipli in spazi singoli
+    Converte in maiuscolo
+    '''
     riga_clean = riga.strip().replace("\xa0", " ").replace("\u00A0", " ")
     riga_clean = re.sub(r'\s+', ' ', riga_clean).upper()
 
-    # NUOVO: Pattern numero-CONTINUED-numero (es: "2 CONTINUED: 2")
+    # Pattern numero-CONTINUED-numero (es: "2 CONTINUED: 2")
     if re.match(r'^\d+[A-Za-z]*\s+CONTINUED:?\s+\d+[A-Za-z]*\s*$', riga_clean):
         return True
 
-    # NUOVO: Pattern numero-CONTINUED:(numero)-numero
+    # Pattern numero-CONTINUED:(numero)-numero
     # Es: "4   CONTINUED: (2)                                                                   4"
     if re.match(r'^\d+[A-Za-z]*\s+CONTINUED:?\s*\(\d+\)\s+\d+[A-Za-z]*\s*$', riga_clean):
         return True
 
-    # NUOVO: Pattern più generale per CONTINUED con parentesi
+    # Pattern più generale per CONTINUED con parentesi
     # Es: "CONTINUED: (2)", "5 CONTINUED: (3) 5", etc.
     if re.search(r'CONTINUED:?\s*\(\d+\)', riga_clean):
         return True
 
-    # NUOVO: Pattern solo CONTINUED con spazi e numeri intorno
+    # Pattern solo CONTINUED con spazi e numeri intorno
     if re.match(r'^\d+[A-Za-z]*\s+CONTINUED:?\s*$', riga_clean) or \
             re.match(r'^\s*CONTINUED:?\s+\d+[A-Za-z]*\s*$', riga_clean):
         return True
 
-    # NUOVO: Pattern con numeri di pagina in parentesi e numeri ai lati
+    # Pattern con numeri di pagina in parentesi e numeri ai lati
     # Es: "4 CONTINUED: (2) 4", "A1 CONTINUED (5) A1"
     if re.match(r'^\d+[A-Za-z]*\s+CONTINUED:?\s*\([^)]+\)\s*\d+[A-Za-z]*\s*$', riga_clean):
         return True
 
-    # NUOVO: Pattern flessibile che cattura varianti con molto spazio bianco
+    # Pattern flessibile che cattura varianti con molto spazio bianco
     # Rileva pattern dove CONTINUED è circondato da numeri, anche con spazi estesi
     continued_flexible = re.match(r'^(\d+[A-Za-z]*)\s+(CONTINUED:?)\s*(\([^)]*\))?\s*(\d+[A-Za-z]*)\s*$', riga_clean)
     if continued_flexible:
         # Verifica che i numeri all'inizio e alla fine corrispondano (tipico delle righe continued)
         start_num = continued_flexible.group(1)
         end_num = continued_flexible.group(4)
-        if start_num == end_num:  # Stesso numero all'inizio e alla fine
+        if start_num == end_num:
             return True
 
     return False

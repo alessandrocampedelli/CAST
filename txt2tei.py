@@ -115,7 +115,7 @@ def converti_in_tei(percorso_txt):
             i += 1
             continue
 
-        # PRIORITÀ 4: Ignora numeri di scena (ora non servono più per identificare scene)
+        # PRIORITÀ 4: Ignora numeri di scena
         if utils.is_scene_number(riga):
             i += 1
             continue
