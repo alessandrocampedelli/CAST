@@ -127,7 +127,7 @@ class StreamlitDashboard:
 
         if int_ext_data:
             fig1 = px.bar(int_ext_data, x="Film", y="Scene", color="Categoria",
-                          barmode="group", title="Distribuzione INT/EXT per film",
+                          barmode="stack", title="Distribuzione INT/EXT per film",
                           color_discrete_map={'INT': '#764ba2', 'EXT': '#667eea'})
             fig1.update_layout(xaxis=dict(showticklabels=False))  # Rimuove i nomi dei film
             st.plotly_chart(fig1, use_container_width=True)
@@ -148,7 +148,7 @@ class StreamlitDashboard:
 
         if daytime_data:
             fig2 = px.bar(daytime_data, x="Film", y="Scene", color="Categoria",
-                          barmode="group", title="Distribuzione fasi del giorno per film",
+                          barmode="stack", title="Distribuzione fasi del giorno per film",
                           color_discrete_map=day_colors)
             fig2.update_layout(xaxis=dict(showticklabels=False))
             st.plotly_chart(fig2, use_container_width=True)
@@ -169,7 +169,7 @@ class StreamlitDashboard:
 
         if season_data:
             fig3 = px.bar(season_data, x="Film", y="Scene", color="Categoria",
-                          barmode="group", title="Distribuzione stagioni per film",
+                          barmode="stack", title="Distribuzione stagioni per film",
                           color_discrete_map=season_colors)
             fig3.update_layout(xaxis=dict(showticklabels=False))
             st.plotly_chart(fig3, use_container_width=True)
