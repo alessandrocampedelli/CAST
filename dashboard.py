@@ -12,6 +12,34 @@ class StreamlitDashboard:
         self.individual_stats = self.load_json(self.individual_stats_path)
         self.aggregated_stats = self.load_json(self.aggregated_stats_path)
 
+        # ============================
+        # PALETTE COLORI UNIFICATE
+        # ============================
+        self.COLOR_PALETTES = {
+            "int_ext": {
+                "Interno": "#764ba2",
+                "Esterno": "#667eea",
+                "Sconosciuto": "#95a5a6"
+            },
+            "periodi": {
+                "Mattina": "#6BCF7F",
+                "Giorno": "#FFD93D",
+                "Sera": "#686DE0",
+                "Notte": "#4834DF",
+                "Sconosciuto": "#95a5a6"
+            },
+            "stagioni": {
+                "Primavera": "#FF6B6B",
+                "Estate": "#4ECDC4",
+                "Autunno": "#FF9FF3",
+                "Inverno": "#FECA57",
+                "Sconosciuto": "#95a5a6"
+            },
+            "default": {
+                "Sconosciuto": "#95a5a6"
+            }
+        }
+
     def load_json(self, filepath):
         with open(filepath, 'r', encoding='utf-8') as f:
             return json.load(f)
@@ -24,74 +52,47 @@ class StreamlitDashboard:
             translated_data[translated_key] = value
         return translated_data
 
-    def get_color_map(self, labels):
-        """Restituisce una mappa di colori con grigio sempre per 'Sconosciuto'"""
-        color_map = {}
-        available_colors = ['#667eea', '#764ba2', '#FFD93D', '#6BCF7F', '#4834DF', '#686DE0',
-                            '#FF6B6B', '#4ECDC4', '#FECA57', '#FF9FF3']
-
-        # Prima assegna grigio a 'Sconosciuto'
-        if 'Sconosciuto' in labels:
-            color_map['Sconosciuto'] = '#95a5a6'
-
-        # Poi assegna gli altri colori
-        color_index = 0
-        for label in labels:
-            if label != 'Sconosciuto' and label not in color_map:
-                if color_index < len(available_colors):
-                    color_map[label] = available_colors[color_index]
-                    color_index += 1
-                else:
-                    color_map[label] = '#95a5a6'  # grigio di default
-
-        return color_map
+    def get_color_map(self, labels, palette_key="default"):
+        """Restituisce la mappa colori coerente in base alla palette scelta"""
+        palette = self.COLOR_PALETTES.get(palette_key, self.COLOR_PALETTES["default"])
+        return {label: palette.get(label, "#ff6b6b") for label in labels}
 
     # ============================
     # METODI GENERICI PER GRAFICI
     # ============================
-
-    def plot_pie(self, data, title, translation_dict=None, colors=None):
-        """Grafici a torta - includono sempre la categoria unknown per mostrare le percentuali"""
+    def plot_pie(self, data, title, translation_dict=None, palette_key="default"):
         if not data:
             st.info("Nessun dato disponibile")
             return
 
         plot_data = data.copy()
 
-        # Applica traduzione se fornita
         if translation_dict:
             plot_data = self.translate_labels(plot_data, translation_dict)
 
         labels = list(plot_data.keys())
-
-        # Usa la mappa colori personalizzata se non sono forniti colori specifici
-        if colors is None:
-            color_map = self.get_color_map(labels)
-            colors = [color_map.get(label, '#95a5a6') for label in labels]
+        color_map = self.get_color_map(labels, palette_key)
 
         fig = px.pie(
             values=list(plot_data.values()),
             names=labels,
             title=title,
-            color_discrete_sequence=colors
+            color=labels,
+            color_discrete_map=color_map
         )
         st.plotly_chart(fig, use_container_width=True)
 
-    def plot_bar(self, data, title, x_title="Categoria", y_title="Valore", translation_dict=None, colors=None,
-                 exclude_unknown=True):
-        """Grafici a barre - escludono unknown per default per avere dati più puliti"""
+    def plot_bar(self, data, title, x_title="Categoria", y_title="Valore",
+                 translation_dict=None, palette_key="default", exclude_unknown=True):
         if not data:
             st.info("Nessun dato disponibile")
             return
 
         plot_data = data.copy()
-
-        # Escludi unknown prima della traduzione se richiesto
         if exclude_unknown:
             plot_data = {k: v for k, v in plot_data.items()
-                         if k not in ['unknown', 'UNKNOWN']}
+                         if k not in ['unknown', 'UNKNOWN', 'Sconosciuto']}
 
-        # Applica traduzione se fornita
         if translation_dict:
             plot_data = self.translate_labels(plot_data, translation_dict)
 
@@ -100,17 +101,14 @@ class StreamlitDashboard:
             return
 
         labels = list(plot_data.keys())
-
-        # Usa la mappa colori personalizzata se non sono forniti colori specifici
-        if colors is None:
-            color_map = self.get_color_map(labels)
-            colors = [color_map.get(label, '#95a5a6') for label in labels]
+        color_map = self.get_color_map(labels, palette_key)
 
         fig = px.bar(
             x=labels,
             y=list(plot_data.values()),
             title=title,
-            color_discrete_sequence=colors
+            color=labels,
+            color_discrete_map=color_map
         )
         fig.update_layout(xaxis_title=x_title, yaxis_title=y_title)
         st.plotly_chart(fig, use_container_width=True)
@@ -118,7 +116,6 @@ class StreamlitDashboard:
     # ============================
     # DASHBOARD PRINCIPALE
     # ============================
-
     def run_dashboard(self):
         st.set_page_config(
             page_title="Dashboard Statistiche Film",
@@ -152,7 +149,6 @@ class StreamlitDashboard:
         with col3:
             st.metric("Scene per Film", f"{summary['average_scenes_per_film']:.1f}")
         with col4:
-            # Calcola percentuale INT escludendo UNKNOWN per le metriche
             int_ext_percentages = self.aggregated_stats['aggregated_statistics']['locations']['int_ext_percentages']
             known_total = sum(v for k, v in int_ext_percentages.items() if k != 'UNKNOWN')
             if known_total > 0:
@@ -167,20 +163,23 @@ class StreamlitDashboard:
         col1, col2 = st.columns(2)
         with col1:
             st.subheader("Distribuzione Interni vs Esterni")
-            self.plot_pie(stats['locations']['int_ext_totals'], "Interno vs Esterno", int_ext_translations)
+            self.plot_pie(stats['locations']['int_ext_totals'], "Interno vs Esterno",
+                          int_ext_translations, palette_key="int_ext")
         with col2:
             st.subheader("Distribuzione per Ambiente")
             self.plot_bar(stats['locations']['environment_totals'], "Ambienti",
-                          x_title="Ambiente", y_title="Numero Scene", exclude_unknown=True)
+                          x_title="Ambiente", y_title="Numero Scene", palette_key="default")
 
         # Row 2: Periodi del giorno e Stagioni
         col1, col2 = st.columns(2)
         with col1:
             st.subheader("Periodi del Giorno")
-            self.plot_pie(stats['temporal']['period_totals'], "Periodi del Giorno", period_translations)
+            self.plot_pie(stats['temporal']['period_totals'], "Periodi del Giorno",
+                          period_translations, palette_key="periodi")
         with col2:
             st.subheader("Distribuzione Stagionale")
-            self.plot_pie(stats['temporal']['season_totals'], "Stagioni", season_translations)
+            self.plot_pie(stats['temporal']['season_totals'], "Stagioni",
+                          season_translations, palette_key="stagioni")
 
         # ============================
         # NUOVI ISTOGRAMMI PER FILM
@@ -201,7 +200,7 @@ class StreamlitDashboard:
                     int_ext_data.append({"Film": film_name, "Categoria": translated_key, "Scene": v})
 
         if int_ext_data:
-            color_map = {'Interno': '#764ba2', 'Esterno': '#667eea'}
+            color_map = self.COLOR_PALETTES["int_ext"]
             fig1 = px.bar(int_ext_data, x="Film", y="Scene", color="Categoria",
                           barmode="stack", title="Distribuzione Interno/Esterno per film (escluso Sconosciuto)",
                           color_discrete_map=color_map)
@@ -220,21 +219,16 @@ class StreamlitDashboard:
                     translated_key = period_translations.get(k, k)
                     daytime_data.append({"Film": film_name, "Categoria": translated_key, "Scene": v})
 
-        day_colors = {
-            'Mattina': '#6BCF7F', 'Giorno': '#FFD93D', 'Notte': '#4834DF', 'Sera': '#686DE0'
-        }
-
         if daytime_data:
+            color_map = self.COLOR_PALETTES["periodi"]
             fig2 = px.bar(daytime_data, x="Film", y="Scene", color="Categoria",
                           barmode="stack", title="Distribuzione fasi del giorno per film (escluso Sconosciuto)",
-                          color_discrete_map=day_colors)
+                          color_discrete_map=color_map)
             fig2.update_layout(xaxis=dict(showticklabels=False))
             st.plotly_chart(fig2, use_container_width=True)
 
         # --- 3. Stagioni per film ---
         season_data = []
-        season_colors = {'Primavera': '#FF6B6B', 'Estate': '#4ECDC4', 'Inverno': '#FECA57', 'Autunno': '#FF9FF3'}
-
         for film in self.individual_stats:
             film_name = film.get('film', 'N/A')
             stats = film.get('statistics', {})
@@ -246,9 +240,10 @@ class StreamlitDashboard:
                     season_data.append({"Film": film_name, "Categoria": translated_key, "Scene": v})
 
         if season_data:
+            color_map = self.COLOR_PALETTES["stagioni"]
             fig3 = px.bar(season_data, x="Film", y="Scene", color="Categoria",
                           barmode="stack", title="Distribuzione stagioni per film (escluso Sconosciuto)",
-                          color_discrete_map=season_colors)
+                          color_discrete_map=color_map)
             fig3.update_layout(xaxis=dict(showticklabels=False))
             st.plotly_chart(fig3, use_container_width=True)
 
@@ -269,7 +264,6 @@ class StreamlitDashboard:
     # ANALISI SINGOLO FILM
     # ============================
     def display_individual_film_analysis(self, film_data):
-        # Dizionari di traduzione
         int_ext_translations = {'INT': 'Interno', 'EXT': 'Esterno', 'UNKNOWN': 'Sconosciuto'}
         period_translations = {
             'MORNING': 'Mattina', 'DAY': 'Giorno', 'EVENING': 'Sera',
@@ -296,21 +290,21 @@ class StreamlitDashboard:
         col1, col2 = st.columns(2)
         with col1:
             self.plot_pie(stats.get('locations', {}).get('int_ext_distribution', {}),
-                          f"Interno vs Esterno - {film_data['film']}", int_ext_translations)
+                          f"Interno vs Esterno - {film_data['film']}", int_ext_translations, palette_key="int_ext")
         with col2:
             self.plot_bar(stats.get('locations', {}).get('environment_distribution', {}),
                           f"Ambienti - {film_data['film']}",
-                          x_title="Ambiente", y_title="Scene", exclude_unknown=True)
+                          x_title="Ambiente", y_title="Scene", palette_key="default")
 
         # Row 2: Temporal del film
         st.subheader(f"⏰ Analisi Temporale - {film_data['film']}")
         col1, col2 = st.columns(2)
         with col1:
             self.plot_pie(stats.get('temporal', {}).get('day_night_distribution', {}),
-                          f"Periodi Giorno - {film_data['film']}", period_translations)
+                          f"Periodi Giorno - {film_data['film']}", period_translations, palette_key="periodi")
         with col2:
             self.plot_pie(stats.get('temporal', {}).get('season_distribution', {}),
-                          f"Stagioni - {film_data['film']}", season_translations)
+                          f"Stagioni - {film_data['film']}", season_translations, palette_key="stagioni")
 
         # Insights
         st.subheader(f"🎯 Insights - {film_data['film']}")
@@ -339,7 +333,7 @@ class StreamlitDashboard:
             else:
                 st.info(f"**% Scene Interne:** N/A")
 
-        # Mostra anche statistiche su unknown se presenti
+        # Statistiche su unknown
         st.subheader("📈 Statistiche Sconosciute")
         col1, col2, col3 = st.columns(3)
 
@@ -372,7 +366,7 @@ class StreamlitDashboard:
             else:
                 st.metric("Stagioni Sconosciute", "0")
 
-        # Confronto con la media (escludendo unknown per il confronto)
+        # Confronto con la media
         st.subheader("📈 Confronto con la Media Generale")
         general_stats = self.aggregated_stats['aggregated_statistics']
         general_int_ext = general_stats['locations']['int_ext_percentages']
@@ -407,5 +401,9 @@ class StreamlitDashboard:
 
 
 if __name__ == "__main__":
-    dashboard = StreamlitDashboard('analysis', 'screenplay_analysis.json', 'screenplay_analysis_macro_stats.json')
+    analysis_directory = "analysis"
+    individual_stats_file = "screenplay_analysis.json"
+    aggregated_stats_file = "screenplay_analysis_macro_stats.json"
+
+    dashboard = StreamlitDashboard(analysis_directory, individual_stats_file, aggregated_stats_file)
     dashboard.run_dashboard()
