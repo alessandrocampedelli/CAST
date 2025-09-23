@@ -197,7 +197,8 @@ class StreamlitDashboard:
         data = []
         for film in self.individual_stats:
             name = film.get("film", "N/A")
-            dist = film.get("statistics", {}).get("temporal" if "day" in key or "season" in key else "locations", {}).get(key, {})
+            dist = film.get("statistics", {}).get("temporal" if "day" in key or "season" in key else "locations",
+                                                  {}).get(key, {})
             for k, v in dist.items():
                 if k.lower() not in ["unknown"]:
                     data.append({"Film": name, "Categoria": translation.get(k, k), "Scene": v})
@@ -211,23 +212,63 @@ class StreamlitDashboard:
     # ---------------- Analisi singolo film ---------------- #
 
     def _display_film_analysis(self, film_data):
+        stats = film_data["statistics"]
+
         st.subheader(f"🏞️ Analisi Locations - {film_data['film']}")
         col1, col2 = st.columns(2)
         with col1:
-            self._plot_pie(film_data["statistics"]["locations"].get("int_ext_distribution", {}),
+            self._plot_pie(stats["locations"].get("int_ext_distribution", {}),
                            "Interno vs Esterno", self.TRANSLATIONS["int_ext"], "int_ext")
         with col2:
-            self._plot_bar(film_data["statistics"]["locations"].get("environment_distribution", {}),
+            self._plot_bar(stats["locations"].get("environment_distribution", {}),
                            "Ambienti", x_title="Ambiente", y_title="Scene")
 
         st.subheader(f"⏰ Analisi Temporale - {film_data['film']}")
         col1, col2 = st.columns(2)
         with col1:
-            self._plot_pie(film_data["statistics"]["temporal"].get("day_night_distribution", {}),
+            self._plot_pie(stats["temporal"].get("day_night_distribution", {}),
                            "Periodi Giorno", self.TRANSLATIONS["periodi"], "periodi")
         with col2:
-            self._plot_pie(film_data["statistics"]["temporal"].get("season_distribution", {}),
+            self._plot_pie(stats["temporal"].get("season_distribution", {}),
                            "Stagioni", self.TRANSLATIONS["stagioni"], "stagioni")
+
+        # Insights
+        st.subheader(f"🎯 Insights - {film_data['film']}")
+        col1, col2, col3 = st.columns(3)
+        with col1:
+            st.info(f"**Ambiente Dominante:** {stats['locations'].get('most_common_environment', 'N/A')}")
+        with col2:
+            st.info(f"**Periodo Dominante:** {stats['temporal'].get('most_common_period', 'N/A')}")
+        with col3:
+            int_ext_data = stats['locations']['int_ext_distribution']
+            int_scenes = int_ext_data.get('INT', 0)
+            total_int_ext = sum(int_ext_data.values())
+            int_percentage = (int_scenes / total_int_ext * 100) if total_int_ext > 0 else 0
+            st.info(f"**% Scene Interne:** {int_percentage:.1f}%")
+
+        # Confronto con la media
+        st.subheader("📈 Confronto con la Media Generale")
+        general_stats = self.aggregated_stats['aggregated_statistics']
+        general_int_perc = general_stats['locations']['int_ext_percentages']['INT']
+
+        col1, col2 = st.columns(2)
+        with col1:
+            difference = int_percentage - general_int_perc
+            if difference > 0:
+                st.success(
+                    f"Questo film ha **{difference:.1f}%** in più di scene interne rispetto alla media ({general_int_perc:.1f}%)")
+            else:
+                st.warning(
+                    f"Questo film ha **{abs(difference):.1f}%** in meno di scene interne rispetto alla media ({general_int_perc:.1f}%)")
+
+        with col2:
+            avg_scenes_per_film = self.aggregated_stats['analysis_summary']['average_scenes_per_film']
+            scene_difference = film_data['total_scenes'] - avg_scenes_per_film
+            if scene_difference > 0:
+                st.info(f"**{scene_difference:.0f} scene** in più rispetto alla media ({avg_scenes_per_film:.1f})")
+            else:
+                st.info(
+                    f"**{abs(scene_difference):.0f} scene** in meno rispetto alla media ({avg_scenes_per_film:.1f})")
 
 
 if __name__ == "__main__":
