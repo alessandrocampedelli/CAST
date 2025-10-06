@@ -1,4 +1,3 @@
-#v2
 import json
 import os
 import xml.etree.ElementTree as ET
@@ -6,20 +5,23 @@ from collections import Counter
 from dataclasses import dataclass, asdict
 from datetime import datetime
 from typing import Dict, List, Optional, Any
+from nltk.corpus import wordnet as wn
 
 
 @dataclass
 class LocationInfo:
     """Informazioni estratte sui luoghi"""
-    type: Optional[str] = None  # INT/EXT/UNKNOWN
-    setting: Optional[str] = None  # suburban, fantasy, etc.
-    environment: Optional[str] = None  # sea, mountain, urban, etc
+    type: Optional[str] = None
+    setting: Optional[str] = None
+    environment: Optional[str] = None
+
 
 @dataclass
 class TemporalInfo:
     """Informazioni estratte sui tempi"""
-    period: Optional[str] = None  # DAY/NIGHT/MORNING/EVENING/UNKNOWN
-    season: Optional[str] = None  # winter/spring/summer/autumn/unknown
+    period: Optional[str] = None
+    season: Optional[str] = None
+
 
 @dataclass
 class SceneAnalysis:
@@ -30,162 +32,281 @@ class SceneAnalysis:
 
 
 class TEIAnalyzer:
-    """Analizzatore principale per file TEI"""
+    """Analizzatore principale per file TEI con filtri anti-rumore"""
 
-    def __init__(self):
-        # Dizionari migliorati per classificazione
+    def __init__(self, expand_with_wordnet: bool = True, max_synonyms: int = 3):
+        """
+        Inizializza l'analizzatore
+        """
+        self.max_synonyms = max_synonyms
+
+        # CORE KEYWORDS - Alta priorità, peso maggiore
+        self.core_keywords = {
+            'sea': ['ocean', 'sea', 'beach', 'ship', 'boat', 'submarine'],
+            'mountain': ['mountain', 'hill', 'peak', 'cliff', 'cave'],
+            'urban': ['city', 'street', 'building', 'downtown', 'skyscraper'],
+            'suburban': ['house', 'home', 'neighborhood', 'suburb', 'garage'],
+            'rural': ['farm', 'field', 'countryside', 'barn', 'village'],
+            'desert': ['desert', 'sand', 'dune', 'oasis'],
+            'space': ['space', 'spaceship', 'planet', 'galaxy', 'spacecraft'],
+            'fantasy': ['castle', 'dungeon', 'wizard', 'dragon', 'magic']
+        }
+
+        # EXTENDED KEYWORDS - Bassa priorità, peso minore
         self.environment_keywords = {
-            'sea': ['ocean', 'sea', 'beach', 'coast', 'waves', 'harbor', 'port', 'ship', 'boat', 'pier', 'marina',
-                    'wharf', 'dock', 'seaside', 'shoreline', 'naval', 'yacht', 'submarine', 'lighthouse'],
-            'mountain': ['mountain', 'hill', 'peak', 'cliff', 'valley', 'cave', 'rock', 'ridge', 'summit', 'alpine',
-                         'slope', 'canyon', 'gorge', 'boulder', 'crag'],
-            'urban': ['city', 'street', 'building', 'apartment', 'office', 'shop', 'mall', 'downtown', 'skyscraper',
-                      'plaza', 'square', 'avenue', 'boulevard', 'metropolis', 'sidewalk', 'crosswalk', 'intersection',
-                      'alley', 'penthouse', 'loft'],
-            'suburban': ['house', 'home', 'neighborhood', 'garden', 'yard', 'driveway', 'suburb', 'residential', 'lawn',
-                         'garage', 'porch', 'backyard', 'frontyard', 'cul-de-sac', 'picket fence'],
-            'rural': ['farm', 'field', 'countryside', 'barn', 'village', 'meadow', 'forest', 'woods', 'ranch',
-                      'pasture', 'orchard', 'farmhouse', 'stable', 'grain', 'harvest', 'tractor', 'cow', 'sheep'],
-            'desert': ['desert', 'sand', 'dune', 'oasis', 'wasteland', 'arid', 'cactus', 'mirage', 'sandstorm',
-                       'nomad'],
-            'space': ['space', 'spaceship', 'planet', 'moon', 'galaxy', 'asteroid', 'orbit', 'spacecraft', 'satellite',
-                      'cosmos', 'alien', 'mars', 'jupiter', 'venus', 'solar system', 'nebula', 'starship'],
-            'fantasy': ['castle', 'dungeon', 'tower', 'magical', 'enchanted', 'wizard', 'dragon', 'fairy', 'goblin',
-                        'elf', 'dwarf', 'magic', 'spell', 'potion', 'kingdom', 'realm', 'tavern', 'inn', 'quest']
+            'sea': ['waves', 'harbor', 'port', 'pier', 'marina', 'wharf', 'dock',
+                    'seaside', 'shoreline', 'naval', 'yacht', 'lighthouse'],
+            'mountain': ['valley', 'rock', 'ridge', 'summit', 'alpine', 'slope',
+                         'canyon', 'gorge', 'boulder', 'crag'],
+            'urban': ['apartment', 'office', 'shop', 'mall', 'plaza', 'square',
+                      'avenue', 'boulevard', 'metropolis', 'sidewalk', 'crosswalk',
+                      'intersection', 'alley', 'penthouse', 'loft'],
+            'suburban': ['garden', 'yard', 'driveway', 'residential', 'lawn',
+                         'porch', 'backyard', 'frontyard', 'cul-de-sac', 'picket fence'],
+            'rural': ['meadow', 'forest', 'woods', 'ranch', 'pasture', 'orchard',
+                      'farmhouse', 'stable', 'grain', 'harvest', 'tractor', 'cow', 'sheep'],
+            'desert': ['wasteland', 'arid', 'cactus', 'mirage', 'sandstorm', 'nomad'],
+            'space': ['moon', 'asteroid', 'orbit', 'satellite', 'cosmos', 'alien',
+                      'mars', 'jupiter', 'venus', 'solar system', 'nebula', 'starship'],
+            'fantasy': ['tower', 'magical', 'enchanted', 'fairy', 'goblin', 'elf',
+                        'dwarf', 'spell', 'potion', 'kingdom', 'realm', 'tavern', 'inn', 'quest']
         }
 
-        self.time_keywords = {
-            'morning': ['morning', 'dawn', 'sunrise', 'early', 'breakfast', 'am', 'daybreak', 'cockcrow'],
-            'day': ['day', 'noon', 'afternoon', 'midday', 'daylight', 'lunch', 'pm', 'sunny', 'bright'],
-            'evening': ['evening', 'sunset', 'dusk', 'twilight', 'dinner', 'supper', 'late afternoon'],
-            'night': ['night', 'midnight', 'darkness', 'moonlight', 'stars', 'nocturnal', 'late night', 'bedtime',
-                      'sleeping'],
-            'winter': ['snow', 'ice', 'cold', 'winter', 'frost', 'christmas', 'freezing', 'blizzard', 'snowfall',
-                       'icicle', 'december', 'january', 'february'],
-            'spring': ['spring', 'flowers', 'bloom', 'rain', 'easter', 'march', 'april', 'may', 'blossom', 'tulip',
-                       'daffodil'],
-            'summer': ['summer', 'hot', 'sun', 'heat', 'vacation', 'beach', 'june', 'july', 'august', 'swimming',
-                       'sunbathing', 'barbecue'],
-            'autumn': ['autumn', 'fall', 'leaves', 'harvest', 'october', 'november', 'september', 'pumpkin',
-                       'thanksgiving', 'foliage', 'rake']
+        self.blacklist = {
+            'general': ['place', 'area', 'location', 'site', 'spot', 'position',
+                        'room', 'space', 'time', 'day', 'way', 'thing', 'part'],
+            'urban_noise': ['center', 'point', 'line', 'side', 'end', 'back',
+                            'front', 'top', 'bottom', 'inside', 'outside'],
+            'false_positives': ['character', 'scene', 'act', 'stage']
         }
+
+        # Unisce tutte le blacklist
+        self.all_blacklist = set()
+        for category in self.blacklist.values():
+            self.all_blacklist.update(category)
+
+        # Keyword temporali
+        self.time_keywords = {
+            'morning': ['morning', 'dawn', 'sunrise', 'early', 'breakfast', 'am', 'daybreak'],
+            'day': ['day', 'noon', 'afternoon', 'midday', 'daylight', 'lunch', 'pm', 'sunny', 'bright'],
+            'evening': ['evening', 'sunset', 'dusk', 'twilight', 'dinner', 'supper'],
+            'night': ['night', 'midnight', 'darkness', 'moonlight', 'stars', 'nocturnal'],
+            'winter': ['snow', 'ice', 'cold', 'winter', 'frost', 'christmas', 'freezing',
+                       'blizzard', 'december', 'january', 'february'],
+            'spring': ['spring', 'flowers', 'bloom', 'rain', 'easter', 'march', 'april',
+                       'may', 'blossom', 'tulip'],
+            'summer': ['summer', 'hot', 'sun', 'heat', 'vacation', 'beach', 'june', 'july',
+                       'august', 'swimming'],
+            'autumn': ['autumn', 'fall', 'leaves', 'harvest', 'october', 'november',
+                       'september', 'pumpkin', 'thanksgiving']
+        }
+
+        # Espansione con WordNet (controllata)
+        if expand_with_wordnet:
+            self._expand_keywords_with_wordnet()
+
+    def _is_valid_synonym(self, word: str, original_word: str) -> bool:
+        """
+        Filtra sinonimi non validi
+        """
+        word_lower = word.lower()
+
+        # 1. Controlla blacklist
+        if word_lower in self.all_blacklist:
+            return False
+
+        # 2. Troppo corto (< 3 caratteri)
+        if len(word_lower) < 3:
+            return False
+
+        # 3. Troppo generico (contiene numeri o caratteri speciali)
+        if not word_lower.replace('_', '').replace('-', '').isalpha():
+            return False
+
+        # 4. Troppo diverso dalla parola originale (controllo similarità)
+        if len(word_lower) > len(original_word) * 2:
+            return False
+
+        return True
+
+    def _expand_keywords_with_wordnet(self):
+        """Espande i dizionari con sinonimi WordNet filtrati"""
+
+        def expand_list(words: List[str], max_syn: int) -> List[str]:
+            expanded = set(words)  # Mantiene le parole originali
+
+            for word in words:
+                synonyms = set()
+
+                # Ottiene synset per la parola
+                for syn in wn.synsets(word):
+                    for lemma in syn.lemmas():
+                        synonym = lemma.name().replace("_", " ")
+
+                        # Applica filtri
+                        if self._is_valid_synonym(synonym, word):
+                            synonyms.add(synonym)
+
+                # Limita numero di sinonimi per parola
+                expanded.update(list(synonyms)[:max_syn])
+
+            return list(expanded)
+
+        # Espande solo extended keywords (non core)
+        for env, keywords in self.environment_keywords.items():
+            self.environment_keywords[env] = expand_list(keywords, self.max_synonyms)
+
+        # Espande temporal keywords
+        for time_key, keywords in self.time_keywords.items():
+            self.time_keywords[time_key] = expand_list(keywords, self.max_synonyms)
+
+    def _calculate_environment_score(self, text: str, env_type: str) -> float:
+        """
+        Calcola score pesato per un ambiente
+        """
+        score = 0.0
+
+        # CORE KEYWORDS - Peso 3x
+        for keyword in self.core_keywords.get(env_type, []):
+            occurrences = text.count(keyword)
+            if occurrences > 0:
+                weight = 3.0 * (len(keyword.split()) * 2 if ' ' in keyword else 1)
+                score += occurrences * weight
+
+        # EXTENDED KEYWORDS - Peso 1x
+        for keyword in self.environment_keywords.get(env_type, []):
+            occurrences = text.count(keyword)
+            if occurrences > 0:
+                weight = len(keyword.split()) * 2 if ' ' in keyword else 1
+                score += occurrences * weight
+
+        return score
+
+    def _apply_disambiguation_rules(self, scores: Dict[str, float], text: str) -> Dict[str, float]:
+        """
+        Applica regole di disambiguazione per risolvere conflitti
+        """
+        # Regola 1: Se "sea" e "beach" presenti → favorisce sea
+        if 'sea' in text or 'beach' in text:
+            scores['sea'] = scores.get('sea', 0) * 1.5
+
+        # Regola 2: Se "mountain" e "cave" presenti → favorisce mountain
+        if 'mountain' in text or 'cave' in text:
+            scores['mountain'] = scores.get('mountain', 0) * 1.5
+
+        # Regola 3: Se "space" e "planet" presenti → favorisce space
+        if 'space' in text or 'planet' in text:
+            scores['space'] = scores.get('space', 0) * 1.5
+
+        # Regola 4: Penalizza urban se score troppo vicino ad altri
+        if 'urban' in scores:
+            other_scores = [s for e, s in scores.items() if e != 'urban' and s > 0]
+            if other_scores and max(other_scores) > scores['urban'] * 0.7:
+                scores['urban'] *= 0.8
+
+        return scores
 
     def _analyze_location(self, location_text: str, stage_texts: List[str]) -> LocationInfo:
-        """Analisi dei luoghi"""
+        """Analisi location con filtri anti-rumore"""
         location_info = LocationInfo()
 
-        # STEP 1: Pattern cinematografici standard
+        # STEP 1: Estrai INT/EXT
         location_upper = location_text.upper()
-
-        # Estrai INT/EXT
         if location_upper.startswith('INT') or 'INT.' in location_upper:
             location_info.type = 'INT'
         elif location_upper.startswith('EXT') or 'EXT.' in location_upper:
             location_info.type = 'EXT'
         else:
-            # Se non trova INT/EXT, assegna UNKNOWN
             location_info.type = 'UNKNOWN'
 
-        # STEP 2: Analisi semantica
+        # STEP 2: Analisi semantica con score pesati
         all_text = (location_text + ' ' + ' '.join(stage_texts)).lower()
 
-        # dizionario vuoto che conterrà per ogni ambiente prestabilito, quante parole chiave sono state trovate
-        # nella scena
         environment_scores = {}
 
-        # scorro su tutti i tipi di ambienti definiti nel dizionario
-        # env_type: stringa che rappresenta il tipo di ambiente
-        # keywords: lista di parole associate a quell'ambiente
-        for env_type, keywords in self.environment_keywords.items():
-            score = 0
-            for keyword in keywords:
-                # Conta occorrenze multiple della stessa parola chiave
-                occurrences = all_text.count(keyword)
-                if occurrences > 0:
-                    # Peso maggiore per parole più specifiche
-                    weight = len(keyword.split()) * 2 if ' ' in keyword else 1
-                    score += occurrences * weight
-
-            # se è stata trovata almeno una parola chiave con almeno una occorrenza, memorizzo il risultato
-            # chiave: tipo ambiente; valore: punteggio
+        # Calcola score per ogni ambiente
+        for env_type in self.core_keywords.keys():
+            score = self._calculate_environment_score(all_text, env_type)
             if score > 0:
                 environment_scores[env_type] = score
 
+        # Applica regole di disambiguazione
         if environment_scores:
-            # imposto come environment quello che ha il punteggio più alto nel dizionario
-            location_info.environment = max(environment_scores, key=environment_scores.get)
+            environment_scores = self._apply_disambiguation_rules(environment_scores, all_text)
+
+        # STEP 3: Soglia minima per classificazione
+        MIN_SCORE_THRESHOLD = 2.0  # Score minimo per essere considerato valido
+
+        if environment_scores:
+            max_score = max(environment_scores.values())
+
+            # Se lo score massimo è troppo basso → unknown
+            if max_score < MIN_SCORE_THRESHOLD:
+                location_info.environment = 'unknown'
+            else:
+                # Verifica che il vincitore sia significativamente superiore al secondo
+                sorted_scores = sorted(environment_scores.items(), key=lambda x: x[1], reverse=True)
+
+                if len(sorted_scores) > 1:
+                    first_score = sorted_scores[0][1]
+                    second_score = sorted_scores[1][1]
+
+                    # Se la differenza è < 20% → troppo ambiguo → unknown
+                    if second_score > first_score * 0.8:
+                        location_info.environment = 'unknown'
+                    else:
+                        location_info.environment = sorted_scores[0][0]
+                else:
+                    location_info.environment = sorted_scores[0][0]
         else:
-            # Se non trova nessun ambiente, assegna unknown
             location_info.environment = 'unknown'
 
-        # Determina setting generale
+        # Determina setting
         if location_info.environment in ['space', 'fantasy']:
             location_info.setting = 'fantasy/sci-fi'
         elif location_info.environment in ['urban', 'suburban']:
             location_info.setting = 'contemporary'
         elif location_info.environment in ['sea', 'mountain', 'desert', 'rural']:
             location_info.setting = 'natural'
-        elif location_info.environment == 'unknown':
-            location_info.setting = 'unknown'
         else:
-            location_info.setting = 'unspecified'
+            location_info.setting = 'unknown'
 
         return location_info
 
     def _analyze_temporal(self, location_text: str, stage_texts: List[str]) -> TemporalInfo:
-        """Analisi temporale migliorata con logica più sofisticata"""
+        """Analisi temporale"""
         temporal_info = TemporalInfo()
         all_text = (location_text + ' ' + ' '.join(stage_texts)).lower()
 
-        # Analizza periodo giornaliero con pesi
+        # Periodo del giorno
         time_scores = {}
         for time_type, keywords in self.time_keywords.items():
             if time_type in ['morning', 'day', 'evening', 'night']:
                 score = 0
-                # controllo se ogni parola chiave è contenuta nel testo, se si aggiungo uno al conteggio
                 for keyword in keywords:
                     occurrences = all_text.count(keyword)
                     if occurrences > 0:
-                        # Peso maggiore per termini più specifici
                         weight = 2 if len(keyword) > 5 else 1
                         score += occurrences * weight
-
                 if score > 0:
-                    # per ogni fase della giornata assegno quante parole chiave sono state trovate nella scena
                     time_scores[time_type] = score
 
-        # per decretare il vero momento della giornata, viene selezionato il momento che ha più occorrenze di parole
-        # chiave associate nel testo della scena
-        if time_scores:
-            temporal_info.period = max(time_scores, key=time_scores.get).upper()
-        else:
-            # Se non trova nessun periodo, assegna UNKNOWN
-            temporal_info.period = 'UNKNOWN'
+        temporal_info.period = max(time_scores, key=time_scores.get).upper() if time_scores else 'UNKNOWN'
 
+        # Stagione
         season_scores = {}
-
-        # scorro tutti i tipi di tempo (stagioni)
         for season, keywords in self.time_keywords.items():
             if season in ['winter', 'spring', 'summer', 'autumn']:
                 score = 0
-                # controllo se ogni parola chiave è contenuta nel testo. Se si aggiungo un al punteggio.
-                # ottengo cosi per ogni stagione, il numero di parole chiave associate trovate nel testo
                 for keyword in keywords:
                     occurrences = all_text.count(keyword)
                     if occurrences > 0:
                         weight = 2 if len(keyword) > 5 else 1
                         score += occurrences * weight
-
                 if score > 0:
-                    # assegno ad ogni stagione il numero di keywords relative trovate nel testo
                     season_scores[season] = score
 
-        # per stabilire la stagione corretta, scelgo la stagione con il numero di occorrenze di parole chiave maggiore
-        if season_scores:
-            temporal_info.season = max(season_scores, key=season_scores.get)
-        else:
-            # Se non trova nessuna stagione, assegna unknown
-            temporal_info.season = 'unknown'
+        temporal_info.season = max(season_scores, key=season_scores.get) if season_scores else 'unknown'
 
         return temporal_info
 
@@ -244,24 +365,12 @@ class TEIAnalyzer:
 
     def _calculate_statistics(self, scenes: List[Dict]) -> Dict[str, Any]:
         """Calcola statistiche aggregate del film"""
-        # prende in input una lista di dizionari, ognuno dei quali contiene le info di una scena
         if not scenes:
             return {}
 
-        # Statistiche sui luoghi. Liste di n elementi (n scene del film)
-
-        # lista nella quale, per ogni cella, è salvata l'informazione di INT o EXT o UNKNOWN
         location_types = [s['location']['type'] for s in scenes if s['location']['type']]
-
-        # lista nella quale, per ogni cella, è salvata l'informazione del tipo di enviroment
         environments = [s['location']['environment'] for s in scenes if s['location']['environment']]
-
-        # Statistiche temporali. Liste di n elementi (n scene: somma di tutte le scene dei film analizzati)
-
-        # lista nella quale, per ogni cella, è salvata l'informazione relativo al periodo della giornata
         periods = [s['temporal']['period'] for s in scenes if s['temporal']['period']]
-
-        # lista nella quale, per ogni cella, è salvata l'informazione relativo alla stagione della scena
         seasons = [s['temporal']['season'] for s in scenes if s['temporal']['season']]
 
         return {
@@ -278,53 +387,38 @@ class TEIAnalyzer:
         }
 
     def _calculate_macro_statistics(self, all_results: List[Dict]) -> Dict[str, Any]:
-        """Calcola statistiche aggregate per tutti i film analizzati"""
-
-        # Filtra solo i risultati senza errori
+        """Calcola statistiche aggregate per tutti i film"""
         valid_results = [r for r in all_results if 'error' not in r]
 
         if not valid_results:
             return {'error': 'Nessun file valido analizzato'}
 
-        # Statistiche generali
         total_films = len(valid_results)
         total_scenes = sum(r['total_scenes'] for r in valid_results)
 
-        # Aggregazione dati di tutti i film
         all_location_types = []
         all_environments = []
         all_periods = []
         all_seasons = []
-
         film_summaries = []
 
         for result in valid_results:
             stats = result.get('statistics', {})
-
-            # Estrai dati location
             locations = stats.get('locations', {})
-            int_ext = locations.get('int_ext_distribution', {})
-            environments = locations.get('environment_distribution', {})
-
-            # Estrai dati temporali
             temporal = stats.get('temporal', {})
-            periods = temporal.get('day_night_distribution', {})
-            seasons = temporal.get('season_distribution', {})
 
-            # Aggiungi ai totali
-            for location_type, count in int_ext.items():
+            for location_type, count in locations.get('int_ext_distribution', {}).items():
                 all_location_types.extend([location_type] * count)
 
-            for env, count in environments.items():
+            for env, count in locations.get('environment_distribution', {}).items():
                 all_environments.extend([env] * count)
 
-            for period, count in periods.items():
+            for period, count in temporal.get('day_night_distribution', {}).items():
                 all_periods.extend([period] * count)
 
-            for season, count in seasons.items():
+            for season, count in temporal.get('season_distribution', {}).items():
                 all_seasons.extend([season] * count)
 
-            # Sommario per film
             film_summaries.append({
                 'film': result['film'],
                 'scenes': result['total_scenes'],
@@ -332,7 +426,6 @@ class TEIAnalyzer:
                 'dominant_period': temporal.get('most_common_period')
             })
 
-        # Calcola percentuali
         def calculate_percentages(counter_dict, total):
             return {k: round((v / total) * 100, 1) for k, v in counter_dict.items()}
 
@@ -386,9 +479,9 @@ class TEIAnalyzer:
             print(f"Directory {tei_dir} non trovata")
             return
 
-        # Crea cartella "analysis" se non esiste
-        analysis_dir = "analysis"
-        os.makedirs(analysis_dir, exist_ok=True)
+        analysis_dir = 'analysis'
+        if not os.path.exists(analysis_dir):
+            os.makedirs(analysis_dir)
 
         tei_files = [f for f in os.listdir(tei_dir) if f.endswith('.xml')]
 
@@ -399,15 +492,14 @@ class TEIAnalyzer:
             analysis = self.analyze_tei_file(file_path)
             results.append(analysis)
 
-        # Salva risultati per singoli film dentro "analysis"
         output_path = os.path.join(analysis_dir, output_file)
+        macro_output_file = output_file.replace('.json', '_macro_stats.json')
+        macro_output_path = os.path.join(analysis_dir, macro_output_file)
+
         with open(output_path, 'w', encoding='utf-8') as f:
             json.dump(results, f, indent=2, ensure_ascii=False)
 
-        # Genera e salva statistiche macro dentro "analysis"
         macro_stats = self._calculate_macro_statistics(results)
-        macro_output_file = output_file.replace('.json', '_macro_stats.json')
-        macro_output_path = os.path.join(analysis_dir, macro_output_file)
 
         with open(macro_output_path, 'w', encoding='utf-8') as f:
             json.dump(macro_stats, f, indent=2, ensure_ascii=False)
@@ -416,8 +508,14 @@ class TEIAnalyzer:
         print(f"Statistiche macro salvate in: {macro_output_path}")
         return results
 
+
 def main():
-    analyzer = TEIAnalyzer()
+    # CONFIGURAZIONE PERSONALIZZABILE
+    analyzer = TEIAnalyzer(
+        expand_with_wordnet=True,
+        max_synonyms=50
+    )
+
     analyzer.analyze_directory('tei_scripts', 'screenplay_analysis.json')
 
 
