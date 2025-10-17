@@ -1,5 +1,5 @@
-# Convertitore e Analizzatore Copioni HTML/PDF → TEI-XML
-
+# CAST: Convertitore e Analizzatore Copioni HTML/PDF → TEI-XML
+ 
 Questo progetto converte copioni cinematografici da HTML e PDF nel formato standard TEI-XML e genera analisi statistiche
 
 ## Struttura del Progetto
