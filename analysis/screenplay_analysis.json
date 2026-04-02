@@ -1,0 +1,4172 @@
+[
+  {
+    "film": "1917",
+    "total_scenes": 61,
+    "statistics": {
+      "locations": {
+        "int_ext_distribution": {
+          "EXT": 43,
+          "INT": 18
+        },
+        "environment_distribution": {
+          "rural": 42,
+          "unknown": 9,
+          "mountain": 1,
+          "fantasy": 1,
+          "urban": 5,
+          "suburban": 2,
+          "sea": 1
+        },
+        "most_common_environment": "rural"
+      },
+      "temporal": {
+        "day_night_distribution": {
+          "DAY": 5,
+          "UNKNOWN": 20,
+          "MORNING": 20,
+          "NIGHT": 12,
+          "EVENING": 4
+        },
+        "season_distribution": {
+          "autumn": 27,
+          "unknown": 15,
+          "spring": 3,
+          "summer": 4,
+          "winter": 12
+        },
+        "most_common_period": "UNKNOWN"
+      }
+    },
+    "analysis_timestamp": "2026-04-02T21:26:26.447721"
+  },
+  {
+    "film": "8 bit christmas",
+    "total_scenes": 95,
+    "statistics": {
+      "locations": {
+        "int_ext_distribution": {
+          "EXT": 31,
+          "INT": 63,
+          "UNKNOWN": 1
+        },
+        "environment_distribution": {
+          "unknown": 29,
+          "sea": 4,
+          "urban": 19,
+          "suburban": 38,
+          "fantasy": 4,
+          "rural": 1
+        },
+        "most_common_environment": "suburban"
+      },
+      "temporal": {
+        "day_night_distribution": {
+          "MORNING": 19,
+          "DAY": 42,
+          "UNKNOWN": 11,
+          "NIGHT": 19,
+          "EVENING": 4
+        },
+        "season_distribution": {
+          "winter": 25,
+          "unknown": 48,
+          "autumn": 13,
+          "spring": 6,
+          "summer": 3
+        },
+        "most_common_period": "DAY"
+      }
+    },
+    "analysis_timestamp": "2026-04-02T21:26:26.485818"
+  },
+  {
+    "film": "a complete unknown",
+    "total_scenes": 126,
+    "statistics": {
+      "locations": {
+        "int_ext_distribution": {
+          "INT": 74,
+          "EXT": 51,
+          "UNKNOWN": 1
+        },
+        "environment_distribution": {
+          "sea": 48,
+          "urban": 34,
+          "unknown": 22,
+          "suburban": 10,
+          "mountain": 3,
+          "rural": 8,
+          "desert": 1
+        },
+        "most_common_environment": "sea"
+      },
+      "temporal": {
+        "day_night_distribution": {
+          "DAY": 38,
+          "MORNING": 46,
+          "NIGHT": 26,
+          "UNKNOWN": 10,
+          "EVENING": 6
+        },
+        "season_distribution": {
+          "winter": 25,
+          "autumn": 37,
+          "unknown": 38,
+          "summer": 17,
+          "spring": 9
+        },
+        "most_common_period": "MORNING"
+      }
+    },
+    "analysis_timestamp": "2026-04-02T21:26:26.556386"
+  },
+  {
+    "film": "a haunting in venice",
+    "total_scenes": 133,
+    "statistics": {
+      "locations": {
+        "int_ext_distribution": {
+          "EXT": 43,
+          "INT": 90
+        },
+        "environment_distribution": {
+          "urban": 11,
+          "unknown": 84,
+          "sea": 15,
+          "mountain": 1,
+          "suburban": 16,
+          "space": 3,
+          "fantasy": 2,
+          "rural": 1
+        },
+        "most_common_environment": "unknown"
+      },
+      "temporal": {
+        "day_night_distribution": {
+          "MORNING": 23,
+          "DAY": 3,
+          "EVENING": 7,
+          "NIGHT": 70,
+          "UNKNOWN": 30
+        },
+        "season_distribution": {
+          "autumn": 22,
+          "unknown": 60,
+          "winter": 25,
+          "spring": 17,
+          "summer": 9
+        },
+        "most_common_period": "NIGHT"
+      }
+    },
+    "analysis_timestamp": "2026-04-02T21:26:26.615303"
+  },
+  {
+    "film": "a man called otto",
+    "total_scenes": 143,
+    "statistics": {
+      "locations": {
+        "int_ext_distribution": {
+          "UNKNOWN": 33,
+          "INT": 67,
+          "EXT": 43
+        },
+        "environment_distribution": {
+          "urban": 15,
+          "suburban": 50,
+          "unknown": 51,
+          "space": 7,
+          "fantasy": 6,
+          "mountain": 4,
+          "sea": 7,
+          "rural": 3
+        },
+        "most_common_environment": "unknown"
+      },
+      "temporal": {
+        "day_night_distribution": {
+          "DAY": 81,
+          "MORNING": 32,
+          "NIGHT": 18,
+          "EVENING": 11,
+          "UNKNOWN": 1
+        },
+        "season_distribution": {
+          "unknown": 57,
+          "spring": 26,
+          "autumn": 37,
+          "winter": 18,
+          "summer": 5
+        },
+        "most_common_period": "DAY"
+      }
+    },
+    "analysis_timestamp": "2026-04-02T21:26:26.677213"
+  },
+  {
+    "film": "aftersun",
+    "total_scenes": 141,
+    "statistics": {
+      "locations": {
+        "int_ext_distribution": {
+          "INT": 74,
+          "EXT": 65,
+          "UNKNOWN": 2
+        },
+        "environment_distribution": {
+          "mountain": 4,
+          "sea": 41,
+          "unknown": 64,
+          "urban": 17,
+          "fantasy": 6,
+          "space": 6,
+          "suburban": 2,
+          "desert": 1
+        },
+        "most_common_environment": "unknown"
+      },
+      "temporal": {
+        "day_night_distribution": {
+          "NIGHT": 29,
+          "DAY": 27,
+          "MORNING": 38,
+          "EVENING": 16,
+          "UNKNOWN": 31
+        },
+        "season_distribution": {
+          "autumn": 34,
+          "unknown": 28,
+          "spring": 8,
+          "winter": 3,
+          "summer": 68
+        },
+        "most_common_period": "MORNING"
+      }
+    },
+    "analysis_timestamp": "2026-04-02T21:26:26.733938"
+  },
+  {
+    "film": "air",
+    "total_scenes": 74,
+    "statistics": {
+      "locations": {
+        "int_ext_distribution": {
+          "UNKNOWN": 1,
+          "EXT": 15,
+          "INT": 58
+        },
+        "environment_distribution": {
+          "fantasy": 4,
+          "urban": 29,
+          "unknown": 22,
+          "sea": 4,
+          "rural": 5,
+          "mountain": 2,
+          "suburban": 8
+        },
+        "most_common_environment": "urban"
+      },
+      "temporal": {
+        "day_night_distribution": {
+          "UNKNOWN": 1,
+          "MORNING": 12,
+          "DAY": 40,
+          "NIGHT": 16,
+          "EVENING": 5
+        },
+        "season_distribution": {
+          "autumn": 14,
+          "winter": 37,
+          "unknown": 16,
+          "summer": 5,
+          "spring": 2
+        },
+        "most_common_period": "DAY"
+      }
+    },
+    "analysis_timestamp": "2026-04-02T21:26:26.768241"
+  },
+  {
+    "film": "Amadeus",
+    "total_scenes": 174,
+    "statistics": {
+      "locations": {
+        "int_ext_distribution": {
+          "INT": 147,
+          "EXT": 27
+        },
+        "environment_distribution": {
+          "unknown": 61,
+          "fantasy": 7,
+          "suburban": 37,
+          "urban": 51,
+          "sea": 11,
+          "rural": 3,
+          "mountain": 1,
+          "space": 3
+        },
+        "most_common_environment": "unknown"
+      },
+      "temporal": {
+        "day_night_distribution": {
+          "NIGHT": 69,
+          "EVENING": 4,
+          "MORNING": 32,
+          "UNKNOWN": 2,
+          "DAY": 67
+        },
+        "season_distribution": {
+          "winter": 16,
+          "autumn": 40,
+          "unknown": 72,
+          "summer": 25,
+          "spring": 21
+        },
+        "most_common_period": "NIGHT"
+      }
+    },
+    "analysis_timestamp": "2026-04-02T21:26:26.851656"
+  },
+  {
+    "film": "Angels_%2526_Demons",
+    "total_scenes": 152,
+    "statistics": {
+      "locations": {
+        "int_ext_distribution": {
+          "INT": 103,
+          "EXT": 49
+        },
+        "environment_distribution": {
+          "sea": 19,
+          "unknown": 47,
+          "rural": 4,
+          "desert": 6,
+          "mountain": 16,
+          "urban": 43,
+          "space": 12,
+          "fantasy": 4,
+          "suburban": 1
+        },
+        "most_common_environment": "unknown"
+      },
+      "temporal": {
+        "day_night_distribution": {
+          "NIGHT": 80,
+          "DAY": 31,
+          "MORNING": 30,
+          "EVENING": 11
+        },
+        "season_distribution": {
+          "winter": 45,
+          "summer": 17,
+          "unknown": 29,
+          "spring": 17,
+          "autumn": 44
+        },
+        "most_common_period": "NIGHT"
+      }
+    },
+    "analysis_timestamp": "2026-04-02T21:26:26.937011"
+  },
+  {
+    "film": "Anora",
+    "total_scenes": 222,
+    "statistics": {
+      "locations": {
+        "int_ext_distribution": {
+          "INT": 145,
+          "UNKNOWN": 19,
+          "EXT": 58
+        },
+        "environment_distribution": {
+          "unknown": 141,
+          "urban": 17,
+          "fantasy": 7,
+          "sea": 27,
+          "suburban": 23,
+          "mountain": 6,
+          "rural": 1
+        },
+        "most_common_environment": "unknown"
+      },
+      "temporal": {
+        "day_night_distribution": {
+          "MORNING": 39,
+          "UNKNOWN": 35,
+          "NIGHT": 50,
+          "EVENING": 11,
+          "DAY": 87
+        },
+        "season_distribution": {
+          "spring": 12,
+          "unknown": 112,
+          "autumn": 47,
+          "winter": 32,
+          "summer": 19
+        },
+        "most_common_period": "DAY"
+      }
+    },
+    "analysis_timestamp": "2026-04-02T21:26:27.006154"
+  },
+  {
+    "film": "avatar",
+    "total_scenes": 166,
+    "statistics": {
+      "locations": {
+        "int_ext_distribution": {
+          "EXT": 80,
+          "INT": 83,
+          "UNKNOWN": 3
+        },
+        "environment_distribution": {
+          "urban": 4,
+          "unknown": 75,
+          "rural": 28,
+          "space": 3,
+          "sea": 12,
+          "suburban": 13,
+          "fantasy": 14,
+          "mountain": 17
+        },
+        "most_common_environment": "unknown"
+      },
+      "temporal": {
+        "day_night_distribution": {
+          "EVENING": 15,
+          "NIGHT": 47,
+          "MORNING": 60,
+          "DAY": 29,
+          "UNKNOWN": 15
+        },
+        "season_distribution": {
+          "spring": 24,
+          "unknown": 34,
+          "summer": 13,
+          "winter": 11,
+          "autumn": 84
+        },
+        "most_common_period": "MORNING"
+      }
+    },
+    "analysis_timestamp": "2026-04-02T21:26:27.090947"
+  },
+  {
+    "film": "avengers endgame",
+    "total_scenes": 172,
+    "statistics": {
+      "locations": {
+        "int_ext_distribution": {
+          "EXT": 76,
+          "INT": 96
+        },
+        "environment_distribution": {
+          "suburban": 19,
+          "space": 19,
+          "rural": 11,
+          "unknown": 69,
+          "fantasy": 10,
+          "sea": 13,
+          "urban": 19,
+          "mountain": 11,
+          "desert": 1
+        },
+        "most_common_environment": "unknown"
+      },
+      "temporal": {
+        "day_night_distribution": {
+          "DAY": 107,
+          "NIGHT": 33,
+          "UNKNOWN": 5,
+          "EVENING": 8,
+          "MORNING": 19
+        },
+        "season_distribution": {
+          "unknown": 101,
+          "autumn": 36,
+          "winter": 16,
+          "spring": 11,
+          "summer": 8
+        },
+        "most_common_period": "DAY"
+      }
+    },
+    "analysis_timestamp": "2026-04-02T21:26:27.141619"
+  },
+  {
+    "film": "back to the future",
+    "total_scenes": 152,
+    "statistics": {
+      "locations": {
+        "int_ext_distribution": {
+          "INT": 55,
+          "EXT": 71,
+          "UNKNOWN": 26
+        },
+        "environment_distribution": {
+          "rural": 5,
+          "fantasy": 9,
+          "unknown": 56,
+          "mountain": 4,
+          "urban": 32,
+          "suburban": 20,
+          "sea": 6,
+          "space": 20
+        },
+        "most_common_environment": "unknown"
+      },
+      "temporal": {
+        "day_night_distribution": {
+          "MORNING": 26,
+          "DAY": 20,
+          "EVENING": 8,
+          "NIGHT": 38,
+          "UNKNOWN": 60
+        },
+        "season_distribution": {
+          "winter": 8,
+          "unknown": 59,
+          "autumn": 46,
+          "spring": 21,
+          "summer": 18
+        },
+        "most_common_period": "UNKNOWN"
+      }
+    },
+    "analysis_timestamp": "2026-04-02T21:26:27.197310"
+  },
+  {
+    "film": "Barbie",
+    "total_scenes": 87,
+    "statistics": {
+      "locations": {
+        "int_ext_distribution": {
+          "EXT": 42,
+          "INT": 44,
+          "UNKNOWN": 1
+        },
+        "environment_distribution": {
+          "desert": 1,
+          "space": 7,
+          "suburban": 24,
+          "unknown": 22,
+          "sea": 19,
+          "fantasy": 5,
+          "urban": 9
+        },
+        "most_common_environment": "suburban"
+      },
+      "temporal": {
+        "day_night_distribution": {
+          "DAY": 34,
+          "NIGHT": 5,
+          "MORNING": 32,
+          "UNKNOWN": 15,
+          "EVENING": 1
+        },
+        "season_distribution": {
+          "unknown": 27,
+          "spring": 8,
+          "summer": 16,
+          "autumn": 13,
+          "winter": 23
+        },
+        "most_common_period": "DAY"
+      }
+    },
+    "analysis_timestamp": "2026-04-02T21:26:27.232924"
+  },
+  {
+    "film": "Beauty_and_the_Beast",
+    "total_scenes": 151,
+    "statistics": {
+      "locations": {
+        "int_ext_distribution": {
+          "EXT": 58,
+          "INT": 75,
+          "UNKNOWN": 18
+        },
+        "environment_distribution": {
+          "fantasy": 97,
+          "rural": 22,
+          "unknown": 28,
+          "urban": 2,
+          "space": 2
+        },
+        "most_common_environment": "fantasy"
+      },
+      "temporal": {
+        "day_night_distribution": {
+          "NIGHT": 66,
+          "EVENING": 22,
+          "MORNING": 16,
+          "DAY": 29,
+          "UNKNOWN": 18
+        },
+        "season_distribution": {
+          "winter": 36,
+          "unknown": 69,
+          "spring": 14,
+          "autumn": 24,
+          "summer": 8
+        },
+        "most_common_period": "NIGHT"
+      }
+    },
+    "analysis_timestamp": "2026-04-02T21:26:27.288319"
+  },
+  {
+    "film": "belle",
+    "total_scenes": 125,
+    "statistics": {
+      "locations": {
+        "int_ext_distribution": {
+          "INT": 87,
+          "EXT": 36,
+          "UNKNOWN": 2
+        },
+        "environment_distribution": {
+          "unknown": 23,
+          "sea": 5,
+          "urban": 4,
+          "suburban": 27,
+          "rural": 44,
+          "fantasy": 20,
+          "mountain": 1,
+          "space": 1
+        },
+        "most_common_environment": "rural"
+      },
+      "temporal": {
+        "day_night_distribution": {
+          "DAY": 92,
+          "NIGHT": 15,
+          "MORNING": 12,
+          "EVENING": 5,
+          "UNKNOWN": 1
+        },
+        "season_distribution": {
+          "autumn": 22,
+          "spring": 47,
+          "unknown": 45,
+          "summer": 10,
+          "winter": 1
+        },
+        "most_common_period": "DAY"
+      }
+    },
+    "analysis_timestamp": "2026-04-02T21:26:27.344305"
+  },
+  {
+    "film": "Bookworm",
+    "total_scenes": 66,
+    "statistics": {
+      "locations": {
+        "int_ext_distribution": {
+          "EXT": 47,
+          "INT": 19
+        },
+        "environment_distribution": {
+          "suburban": 1,
+          "unknown": 33,
+          "sea": 1,
+          "mountain": 16,
+          "rural": 13,
+          "urban": 1,
+          "fantasy": 1
+        },
+        "most_common_environment": "unknown"
+      },
+      "temporal": {
+        "day_night_distribution": {
+          "NIGHT": 8,
+          "MORNING": 27,
+          "UNKNOWN": 20,
+          "DAY": 4,
+          "EVENING": 7
+        },
+        "season_distribution": {
+          "summer": 6,
+          "autumn": 21,
+          "unknown": 25,
+          "spring": 6,
+          "winter": 8
+        },
+        "most_common_period": "MORNING"
+      }
+    },
+    "analysis_timestamp": "2026-04-02T21:26:27.377064"
+  },
+  {
+    "film": "bridget joness baby",
+    "total_scenes": 185,
+    "statistics": {
+      "locations": {
+        "int_ext_distribution": {
+          "UNKNOWN": 1,
+          "EXT": 37,
+          "INT": 147
+        },
+        "environment_distribution": {
+          "unknown": 76,
+          "urban": 21,
+          "mountain": 48,
+          "sea": 7,
+          "fantasy": 2,
+          "rural": 4,
+          "suburban": 8,
+          "space": 18,
+          "desert": 1
+        },
+        "most_common_environment": "unknown"
+      },
+      "temporal": {
+        "day_night_distribution": {
+          "UNKNOWN": 6,
+          "DAY": 92,
+          "MORNING": 31,
+          "NIGHT": 51,
+          "EVENING": 5
+        },
+        "season_distribution": {
+          "winter": 21,
+          "summer": 22,
+          "unknown": 92,
+          "autumn": 34,
+          "spring": 16
+        },
+        "most_common_period": "DAY"
+      }
+    },
+    "analysis_timestamp": "2026-04-02T21:26:27.452289"
+  },
+  {
+    "film": "call me by your name",
+    "total_scenes": 120,
+    "statistics": {
+      "locations": {
+        "int_ext_distribution": {
+          "INT": 63,
+          "EXT": 56,
+          "UNKNOWN": 1
+        },
+        "environment_distribution": {
+          "fantasy": 9,
+          "unknown": 69,
+          "suburban": 12,
+          "rural": 2,
+          "urban": 16,
+          "sea": 8,
+          "space": 2,
+          "mountain": 2
+        },
+        "most_common_environment": "unknown"
+      },
+      "temporal": {
+        "day_night_distribution": {
+          "MORNING": 45,
+          "DAY": 54,
+          "EVENING": 10,
+          "NIGHT": 10,
+          "UNKNOWN": 1
+        },
+        "season_distribution": {
+          "summer": 60,
+          "autumn": 18,
+          "winter": 15,
+          "unknown": 16,
+          "spring": 11
+        },
+        "most_common_period": "DAY"
+      }
+    },
+    "analysis_timestamp": "2026-04-02T21:26:27.506718"
+  },
+  {
+    "film": "coco",
+    "total_scenes": 94,
+    "statistics": {
+      "locations": {
+        "int_ext_distribution": {
+          "EXT": 53,
+          "UNKNOWN": 4,
+          "INT": 37
+        },
+        "environment_distribution": {
+          "space": 4,
+          "unknown": 49,
+          "suburban": 6,
+          "urban": 21,
+          "fantasy": 9,
+          "sea": 3,
+          "mountain": 2
+        },
+        "most_common_environment": "unknown"
+      },
+      "temporal": {
+        "day_night_distribution": {
+          "EVENING": 9,
+          "DAY": 7,
+          "UNKNOWN": 34,
+          "MORNING": 32,
+          "NIGHT": 12
+        },
+        "season_distribution": {
+          "autumn": 19,
+          "summer": 14,
+          "unknown": 37,
+          "winter": 12,
+          "spring": 12
+        },
+        "most_common_period": "UNKNOWN"
+      }
+    },
+    "analysis_timestamp": "2026-04-02T21:26:27.547615"
+  },
+  {
+    "film": "Coco",
+    "total_scenes": 94,
+    "statistics": {
+      "locations": {
+        "int_ext_distribution": {
+          "EXT": 53,
+          "UNKNOWN": 4,
+          "INT": 37
+        },
+        "environment_distribution": {
+          "space": 4,
+          "unknown": 49,
+          "suburban": 6,
+          "urban": 21,
+          "fantasy": 9,
+          "sea": 3,
+          "mountain": 2
+        },
+        "most_common_environment": "unknown"
+      },
+      "temporal": {
+        "day_night_distribution": {
+          "EVENING": 8,
+          "DAY": 7,
+          "UNKNOWN": 34,
+          "MORNING": 33,
+          "NIGHT": 12
+        },
+        "season_distribution": {
+          "autumn": 19,
+          "summer": 14,
+          "unknown": 37,
+          "winter": 12,
+          "spring": 12
+        },
+        "most_common_period": "UNKNOWN"
+      }
+    },
+    "analysis_timestamp": "2026-04-02T21:26:27.588323"
+  },
+  {
+    "film": "conclave",
+    "total_scenes": 160,
+    "statistics": {
+      "locations": {
+        "int_ext_distribution": {
+          "EXT": 30,
+          "INT": 123,
+          "UNKNOWN": 7
+        },
+        "environment_distribution": {
+          "urban": 22,
+          "unknown": 48,
+          "space": 57,
+          "sea": 18,
+          "suburban": 6,
+          "desert": 3,
+          "fantasy": 3,
+          "mountain": 1,
+          "rural": 2
+        },
+        "most_common_environment": "space"
+      },
+      "temporal": {
+        "day_night_distribution": {
+          "NIGHT": 52,
+          "MORNING": 29,
+          "DAY": 58,
+          "EVENING": 18,
+          "UNKNOWN": 3
+        },
+        "season_distribution": {
+          "winter": 29,
+          "autumn": 37,
+          "unknown": 76,
+          "summer": 4,
+          "spring": 14
+        },
+        "most_common_period": "DAY"
+      }
+    },
+    "analysis_timestamp": "2026-04-02T21:26:27.659116"
+  },
+  {
+    "film": "Despicable_Me_2",
+    "total_scenes": 113,
+    "statistics": {
+      "locations": {
+        "int_ext_distribution": {
+          "EXT": 46,
+          "INT": 67
+        },
+        "environment_distribution": {
+          "sea": 13,
+          "unknown": 49,
+          "suburban": 26,
+          "fantasy": 3,
+          "urban": 18,
+          "space": 2,
+          "mountain": 2
+        },
+        "most_common_environment": "unknown"
+      },
+      "temporal": {
+        "day_night_distribution": {
+          "MORNING": 45,
+          "NIGHT": 17,
+          "DAY": 37,
+          "UNKNOWN": 12,
+          "EVENING": 2
+        },
+        "season_distribution": {
+          "winter": 12,
+          "unknown": 57,
+          "autumn": 26,
+          "spring": 15,
+          "summer": 3
+        },
+        "most_common_period": "MORNING"
+      }
+    },
+    "analysis_timestamp": "2026-04-02T21:26:27.699580"
+  },
+  {
+    "film": "dont worry darling",
+    "total_scenes": 111,
+    "statistics": {
+      "locations": {
+        "int_ext_distribution": {
+          "EXT": 37,
+          "INT": 72,
+          "UNKNOWN": 2
+        },
+        "environment_distribution": {
+          "desert": 9,
+          "sea": 3,
+          "unknown": 25,
+          "urban": 6,
+          "suburban": 64,
+          "space": 2,
+          "fantasy": 1,
+          "mountain": 1
+        },
+        "most_common_environment": "suburban"
+      },
+      "temporal": {
+        "day_night_distribution": {
+          "DAY": 57,
+          "EVENING": 6,
+          "NIGHT": 42,
+          "MORNING": 4,
+          "UNKNOWN": 2
+        },
+        "season_distribution": {
+          "unknown": 16,
+          "autumn": 11,
+          "summer": 5,
+          "winter": 78,
+          "spring": 1
+        },
+        "most_common_period": "DAY"
+      }
+    },
+    "analysis_timestamp": "2026-04-02T21:26:27.751297"
+  },
+  {
+    "film": "Dune_Part_One",
+    "total_scenes": 143,
+    "statistics": {
+      "locations": {
+        "int_ext_distribution": {
+          "EXT": 61,
+          "INT": 69,
+          "UNKNOWN": 13
+        },
+        "environment_distribution": {
+          "space": 11,
+          "fantasy": 10,
+          "sea": 20,
+          "mountain": 12,
+          "desert": 22,
+          "unknown": 44,
+          "urban": 13,
+          "suburban": 8,
+          "rural": 3
+        },
+        "most_common_environment": "unknown"
+      },
+      "temporal": {
+        "day_night_distribution": {
+          "NIGHT": 52,
+          "MORNING": 36,
+          "DAY": 38,
+          "UNKNOWN": 9,
+          "EVENING": 8
+        },
+        "season_distribution": {
+          "autumn": 49,
+          "unknown": 36,
+          "winter": 32,
+          "summer": 11,
+          "spring": 15
+        },
+        "most_common_period": "NIGHT"
+      }
+    },
+    "analysis_timestamp": "2026-04-02T21:26:27.819399"
+  },
+  {
+    "film": "Elemental",
+    "total_scenes": 123,
+    "statistics": {
+      "locations": {
+        "int_ext_distribution": {
+          "EXT": 62,
+          "INT": 60,
+          "UNKNOWN": 1
+        },
+        "environment_distribution": {
+          "sea": 6,
+          "urban": 78,
+          "rural": 1,
+          "suburban": 4,
+          "mountain": 5,
+          "unknown": 19,
+          "desert": 3,
+          "fantasy": 6,
+          "space": 1
+        },
+        "most_common_environment": "urban"
+      },
+      "temporal": {
+        "day_night_distribution": {
+          "MORNING": 47,
+          "DAY": 13,
+          "UNKNOWN": 33,
+          "NIGHT": 18,
+          "EVENING": 12
+        },
+        "season_distribution": {
+          "autumn": 31,
+          "spring": 18,
+          "unknown": 43,
+          "winter": 19,
+          "summer": 12
+        },
+        "most_common_period": "MORNING"
+      }
+    },
+    "analysis_timestamp": "2026-04-02T21:26:27.875817"
+  },
+  {
+    "film": "Fantastic_Beasts_and_Where_to_Find_Them",
+    "total_scenes": 128,
+    "statistics": {
+      "locations": {
+        "int_ext_distribution": {
+          "EXT": 49,
+          "INT": 75,
+          "UNKNOWN": 4
+        },
+        "environment_distribution": {
+          "fantasy": 32,
+          "sea": 5,
+          "unknown": 35,
+          "urban": 43,
+          "space": 1,
+          "rural": 6,
+          "suburban": 2,
+          "mountain": 4
+        },
+        "most_common_environment": "urban"
+      },
+      "temporal": {
+        "day_night_distribution": {
+          "NIGHT": 56,
+          "MORNING": 16,
+          "DAY": 44,
+          "EVENING": 9,
+          "UNKNOWN": 3
+        },
+        "season_distribution": {
+          "autumn": 48,
+          "summer": 10,
+          "unknown": 38,
+          "winter": 22,
+          "spring": 10
+        },
+        "most_common_period": "NIGHT"
+      }
+    },
+    "analysis_timestamp": "2026-04-02T21:26:27.943011"
+  },
+  {
+    "film": "Fantastic_Beasts_The_Crimes_of_Grindelwald",
+    "total_scenes": 125,
+    "statistics": {
+      "locations": {
+        "int_ext_distribution": {
+          "EXT": 52,
+          "INT": 68,
+          "UNKNOWN": 5
+        },
+        "environment_distribution": {
+          "fantasy": 24,
+          "unknown": 53,
+          "sea": 11,
+          "space": 13,
+          "urban": 12,
+          "mountain": 3,
+          "suburban": 8,
+          "desert": 1
+        },
+        "most_common_environment": "unknown"
+      },
+      "temporal": {
+        "day_night_distribution": {
+          "MORNING": 21,
+          "NIGHT": 50,
+          "EVENING": 14,
+          "UNKNOWN": 6,
+          "DAY": 34
+        },
+        "season_distribution": {
+          "summer": 14,
+          "unknown": 58,
+          "winter": 7,
+          "autumn": 30,
+          "spring": 16
+        },
+        "most_common_period": "NIGHT"
+      }
+    },
+    "analysis_timestamp": "2026-04-02T21:26:27.998850"
+  },
+  {
+    "film": "Fantastic_Beasts_The_Secrets_of_Dumbledore",
+    "total_scenes": 101,
+    "statistics": {
+      "locations": {
+        "int_ext_distribution": {
+          "INT": 45,
+          "EXT": 55,
+          "UNKNOWN": 1
+        },
+        "environment_distribution": {
+          "unknown": 30,
+          "mountain": 6,
+          "fantasy": 25,
+          "sea": 5,
+          "rural": 6,
+          "urban": 28,
+          "suburban": 1
+        },
+        "most_common_environment": "unknown"
+      },
+      "temporal": {
+        "day_night_distribution": {
+          "MORNING": 46,
+          "DAY": 15,
+          "NIGHT": 35,
+          "EVENING": 5
+        },
+        "season_distribution": {
+          "spring": 10,
+          "autumn": 28,
+          "winter": 17,
+          "unknown": 43,
+          "summer": 3
+        },
+        "most_common_period": "MORNING"
+      }
+    },
+    "analysis_timestamp": "2026-04-02T21:26:28.048759"
+  },
+  {
+    "film": "Fantastic_Four",
+    "total_scenes": 172,
+    "statistics": {
+      "locations": {
+        "int_ext_distribution": {
+          "EXT": 58,
+          "INT": 114
+        },
+        "environment_distribution": {
+          "urban": 75,
+          "fantasy": 5,
+          "space": 28,
+          "unknown": 41,
+          "mountain": 9,
+          "suburban": 4,
+          "sea": 9,
+          "rural": 1
+        },
+        "most_common_environment": "urban"
+      },
+      "temporal": {
+        "day_night_distribution": {
+          "DAY": 53,
+          "UNKNOWN": 6,
+          "NIGHT": 67,
+          "MORNING": 32,
+          "EVENING": 14
+        },
+        "season_distribution": {
+          "winter": 40,
+          "unknown": 58,
+          "spring": 25,
+          "autumn": 38,
+          "summer": 11
+        },
+        "most_common_period": "NIGHT"
+      }
+    },
+    "analysis_timestamp": "2026-04-02T21:26:28.104416"
+  },
+  {
+    "film": "Fault_in_Our_Stars,_The",
+    "total_scenes": 106,
+    "statistics": {
+      "locations": {
+        "int_ext_distribution": {
+          "INT": 74,
+          "EXT": 32
+        },
+        "environment_distribution": {
+          "urban": 8,
+          "unknown": 59,
+          "suburban": 27,
+          "fantasy": 3,
+          "sea": 8,
+          "mountain": 1
+        },
+        "most_common_environment": "unknown"
+      },
+      "temporal": {
+        "day_night_distribution": {
+          "DAY": 18,
+          "MORNING": 42,
+          "UNKNOWN": 23,
+          "NIGHT": 16,
+          "EVENING": 7
+        },
+        "season_distribution": {
+          "winter": 12,
+          "unknown": 54,
+          "autumn": 21,
+          "spring": 7,
+          "summer": 12
+        },
+        "most_common_period": "MORNING"
+      }
+    },
+    "analysis_timestamp": "2026-04-02T21:26:28.152692"
+  },
+  {
+    "film": "ferrari",
+    "total_scenes": 221,
+    "statistics": {
+      "locations": {
+        "int_ext_distribution": {
+          "EXT": 100,
+          "INT": 120,
+          "UNKNOWN": 1
+        },
+        "environment_distribution": {
+          "rural": 27,
+          "unknown": 69,
+          "sea": 17,
+          "fantasy": 4,
+          "suburban": 36,
+          "urban": 46,
+          "desert": 1,
+          "space": 15,
+          "mountain": 6
+        },
+        "most_common_environment": "unknown"
+      },
+      "temporal": {
+        "day_night_distribution": {
+          "MORNING": 62,
+          "DAY": 102,
+          "NIGHT": 35,
+          "EVENING": 12,
+          "UNKNOWN": 10
+        },
+        "season_distribution": {
+          "spring": 26,
+          "summer": 25,
+          "autumn": 47,
+          "unknown": 84,
+          "winter": 39
+        },
+        "most_common_period": "DAY"
+      }
+    },
+    "analysis_timestamp": "2026-04-02T21:26:28.230299"
+  },
+  {
+    "film": "Fight_Club",
+    "total_scenes": 253,
+    "statistics": {
+      "locations": {
+        "int_ext_distribution": {
+          "INT": 173,
+          "EXT": 67,
+          "UNKNOWN": 13
+        },
+        "environment_distribution": {
+          "unknown": 118,
+          "urban": 49,
+          "mountain": 5,
+          "space": 17,
+          "suburban": 24,
+          "sea": 15,
+          "fantasy": 20,
+          "rural": 3,
+          "desert": 2
+        },
+        "most_common_environment": "unknown"
+      },
+      "temporal": {
+        "day_night_distribution": {
+          "NIGHT": 102,
+          "DAY": 42,
+          "MORNING": 38,
+          "UNKNOWN": 57,
+          "EVENING": 14
+        },
+        "season_distribution": {
+          "unknown": 127,
+          "winter": 34,
+          "autumn": 54,
+          "spring": 15,
+          "summer": 23
+        },
+        "most_common_period": "NIGHT"
+      }
+    },
+    "analysis_timestamp": "2026-04-02T21:26:28.292926"
+  },
+  {
+    "film": "Forrest_Gump",
+    "total_scenes": 196,
+    "statistics": {
+      "locations": {
+        "int_ext_distribution": {
+          "EXT": 131,
+          "INT": 62,
+          "UNKNOWN": 3
+        },
+        "environment_distribution": {
+          "urban": 24,
+          "unknown": 86,
+          "suburban": 49,
+          "sea": 15,
+          "rural": 12,
+          "mountain": 7,
+          "fantasy": 2,
+          "desert": 1
+        },
+        "most_common_environment": "unknown"
+      },
+      "temporal": {
+        "day_night_distribution": {
+          "MORNING": 43,
+          "UNKNOWN": 51,
+          "NIGHT": 33,
+          "DAY": 64,
+          "EVENING": 5
+        },
+        "season_distribution": {
+          "summer": 15,
+          "winter": 16,
+          "unknown": 126,
+          "spring": 25,
+          "autumn": 14
+        },
+        "most_common_period": "DAY"
+      }
+    },
+    "analysis_timestamp": "2026-04-02T21:26:28.342920"
+  },
+  {
+    "film": "Ghostbusters",
+    "total_scenes": 61,
+    "statistics": {
+      "locations": {
+        "int_ext_distribution": {
+          "EXT": 21,
+          "INT": 37,
+          "UNKNOWN": 3
+        },
+        "environment_distribution": {
+          "rural": 9,
+          "unknown": 34,
+          "urban": 11,
+          "sea": 2,
+          "suburban": 2,
+          "space": 2,
+          "fantasy": 1
+        },
+        "most_common_environment": "unknown"
+      },
+      "temporal": {
+        "day_night_distribution": {
+          "NIGHT": 23,
+          "MORNING": 12,
+          "UNKNOWN": 24,
+          "DAY": 1,
+          "EVENING": 1
+        },
+        "season_distribution": {
+          "unknown": 35,
+          "autumn": 16,
+          "winter": 6,
+          "spring": 3,
+          "summer": 1
+        },
+        "most_common_period": "UNKNOWN"
+      }
+    },
+    "analysis_timestamp": "2026-04-02T21:26:28.360532"
+  },
+  {
+    "film": "Ghostbusters_2",
+    "total_scenes": 156,
+    "statistics": {
+      "locations": {
+        "int_ext_distribution": {
+          "EXT": 66,
+          "INT": 90
+        },
+        "environment_distribution": {
+          "unknown": 65,
+          "urban": 54,
+          "suburban": 11,
+          "mountain": 3,
+          "space": 3,
+          "sea": 10,
+          "fantasy": 8,
+          "rural": 2
+        },
+        "most_common_environment": "unknown"
+      },
+      "temporal": {
+        "day_night_distribution": {
+          "DAY": 58,
+          "MORNING": 27,
+          "NIGHT": 62,
+          "EVENING": 6,
+          "UNKNOWN": 3
+        },
+        "season_distribution": {
+          "summer": 10,
+          "winter": 25,
+          "autumn": 34,
+          "unknown": 65,
+          "spring": 22
+        },
+        "most_common_period": "NIGHT"
+      }
+    },
+    "analysis_timestamp": "2026-04-02T21:26:28.411086"
+  },
+  {
+    "film": "Ghost_Rider",
+    "total_scenes": 163,
+    "statistics": {
+      "locations": {
+        "int_ext_distribution": {
+          "EXT": 65,
+          "INT": 98
+        },
+        "environment_distribution": {
+          "mountain": 5,
+          "urban": 32,
+          "suburban": 16,
+          "fantasy": 24,
+          "unknown": 73,
+          "rural": 6,
+          "space": 1,
+          "sea": 4,
+          "desert": 2
+        },
+        "most_common_environment": "unknown"
+      },
+      "temporal": {
+        "day_night_distribution": {
+          "DAY": 26,
+          "EVENING": 23,
+          "NIGHT": 77,
+          "MORNING": 35,
+          "UNKNOWN": 2
+        },
+        "season_distribution": {
+          "summer": 11,
+          "winter": 35,
+          "autumn": 60,
+          "spring": 32,
+          "unknown": 25
+        },
+        "most_common_period": "NIGHT"
+      }
+    },
+    "analysis_timestamp": "2026-04-02T21:26:28.484022"
+  },
+  {
+    "film": "gladiator 2",
+    "total_scenes": 152,
+    "statistics": {
+      "locations": {
+        "int_ext_distribution": {
+          "EXT": 81,
+          "INT": 70,
+          "UNKNOWN": 1
+        },
+        "environment_distribution": {
+          "sea": 32,
+          "urban": 21,
+          "unknown": 64,
+          "fantasy": 9,
+          "suburban": 8,
+          "mountain": 1,
+          "space": 8,
+          "rural": 4,
+          "desert": 5
+        },
+        "most_common_environment": "unknown"
+      },
+      "temporal": {
+        "day_night_distribution": {
+          "MORNING": 56,
+          "DAY": 55,
+          "EVENING": 12,
+          "NIGHT": 27,
+          "UNKNOWN": 2
+        },
+        "season_distribution": {
+          "winter": 18,
+          "autumn": 53,
+          "spring": 15,
+          "unknown": 50,
+          "summer": 16
+        },
+        "most_common_period": "MORNING"
+      }
+    },
+    "analysis_timestamp": "2026-04-02T21:26:28.566044"
+  },
+  {
+    "film": "green book",
+    "total_scenes": 147,
+    "statistics": {
+      "locations": {
+        "int_ext_distribution": {
+          "EXT": 56,
+          "INT": 82,
+          "UNKNOWN": 9
+        },
+        "environment_distribution": {
+          "fantasy": 6,
+          "unknown": 73,
+          "urban": 30,
+          "suburban": 5,
+          "rural": 21,
+          "mountain": 5,
+          "desert": 1,
+          "sea": 6
+        },
+        "most_common_environment": "unknown"
+      },
+      "temporal": {
+        "day_night_distribution": {
+          "NIGHT": 55,
+          "UNKNOWN": 5,
+          "MORNING": 27,
+          "DAY": 43,
+          "EVENING": 17
+        },
+        "season_distribution": {
+          "winter": 25,
+          "spring": 18,
+          "summer": 33,
+          "unknown": 54,
+          "autumn": 17
+        },
+        "most_common_period": "NIGHT"
+      }
+    },
+    "analysis_timestamp": "2026-04-02T21:26:28.624517"
+  },
+  {
+    "film": "Green_Mile,_The",
+    "total_scenes": 108,
+    "statistics": {
+      "locations": {
+        "int_ext_distribution": {
+          "EXT": 29,
+          "INT": 79
+        },
+        "environment_distribution": {
+          "rural": 8,
+          "suburban": 23,
+          "unknown": 57,
+          "space": 1,
+          "mountain": 6,
+          "desert": 1,
+          "fantasy": 4,
+          "urban": 5,
+          "sea": 3
+        },
+        "most_common_environment": "unknown"
+      },
+      "temporal": {
+        "day_night_distribution": {
+          "MORNING": 29,
+          "DAY": 41,
+          "NIGHT": 35,
+          "EVENING": 3
+        },
+        "season_distribution": {
+          "autumn": 31,
+          "spring": 10,
+          "winter": 42,
+          "unknown": 15,
+          "summer": 10
+        },
+        "most_common_period": "DAY"
+      }
+    },
+    "analysis_timestamp": "2026-04-02T21:26:28.671541"
+  },
+  {
+    "film": "Guardians_of_the_Galaxy_Vol_2",
+    "total_scenes": 258,
+    "statistics": {
+      "locations": {
+        "int_ext_distribution": {
+          "EXT": 79,
+          "UNKNOWN": 44,
+          "INT": 135
+        },
+        "environment_distribution": {
+          "sea": 16,
+          "rural": 7,
+          "space": 117,
+          "mountain": 12,
+          "unknown": 60,
+          "urban": 8,
+          "fantasy": 36,
+          "suburban": 1,
+          "desert": 1
+        },
+        "most_common_environment": "space"
+      },
+      "temporal": {
+        "day_night_distribution": {
+          "DAY": 57,
+          "UNKNOWN": 12,
+          "NIGHT": 121,
+          "MORNING": 56,
+          "EVENING": 12
+        },
+        "season_distribution": {
+          "autumn": 97,
+          "unknown": 92,
+          "summer": 22,
+          "spring": 20,
+          "winter": 27
+        },
+        "most_common_period": "NIGHT"
+      }
+    },
+    "analysis_timestamp": "2026-04-02T21:26:28.759608"
+  },
+  {
+    "film": "harry potter and the chamber of secrets",
+    "total_scenes": 120,
+    "statistics": {
+      "locations": {
+        "int_ext_distribution": {
+          "EXT": 32,
+          "INT": 84,
+          "UNKNOWN": 4
+        },
+        "environment_distribution": {
+          "suburban": 9,
+          "unknown": 64,
+          "fantasy": 24,
+          "rural": 5,
+          "sea": 5,
+          "urban": 7,
+          "mountain": 3,
+          "space": 3
+        },
+        "most_common_environment": "unknown"
+      },
+      "temporal": {
+        "day_night_distribution": {
+          "DAY": 41,
+          "NIGHT": 53,
+          "MORNING": 15,
+          "UNKNOWN": 5,
+          "EVENING": 6
+        },
+        "season_distribution": {
+          "summer": 10,
+          "spring": 10,
+          "unknown": 54,
+          "autumn": 29,
+          "winter": 17
+        },
+        "most_common_period": "NIGHT"
+      }
+    },
+    "analysis_timestamp": "2026-04-02T21:26:28.816033"
+  },
+  {
+    "film": "Hidden Figures   9.29.16 FF CLEAN.fdx",
+    "total_scenes": 198,
+    "statistics": {
+      "locations": {
+        "int_ext_distribution": {
+          "EXT": 46,
+          "INT": 94,
+          "UNKNOWN": 58
+        },
+        "environment_distribution": {
+          "unknown": 85,
+          "space": 46,
+          "urban": 17,
+          "rural": 2,
+          "sea": 11,
+          "fantasy": 2,
+          "suburban": 33,
+          "mountain": 2
+        },
+        "most_common_environment": "unknown"
+      },
+      "temporal": {
+        "day_night_distribution": {
+          "DAY": 28,
+          "MORNING": 86,
+          "NIGHT": 35,
+          "UNKNOWN": 43,
+          "EVENING": 6
+        },
+        "season_distribution": {
+          "autumn": 26,
+          "spring": 15,
+          "winter": 43,
+          "unknown": 100,
+          "summer": 14
+        },
+        "most_common_period": "MORNING"
+      }
+    },
+    "analysis_timestamp": "2026-04-02T21:26:28.888786"
+  },
+  {
+    "film": "if beale street could talk",
+    "total_scenes": 85,
+    "statistics": {
+      "locations": {
+        "int_ext_distribution": {
+          "EXT": 20,
+          "INT": 64,
+          "UNKNOWN": 1
+        },
+        "environment_distribution": {
+          "urban": 34,
+          "suburban": 18,
+          "unknown": 19,
+          "space": 2,
+          "mountain": 1,
+          "fantasy": 3,
+          "rural": 3,
+          "sea": 5
+        },
+        "most_common_environment": "urban"
+      },
+      "temporal": {
+        "day_night_distribution": {
+          "DAY": 39,
+          "MORNING": 13,
+          "NIGHT": 27,
+          "EVENING": 5,
+          "UNKNOWN": 1
+        },
+        "season_distribution": {
+          "autumn": 34,
+          "winter": 13,
+          "unknown": 23,
+          "spring": 7,
+          "summer": 8
+        },
+        "most_common_period": "DAY"
+      }
+    },
+    "analysis_timestamp": "2026-04-02T21:26:28.940777"
+  },
+  {
+    "film": "Inception",
+    "total_scenes": 286,
+    "statistics": {
+      "locations": {
+        "int_ext_distribution": {
+          "INT": 225,
+          "EXT": 60,
+          "UNKNOWN": 1
+        },
+        "environment_distribution": {
+          "fantasy": 28,
+          "unknown": 138,
+          "mountain": 26,
+          "sea": 10,
+          "rural": 3,
+          "urban": 46,
+          "desert": 5,
+          "suburban": 28,
+          "space": 2
+        },
+        "most_common_environment": "unknown"
+      },
+      "temporal": {
+        "day_night_distribution": {
+          "UNKNOWN": 77,
+          "MORNING": 54,
+          "DAY": 83,
+          "NIGHT": 57,
+          "EVENING": 15
+        },
+        "season_distribution": {
+          "spring": 39,
+          "unknown": 91,
+          "autumn": 51,
+          "summer": 58,
+          "winter": 47
+        },
+        "most_common_period": "DAY"
+      }
+    },
+    "analysis_timestamp": "2026-04-02T21:26:29.033747"
+  },
+  {
+    "film": "Interstellar",
+    "total_scenes": 247,
+    "statistics": {
+      "locations": {
+        "int_ext_distribution": {
+          "INT": 132,
+          "EXT": 115
+        },
+        "environment_distribution": {
+          "suburban": 16,
+          "sea": 33,
+          "urban": 5,
+          "rural": 18,
+          "space": 83,
+          "unknown": 70,
+          "mountain": 12,
+          "fantasy": 10
+        },
+        "most_common_environment": "space"
+      },
+      "temporal": {
+        "day_night_distribution": {
+          "DAY": 82,
+          "NIGHT": 105,
+          "MORNING": 31,
+          "UNKNOWN": 21,
+          "EVENING": 8
+        },
+        "season_distribution": {
+          "autumn": 73,
+          "winter": 60,
+          "unknown": 87,
+          "spring": 12,
+          "summer": 15
+        },
+        "most_common_period": "NIGHT"
+      }
+    },
+    "analysis_timestamp": "2026-04-02T21:26:29.139385"
+  },
+  {
+    "film": "Jojo Rabbit 2.5.fdx",
+    "total_scenes": 88,
+    "statistics": {
+      "locations": {
+        "int_ext_distribution": {
+          "INT": 54,
+          "EXT": 29,
+          "UNKNOWN": 5
+        },
+        "environment_distribution": {
+          "suburban": 50,
+          "urban": 20,
+          "rural": 6,
+          "unknown": 9,
+          "sea": 1,
+          "mountain": 2
+        },
+        "most_common_environment": "suburban"
+      },
+      "temporal": {
+        "day_night_distribution": {
+          "MORNING": 32,
+          "DAY": 22,
+          "EVENING": 12,
+          "NIGHT": 10,
+          "UNKNOWN": 12
+        },
+        "season_distribution": {
+          "spring": 14,
+          "unknown": 28,
+          "autumn": 22,
+          "summer": 7,
+          "winter": 17
+        },
+        "most_common_period": "MORNING"
+      }
+    },
+    "analysis_timestamp": "2026-04-02T21:26:29.193329"
+  },
+  {
+    "film": "joker",
+    "total_scenes": 129,
+    "statistics": {
+      "locations": {
+        "int_ext_distribution": {
+          "UNKNOWN": 1,
+          "INT": 90,
+          "EXT": 38
+        },
+        "environment_distribution": {
+          "urban": 71,
+          "fantasy": 17,
+          "rural": 6,
+          "unknown": 24,
+          "mountain": 4,
+          "sea": 7
+        },
+        "most_common_environment": "urban"
+      },
+      "temporal": {
+        "day_night_distribution": {
+          "MORNING": 47,
+          "NIGHT": 34,
+          "EVENING": 21,
+          "UNKNOWN": 12,
+          "DAY": 15
+        },
+        "season_distribution": {
+          "autumn": 29,
+          "winter": 26,
+          "unknown": 30,
+          "spring": 25,
+          "summer": 19
+        },
+        "most_common_period": "MORNING"
+      }
+    },
+    "analysis_timestamp": "2026-04-02T21:26:29.268076"
+  },
+  {
+    "film": "King's_Speech,_The",
+    "total_scenes": 91,
+    "statistics": {
+      "locations": {
+        "int_ext_distribution": {
+          "INT": 69,
+          "EXT": 21,
+          "UNKNOWN": 1
+        },
+        "environment_distribution": {
+          "suburban": 7,
+          "unknown": 38,
+          "fantasy": 4,
+          "sea": 3,
+          "rural": 1,
+          "urban": 21,
+          "mountain": 8,
+          "space": 2,
+          "desert": 7
+        },
+        "most_common_environment": "unknown"
+      },
+      "temporal": {
+        "day_night_distribution": {
+          "MORNING": 31,
+          "DAY": 34,
+          "EVENING": 5,
+          "NIGHT": 15,
+          "UNKNOWN": 6
+        },
+        "season_distribution": {
+          "winter": 12,
+          "spring": 12,
+          "summer": 7,
+          "autumn": 13,
+          "unknown": 47
+        },
+        "most_common_period": "DAY"
+      }
+    },
+    "analysis_timestamp": "2026-04-02T21:26:29.312341"
+  },
+  {
+    "film": "king richard",
+    "total_scenes": 113,
+    "statistics": {
+      "locations": {
+        "int_ext_distribution": {
+          "EXT": 75,
+          "INT": 34,
+          "UNKNOWN": 4
+        },
+        "environment_distribution": {
+          "mountain": 5,
+          "unknown": 45,
+          "urban": 6,
+          "suburban": 27,
+          "fantasy": 9,
+          "sea": 4,
+          "space": 16,
+          "desert": 1
+        },
+        "most_common_environment": "unknown"
+      },
+      "temporal": {
+        "day_night_distribution": {
+          "EVENING": 7,
+          "MORNING": 48,
+          "DAY": 28,
+          "UNKNOWN": 9,
+          "NIGHT": 21
+        },
+        "season_distribution": {
+          "unknown": 34,
+          "summer": 10,
+          "autumn": 43,
+          "winter": 12,
+          "spring": 14
+        },
+        "most_common_period": "MORNING"
+      }
+    },
+    "analysis_timestamp": "2026-04-02T21:26:29.380487"
+  },
+  {
+    "film": "Kung_Fu_Panda",
+    "total_scenes": 60,
+    "statistics": {
+      "locations": {
+        "int_ext_distribution": {
+          "EXT": 34,
+          "INT": 25,
+          "UNKNOWN": 1
+        },
+        "environment_distribution": {
+          "unknown": 22,
+          "fantasy": 7,
+          "urban": 4,
+          "sea": 2,
+          "rural": 9,
+          "space": 3,
+          "mountain": 4,
+          "suburban": 9
+        },
+        "most_common_environment": "unknown"
+      },
+      "temporal": {
+        "day_night_distribution": {
+          "DAY": 8,
+          "MORNING": 12,
+          "UNKNOWN": 12,
+          "NIGHT": 20,
+          "EVENING": 8
+        },
+        "season_distribution": {
+          "unknown": 24,
+          "autumn": 14,
+          "summer": 3,
+          "winter": 5,
+          "spring": 14
+        },
+        "most_common_period": "NIGHT"
+      }
+    },
+    "analysis_timestamp": "2026-04-02T21:26:29.400175"
+  },
+  {
+    "film": "Les_Miserables",
+    "total_scenes": 144,
+    "statistics": {
+      "locations": {
+        "int_ext_distribution": {
+          "EXT": 70,
+          "UNKNOWN": 13,
+          "INT": 61
+        },
+        "environment_distribution": {
+          "sea": 13,
+          "rural": 2,
+          "unknown": 54,
+          "mountain": 3,
+          "urban": 24,
+          "fantasy": 18,
+          "suburban": 22,
+          "space": 8
+        },
+        "most_common_environment": "unknown"
+      },
+      "temporal": {
+        "day_night_distribution": {
+          "DAY": 24,
+          "MORNING": 24,
+          "NIGHT": 69,
+          "UNKNOWN": 12,
+          "EVENING": 15
+        },
+        "season_distribution": {
+          "winter": 21,
+          "spring": 13,
+          "unknown": 56,
+          "autumn": 49,
+          "summer": 5
+        },
+        "most_common_period": "NIGHT"
+      }
+    },
+    "analysis_timestamp": "2026-04-02T21:26:29.462063"
+  },
+  {
+    "film": "little women",
+    "total_scenes": 92,
+    "statistics": {
+      "locations": {
+        "int_ext_distribution": {
+          "INT": 66,
+          "EXT": 26
+        },
+        "environment_distribution": {
+          "urban": 6,
+          "suburban": 54,
+          "space": 6,
+          "unknown": 18,
+          "sea": 3,
+          "mountain": 1,
+          "rural": 3,
+          "fantasy": 1
+        },
+        "most_common_environment": "suburban"
+      },
+      "temporal": {
+        "day_night_distribution": {
+          "UNKNOWN": 3,
+          "MORNING": 24,
+          "DAY": 42,
+          "EVENING": 11,
+          "NIGHT": 12
+        },
+        "season_distribution": {
+          "winter": 10,
+          "autumn": 13,
+          "spring": 40,
+          "summer": 7,
+          "unknown": 22
+        },
+        "most_common_period": "DAY"
+      }
+    },
+    "analysis_timestamp": "2026-04-02T21:26:29.505739"
+  },
+  {
+    "film": "Lord_of_the_Rings_Fellowship_of_the_Ring,_The",
+    "total_scenes": 139,
+    "statistics": {
+      "locations": {
+        "int_ext_distribution": {
+          "EXT": 86,
+          "INT": 53
+        },
+        "environment_distribution": {
+          "rural": 18,
+          "unknown": 48,
+          "fantasy": 13,
+          "mountain": 29,
+          "sea": 21,
+          "suburban": 4,
+          "urban": 3,
+          "space": 3
+        },
+        "most_common_environment": "unknown"
+      },
+      "temporal": {
+        "day_night_distribution": {
+          "NIGHT": 57,
+          "MORNING": 35,
+          "DAY": 37,
+          "EVENING": 9,
+          "UNKNOWN": 1
+        },
+        "season_distribution": {
+          "autumn": 65,
+          "spring": 13,
+          "unknown": 44,
+          "winter": 11,
+          "summer": 6
+        },
+        "most_common_period": "NIGHT"
+      }
+    },
+    "analysis_timestamp": "2026-04-02T21:26:29.562780"
+  },
+  {
+    "film": "luca",
+    "total_scenes": 99,
+    "statistics": {
+      "locations": {
+        "int_ext_distribution": {
+          "EXT": 77,
+          "INT": 20,
+          "UNKNOWN": 2
+        },
+        "environment_distribution": {
+          "sea": 25,
+          "suburban": 19,
+          "mountain": 12,
+          "rural": 7,
+          "fantasy": 5,
+          "unknown": 23,
+          "urban": 8
+        },
+        "most_common_environment": "sea"
+      },
+      "temporal": {
+        "day_night_distribution": {
+          "NIGHT": 21,
+          "MORNING": 25,
+          "UNKNOWN": 18,
+          "DAY": 21,
+          "EVENING": 14
+        },
+        "season_distribution": {
+          "autumn": 16,
+          "unknown": 57,
+          "summer": 11,
+          "winter": 5,
+          "spring": 10
+        },
+        "most_common_period": "MORNING"
+      }
+    },
+    "analysis_timestamp": "2026-04-02T21:26:29.610010"
+  },
+  {
+    "film": "Matrix,_The",
+    "total_scenes": 217,
+    "statistics": {
+      "locations": {
+        "int_ext_distribution": {
+          "INT": 180,
+          "EXT": 37
+        },
+        "environment_distribution": {
+          "unknown": 141,
+          "suburban": 8,
+          "urban": 38,
+          "desert": 2,
+          "fantasy": 13,
+          "sea": 8,
+          "space": 5,
+          "rural": 2
+        },
+        "most_common_environment": "unknown"
+      },
+      "temporal": {
+        "day_night_distribution": {
+          "NIGHT": 33,
+          "MORNING": 31,
+          "UNKNOWN": 46,
+          "EVENING": 7,
+          "DAY": 100
+        },
+        "season_distribution": {
+          "summer": 24,
+          "winter": 26,
+          "autumn": 43,
+          "unknown": 107,
+          "spring": 17
+        },
+        "most_common_period": "DAY"
+      }
+    },
+    "analysis_timestamp": "2026-04-02T21:26:29.690765"
+  },
+  {
+    "film": "MEA1_Script_042923_2nd PINK Revised",
+    "total_scenes": 87,
+    "statistics": {
+      "locations": {
+        "int_ext_distribution": {
+          "INT": 48,
+          "EXT": 34,
+          "UNKNOWN": 5
+        },
+        "environment_distribution": {
+          "suburban": 3,
+          "unknown": 35,
+          "urban": 23,
+          "sea": 6,
+          "fantasy": 6,
+          "space": 10,
+          "desert": 1,
+          "rural": 3
+        },
+        "most_common_environment": "unknown"
+      },
+      "temporal": {
+        "day_night_distribution": {
+          "NIGHT": 23,
+          "MORNING": 37,
+          "UNKNOWN": 16,
+          "DAY": 5,
+          "EVENING": 6
+        },
+        "season_distribution": {
+          "winter": 36,
+          "spring": 7,
+          "summer": 7,
+          "autumn": 17,
+          "unknown": 20
+        },
+        "most_common_period": "MORNING"
+      }
+    },
+    "analysis_timestamp": "2026-04-02T21:26:29.756174"
+  },
+  {
+    "film": "Music_of_the_Heart",
+    "total_scenes": 164,
+    "statistics": {
+      "locations": {
+        "int_ext_distribution": {
+          "INT": 122,
+          "EXT": 34,
+          "UNKNOWN": 8
+        },
+        "environment_distribution": {
+          "suburban": 18,
+          "unknown": 61,
+          "sea": 13,
+          "urban": 45,
+          "mountain": 22,
+          "fantasy": 3,
+          "desert": 1,
+          "space": 1
+        },
+        "most_common_environment": "unknown"
+      },
+      "temporal": {
+        "day_night_distribution": {
+          "DAY": 69,
+          "MORNING": 37,
+          "NIGHT": 40,
+          "UNKNOWN": 13,
+          "EVENING": 5
+        },
+        "season_distribution": {
+          "unknown": 85,
+          "summer": 16,
+          "winter": 23,
+          "autumn": 24,
+          "spring": 16
+        },
+        "most_common_period": "DAY"
+      }
+    },
+    "analysis_timestamp": "2026-04-02T21:26:29.822352"
+  },
+  {
+    "film": "Napoleon",
+    "total_scenes": 228,
+    "statistics": {
+      "locations": {
+        "int_ext_distribution": {
+          "INT": 123,
+          "EXT": 103,
+          "UNKNOWN": 2
+        },
+        "environment_distribution": {
+          "urban": 25,
+          "unknown": 105,
+          "sea": 23,
+          "rural": 34,
+          "fantasy": 7,
+          "mountain": 13,
+          "suburban": 13,
+          "space": 5,
+          "desert": 3
+        },
+        "most_common_environment": "unknown"
+      },
+      "temporal": {
+        "day_night_distribution": {
+          "NIGHT": 37,
+          "DAY": 99,
+          "UNKNOWN": 14,
+          "MORNING": 53,
+          "EVENING": 25
+        },
+        "season_distribution": {
+          "summer": 22,
+          "unknown": 103,
+          "autumn": 36,
+          "winter": 38,
+          "spring": 29
+        },
+        "most_common_period": "DAY"
+      }
+    },
+    "analysis_timestamp": "2026-04-02T21:26:29.918640"
+  },
+  {
+    "error": "Errore nell'analisi del file tei_scripts\\Notting_Hill.xml: not well-formed (invalid token): line 249, column 13",
+    "film": "Notting_Hill.xml",
+    "scenes": [],
+    "statistics": {}
+  },
+  {
+    "film": "ORIENTEXPRESS2.20.15.fdx",
+    "total_scenes": 156,
+    "statistics": {
+      "locations": {
+        "int_ext_distribution": {
+          "INT": 108,
+          "EXT": 47,
+          "UNKNOWN": 1
+        },
+        "environment_distribution": {
+          "suburban": 4,
+          "unknown": 83,
+          "urban": 14,
+          "fantasy": 19,
+          "sea": 12,
+          "space": 9,
+          "mountain": 8,
+          "rural": 7
+        },
+        "most_common_environment": "unknown"
+      },
+      "temporal": {
+        "day_night_distribution": {
+          "NIGHT": 42,
+          "DAY": 42,
+          "EVENING": 10,
+          "UNKNOWN": 36,
+          "MORNING": 26
+        },
+        "season_distribution": {
+          "unknown": 51,
+          "winter": 27,
+          "summer": 20,
+          "autumn": 36,
+          "spring": 22
+        },
+        "most_common_period": "NIGHT"
+      }
+    },
+    "analysis_timestamp": "2026-04-02T21:26:29.985687"
+  },
+  {
+    "film": "Pianist,_The",
+    "total_scenes": 167,
+    "statistics": {
+      "locations": {
+        "int_ext_distribution": {
+          "INT": 94,
+          "EXT": 70,
+          "UNKNOWN": 3
+        },
+        "environment_distribution": {
+          "urban": 100,
+          "unknown": 37,
+          "mountain": 2,
+          "sea": 6,
+          "space": 6,
+          "suburban": 8,
+          "fantasy": 6,
+          "rural": 2
+        },
+        "most_common_environment": "urban"
+      },
+      "temporal": {
+        "day_night_distribution": {
+          "DAY": 79,
+          "EVENING": 27,
+          "MORNING": 24,
+          "UNKNOWN": 2,
+          "NIGHT": 35
+        },
+        "season_distribution": {
+          "unknown": 63,
+          "autumn": 46,
+          "spring": 15,
+          "summer": 16,
+          "winter": 27
+        },
+        "most_common_period": "DAY"
+      }
+    },
+    "analysis_timestamp": "2026-04-02T21:26:30.051809"
+  },
+  {
+    "film": "Pirates_of_the_Caribbean",
+    "total_scenes": 138,
+    "statistics": {
+      "locations": {
+        "int_ext_distribution": {
+          "EXT": 91,
+          "INT": 46,
+          "UNKNOWN": 1
+        },
+        "environment_distribution": {
+          "sea": 61,
+          "fantasy": 2,
+          "space": 2,
+          "unknown": 46,
+          "urban": 7,
+          "mountain": 17,
+          "rural": 2,
+          "desert": 1
+        },
+        "most_common_environment": "sea"
+      },
+      "temporal": {
+        "day_night_distribution": {
+          "DAY": 50,
+          "NIGHT": 66,
+          "MORNING": 16,
+          "EVENING": 6
+        },
+        "season_distribution": {
+          "winter": 17,
+          "unknown": 43,
+          "autumn": 53,
+          "spring": 11,
+          "summer": 14
+        },
+        "most_common_period": "NIGHT"
+      }
+    },
+    "analysis_timestamp": "2026-04-02T21:26:30.100706"
+  },
+  {
+    "film": "Prestige,_The",
+    "total_scenes": 219,
+    "statistics": {
+      "locations": {
+        "int_ext_distribution": {
+          "INT": 173,
+          "EXT": 46
+        },
+        "environment_distribution": {
+          "urban": 91,
+          "fantasy": 10,
+          "unknown": 81,
+          "suburban": 14,
+          "mountain": 10,
+          "rural": 3,
+          "sea": 8,
+          "desert": 1,
+          "space": 1
+        },
+        "most_common_environment": "urban"
+      },
+      "temporal": {
+        "day_night_distribution": {
+          "DAY": 64,
+          "NIGHT": 44,
+          "UNKNOWN": 33,
+          "EVENING": 52,
+          "MORNING": 26
+        },
+        "season_distribution": {
+          "unknown": 76,
+          "summer": 64,
+          "winter": 11,
+          "autumn": 45,
+          "spring": 23
+        },
+        "most_common_period": "DAY"
+      }
+    },
+    "analysis_timestamp": "2026-04-02T21:26:30.165247"
+  },
+  {
+    "film": "Pretty_Woman",
+    "total_scenes": 163,
+    "statistics": {
+      "locations": {
+        "int_ext_distribution": {
+          "EXT": 54,
+          "INT": 107,
+          "UNKNOWN": 2
+        },
+        "environment_distribution": {
+          "suburban": 62,
+          "mountain": 5,
+          "urban": 23,
+          "fantasy": 17,
+          "unknown": 37,
+          "rural": 15,
+          "desert": 1,
+          "sea": 3
+        },
+        "most_common_environment": "suburban"
+      },
+      "temporal": {
+        "day_night_distribution": {
+          "EVENING": 13,
+          "NIGHT": 55,
+          "MORNING": 17,
+          "DAY": 74,
+          "UNKNOWN": 4
+        },
+        "season_distribution": {
+          "unknown": 69,
+          "autumn": 42,
+          "summer": 26,
+          "spring": 6,
+          "winter": 20
+        },
+        "most_common_period": "DAY"
+      }
+    },
+    "analysis_timestamp": "2026-04-02T21:26:30.215316"
+  },
+  {
+    "film": "Pride_and_Prejudice",
+    "total_scenes": 127,
+    "statistics": {
+      "locations": {
+        "int_ext_distribution": {
+          "INT": 70,
+          "EXT": 49,
+          "UNKNOWN": 8
+        },
+        "environment_distribution": {
+          "rural": 33,
+          "suburban": 22,
+          "fantasy": 8,
+          "unknown": 52,
+          "urban": 3,
+          "mountain": 5,
+          "sea": 4
+        },
+        "most_common_environment": "unknown"
+      },
+      "temporal": {
+        "day_night_distribution": {
+          "DAY": 56,
+          "MORNING": 38,
+          "UNKNOWN": 6,
+          "NIGHT": 19,
+          "EVENING": 8
+        },
+        "season_distribution": {
+          "autumn": 32,
+          "unknown": 60,
+          "spring": 16,
+          "winter": 13,
+          "summer": 6
+        },
+        "most_common_period": "DAY"
+      }
+    },
+    "analysis_timestamp": "2026-04-02T21:26:30.265836"
+  },
+  {
+    "film": "Priscilla",
+    "total_scenes": 166,
+    "statistics": {
+      "locations": {
+        "int_ext_distribution": {
+          "INT": 115,
+          "EXT": 48,
+          "UNKNOWN": 3
+        },
+        "environment_distribution": {
+          "fantasy": 68,
+          "unknown": 42,
+          "suburban": 41,
+          "sea": 8,
+          "mountain": 3,
+          "desert": 1,
+          "space": 1,
+          "urban": 2
+        },
+        "most_common_environment": "fantasy"
+      },
+      "temporal": {
+        "day_night_distribution": {
+          "DAY": 97,
+          "UNKNOWN": 6,
+          "EVENING": 15,
+          "NIGHT": 36,
+          "MORNING": 12
+        },
+        "season_distribution": {
+          "autumn": 89,
+          "summer": 13,
+          "unknown": 39,
+          "spring": 10,
+          "winter": 15
+        },
+        "most_common_period": "DAY"
+      }
+    },
+    "analysis_timestamp": "2026-04-02T21:26:30.314388"
+  },
+  {
+    "film": "Psycho",
+    "total_scenes": 137,
+    "statistics": {
+      "locations": {
+        "int_ext_distribution": {
+          "EXT": 69,
+          "INT": 57,
+          "UNKNOWN": 11
+        },
+        "environment_distribution": {
+          "urban": 26,
+          "unknown": 34,
+          "space": 18,
+          "suburban": 42,
+          "fantasy": 7,
+          "sea": 6,
+          "rural": 2,
+          "desert": 1,
+          "mountain": 1
+        },
+        "most_common_environment": "suburban"
+      },
+      "temporal": {
+        "day_night_distribution": {
+          "NIGHT": 46,
+          "MORNING": 35,
+          "DAY": 43,
+          "EVENING": 8,
+          "UNKNOWN": 5
+        },
+        "season_distribution": {
+          "summer": 17,
+          "winter": 36,
+          "autumn": 56,
+          "unknown": 26,
+          "spring": 2
+        },
+        "most_common_period": "NIGHT"
+      }
+    },
+    "analysis_timestamp": "2026-04-02T21:26:30.381279"
+  },
+  {
+    "film": "raiders of the lost ark",
+    "total_scenes": 139,
+    "statistics": {
+      "locations": {
+        "int_ext_distribution": {
+          "EXT": 78,
+          "INT": 60,
+          "UNKNOWN": 1
+        },
+        "environment_distribution": {
+          "mountain": 11,
+          "fantasy": 13,
+          "unknown": 36,
+          "sea": 22,
+          "urban": 28,
+          "suburban": 7,
+          "rural": 2,
+          "space": 13,
+          "desert": 7
+        },
+        "most_common_environment": "unknown"
+      },
+      "temporal": {
+        "day_night_distribution": {
+          "MORNING": 46,
+          "NIGHT": 38,
+          "DAY": 44,
+          "EVENING": 8,
+          "UNKNOWN": 3
+        },
+        "season_distribution": {
+          "autumn": 57,
+          "spring": 25,
+          "winter": 19,
+          "unknown": 27,
+          "summer": 11
+        },
+        "most_common_period": "MORNING"
+      }
+    },
+    "analysis_timestamp": "2026-04-02T21:26:30.488252"
+  },
+  {
+    "film": "rocky",
+    "total_scenes": 107,
+    "statistics": {
+      "locations": {
+        "int_ext_distribution": {
+          "INT": 74,
+          "EXT": 33
+        },
+        "environment_distribution": {
+          "unknown": 24,
+          "mountain": 37,
+          "urban": 28,
+          "sea": 10,
+          "fantasy": 2,
+          "desert": 3,
+          "suburban": 2,
+          "space": 1
+        },
+        "most_common_environment": "mountain"
+      },
+      "temporal": {
+        "day_night_distribution": {
+          "EVENING": 6,
+          "MORNING": 24,
+          "NIGHT": 50,
+          "DAY": 25,
+          "UNKNOWN": 2
+        },
+        "season_distribution": {
+          "autumn": 34,
+          "unknown": 29,
+          "summer": 7,
+          "spring": 14,
+          "winter": 23
+        },
+        "most_common_period": "NIGHT"
+      }
+    },
+    "analysis_timestamp": "2026-04-02T21:26:30.543035"
+  },
+  {
+    "film": "Romeo_%2526_Juliet",
+    "total_scenes": 187,
+    "statistics": {
+      "locations": {
+        "int_ext_distribution": {
+          "EXT": 97,
+          "INT": 90
+        },
+        "environment_distribution": {
+          "unknown": 93,
+          "suburban": 15,
+          "sea": 31,
+          "space": 7,
+          "urban": 17,
+          "mountain": 13,
+          "fantasy": 10,
+          "desert": 1
+        },
+        "most_common_environment": "unknown"
+      },
+      "temporal": {
+        "day_night_distribution": {
+          "DAY": 83,
+          "NIGHT": 76,
+          "MORNING": 27,
+          "UNKNOWN": 1
+        },
+        "season_distribution": {
+          "autumn": 36,
+          "unknown": 62,
+          "winter": 41,
+          "spring": 20,
+          "summer": 28
+        },
+        "most_common_period": "DAY"
+      }
+    },
+    "analysis_timestamp": "2026-04-02T21:26:30.600590"
+  },
+  {
+    "film": "rush",
+    "total_scenes": 187,
+    "statistics": {
+      "locations": {
+        "int_ext_distribution": {
+          "EXT": 103,
+          "INT": 83,
+          "UNKNOWN": 1
+        },
+        "environment_distribution": {
+          "mountain": 5,
+          "unknown": 94,
+          "suburban": 23,
+          "fantasy": 9,
+          "sea": 19,
+          "urban": 21,
+          "space": 11,
+          "rural": 5
+        },
+        "most_common_environment": "unknown"
+      },
+      "temporal": {
+        "day_night_distribution": {
+          "DAY": 74,
+          "MORNING": 88,
+          "NIGHT": 15,
+          "EVENING": 5,
+          "UNKNOWN": 5
+        },
+        "season_distribution": {
+          "autumn": 35,
+          "winter": 24,
+          "spring": 21,
+          "summer": 40,
+          "unknown": 67
+        },
+        "most_common_period": "MORNING"
+      }
+    },
+    "analysis_timestamp": "2026-04-02T21:26:30.663787"
+  },
+  {
+    "film": "Sex_and_the_City",
+    "total_scenes": 267,
+    "statistics": {
+      "locations": {
+        "int_ext_distribution": {
+          "EXT": 76,
+          "INT": 183,
+          "UNKNOWN": 8
+        },
+        "environment_distribution": {
+          "urban": 100,
+          "unknown": 89,
+          "sea": 27,
+          "suburban": 35,
+          "fantasy": 3,
+          "space": 2,
+          "mountain": 5,
+          "rural": 5,
+          "desert": 1
+        },
+        "most_common_environment": "urban"
+      },
+      "temporal": {
+        "day_night_distribution": {
+          "DAY": 60,
+          "NIGHT": 34,
+          "EVENING": 54,
+          "MORNING": 54,
+          "UNKNOWN": 65
+        },
+        "season_distribution": {
+          "summer": 69,
+          "spring": 38,
+          "winter": 55,
+          "autumn": 67,
+          "unknown": 38
+        },
+        "most_common_period": "UNKNOWN"
+      }
+    },
+    "analysis_timestamp": "2026-04-02T21:26:30.740345"
+  },
+  {
+    "film": "Sherlock_Holmes",
+    "total_scenes": 156,
+    "statistics": {
+      "locations": {
+        "int_ext_distribution": {
+          "EXT": 43,
+          "INT": 101,
+          "UNKNOWN": 12
+        },
+        "environment_distribution": {
+          "urban": 32,
+          "unknown": 61,
+          "fantasy": 16,
+          "sea": 15,
+          "rural": 9,
+          "mountain": 3,
+          "suburban": 17,
+          "space": 3
+        },
+        "most_common_environment": "unknown"
+      },
+      "temporal": {
+        "day_night_distribution": {
+          "NIGHT": 31,
+          "UNKNOWN": 37,
+          "DAY": 30,
+          "MORNING": 49,
+          "EVENING": 9
+        },
+        "season_distribution": {
+          "autumn": 42,
+          "winter": 31,
+          "unknown": 47,
+          "spring": 20,
+          "summer": 16
+        },
+        "most_common_period": "MORNING"
+      }
+    },
+    "analysis_timestamp": "2026-04-02T21:26:30.805161"
+  },
+  {
+    "film": "shortcomings",
+    "total_scenes": 118,
+    "statistics": {
+      "locations": {
+        "int_ext_distribution": {
+          "INT": 79,
+          "EXT": 36,
+          "UNKNOWN": 3
+        },
+        "environment_distribution": {
+          "urban": 61,
+          "sea": 8,
+          "fantasy": 7,
+          "suburban": 9,
+          "rural": 3,
+          "unknown": 25,
+          "space": 4,
+          "mountain": 1
+        },
+        "most_common_environment": "urban"
+      },
+      "temporal": {
+        "day_night_distribution": {
+          "NIGHT": 42,
+          "MORNING": 23,
+          "DAY": 40,
+          "UNKNOWN": 10,
+          "EVENING": 3
+        },
+        "season_distribution": {
+          "unknown": 37,
+          "summer": 9,
+          "autumn": 21,
+          "winter": 46,
+          "spring": 5
+        },
+        "most_common_period": "NIGHT"
+      }
+    },
+    "analysis_timestamp": "2026-04-02T21:26:30.848377"
+  },
+  {
+    "film": "Shrek_the_Third",
+    "total_scenes": 88,
+    "statistics": {
+      "locations": {
+        "int_ext_distribution": {
+          "INT": 39,
+          "EXT": 49
+        },
+        "environment_distribution": {
+          "fantasy": 30,
+          "urban": 9,
+          "unknown": 25,
+          "sea": 6,
+          "suburban": 13,
+          "mountain": 2,
+          "rural": 3
+        },
+        "most_common_environment": "fantasy"
+      },
+      "temporal": {
+        "day_night_distribution": {
+          "MORNING": 31,
+          "NIGHT": 19,
+          "DAY": 14,
+          "EVENING": 9,
+          "UNKNOWN": 15
+        },
+        "season_distribution": {
+          "autumn": 21,
+          "summer": 12,
+          "winter": 8,
+          "unknown": 35,
+          "spring": 12
+        },
+        "most_common_period": "MORNING"
+      }
+    },
+    "analysis_timestamp": "2026-04-02T21:26:30.883812"
+  },
+  {
+    "film": "sing",
+    "total_scenes": 154,
+    "statistics": {
+      "locations": {
+        "int_ext_distribution": {
+          "EXT": 62,
+          "INT": 90,
+          "UNKNOWN": 2
+        },
+        "environment_distribution": {
+          "urban": 54,
+          "unknown": 32,
+          "space": 49,
+          "suburban": 10,
+          "rural": 2,
+          "fantasy": 4,
+          "sea": 2,
+          "desert": 1
+        },
+        "most_common_environment": "urban"
+      },
+      "temporal": {
+        "day_night_distribution": {
+          "NIGHT": 21,
+          "MORNING": 23,
+          "DAY": 50,
+          "UNKNOWN": 25,
+          "EVENING": 35
+        },
+        "season_distribution": {
+          "summer": 62,
+          "unknown": 60,
+          "winter": 15,
+          "autumn": 11,
+          "spring": 6
+        },
+        "most_common_period": "DAY"
+      }
+    },
+    "analysis_timestamp": "2026-04-02T21:26:30.929808"
+  },
+  {
+    "film": "spider man 2",
+    "total_scenes": 148,
+    "statistics": {
+      "locations": {
+        "int_ext_distribution": {
+          "INT": 89,
+          "EXT": 54,
+          "UNKNOWN": 5
+        },
+        "environment_distribution": {
+          "urban": 59,
+          "unknown": 41,
+          "sea": 6,
+          "rural": 2,
+          "space": 9,
+          "suburban": 16,
+          "mountain": 2,
+          "fantasy": 9,
+          "desert": 4
+        },
+        "most_common_environment": "urban"
+      },
+      "temporal": {
+        "day_night_distribution": {
+          "DAY": 37,
+          "NIGHT": 71,
+          "MORNING": 23,
+          "EVENING": 4,
+          "UNKNOWN": 13
+        },
+        "season_distribution": {
+          "winter": 25,
+          "spring": 18,
+          "unknown": 37,
+          "summer": 25,
+          "autumn": 43
+        },
+        "most_common_period": "NIGHT"
+      }
+    },
+    "analysis_timestamp": "2026-04-02T21:26:30.984230"
+  },
+  {
+    "film": "spider man no way home",
+    "total_scenes": 199,
+    "statistics": {
+      "locations": {
+        "int_ext_distribution": {
+          "EXT": 108,
+          "INT": 90,
+          "UNKNOWN": 1
+        },
+        "environment_distribution": {
+          "suburban": 5,
+          "urban": 41,
+          "unknown": 98,
+          "space": 2,
+          "sea": 20,
+          "mountain": 9,
+          "fantasy": 14,
+          "rural": 2,
+          "desert": 8
+        },
+        "most_common_environment": "unknown"
+      },
+      "temporal": {
+        "day_night_distribution": {
+          "DAY": 28,
+          "MORNING": 123,
+          "NIGHT": 43,
+          "EVENING": 4,
+          "UNKNOWN": 1
+        },
+        "season_distribution": {
+          "unknown": 90,
+          "autumn": 32,
+          "spring": 43,
+          "summer": 15,
+          "winter": 19
+        },
+        "most_common_period": "MORNING"
+      }
+    },
+    "analysis_timestamp": "2026-04-02T21:26:31.051933"
+  },
+  {
+    "film": "star wars episode vii the force awakens",
+    "total_scenes": 268,
+    "statistics": {
+      "locations": {
+        "int_ext_distribution": {
+          "INT": 157,
+          "EXT": 109,
+          "UNKNOWN": 2
+        },
+        "environment_distribution": {
+          "sea": 46,
+          "rural": 19,
+          "unknown": 112,
+          "desert": 12,
+          "space": 32,
+          "mountain": 11,
+          "urban": 5,
+          "fantasy": 31
+        },
+        "most_common_environment": "unknown"
+      },
+      "temporal": {
+        "day_night_distribution": {
+          "NIGHT": 68,
+          "MORNING": 14,
+          "DAY": 177,
+          "EVENING": 4,
+          "UNKNOWN": 5
+        },
+        "season_distribution": {
+          "unknown": 123,
+          "winter": 41,
+          "autumn": 69,
+          "spring": 21,
+          "summer": 14
+        },
+        "most_common_period": "DAY"
+      }
+    },
+    "analysis_timestamp": "2026-04-02T21:26:31.123537"
+  },
+  {
+    "film": "Star_Trek_Generations",
+    "total_scenes": 229,
+    "statistics": {
+      "locations": {
+        "int_ext_distribution": {
+          "EXT": 55,
+          "UNKNOWN": 96,
+          "INT": 78
+        },
+        "environment_distribution": {
+          "space": 44,
+          "rural": 12,
+          "unknown": 99,
+          "mountain": 43,
+          "sea": 22,
+          "fantasy": 5,
+          "urban": 1,
+          "suburban": 3
+        },
+        "most_common_environment": "unknown"
+      },
+      "temporal": {
+        "day_night_distribution": {
+          "NIGHT": 62,
+          "DAY": 21,
+          "EVENING": 30,
+          "UNKNOWN": 87,
+          "MORNING": 29
+        },
+        "season_distribution": {
+          "autumn": 31,
+          "summer": 22,
+          "unknown": 126,
+          "winter": 27,
+          "spring": 23
+        },
+        "most_common_period": "UNKNOWN"
+      }
+    },
+    "analysis_timestamp": "2026-04-02T21:26:31.184710"
+  },
+  {
+    "film": "Star_Trek_II_The_Wrath_of_Khan",
+    "total_scenes": 253,
+    "statistics": {
+      "locations": {
+        "int_ext_distribution": {
+          "UNKNOWN": 76,
+          "INT": 113,
+          "EXT": 64
+        },
+        "environment_distribution": {
+          "unknown": 84,
+          "mountain": 75,
+          "space": 73,
+          "urban": 3,
+          "sea": 14,
+          "desert": 1,
+          "fantasy": 2,
+          "suburban": 1
+        },
+        "most_common_environment": "unknown"
+      },
+      "temporal": {
+        "day_night_distribution": {
+          "EVENING": 7,
+          "UNKNOWN": 118,
+          "MORNING": 47,
+          "DAY": 4,
+          "NIGHT": 77
+        },
+        "season_distribution": {
+          "winter": 20,
+          "unknown": 169,
+          "summer": 18,
+          "autumn": 28,
+          "spring": 18
+        },
+        "most_common_period": "UNKNOWN"
+      }
+    },
+    "analysis_timestamp": "2026-04-02T21:26:31.240117"
+  },
+  {
+    "film": "Star_Trek_Nemesis",
+    "total_scenes": 146,
+    "statistics": {
+      "locations": {
+        "int_ext_distribution": {
+          "INT": 108,
+          "EXT": 38
+        },
+        "environment_distribution": {
+          "unknown": 35,
+          "mountain": 57,
+          "space": 35,
+          "urban": 3,
+          "fantasy": 8,
+          "sea": 5,
+          "rural": 3
+        },
+        "most_common_environment": "mountain"
+      },
+      "temporal": {
+        "day_night_distribution": {
+          "DAY": 15,
+          "NIGHT": 66,
+          "EVENING": 7,
+          "MORNING": 16,
+          "UNKNOWN": 42
+        },
+        "season_distribution": {
+          "spring": 12,
+          "summer": 15,
+          "autumn": 17,
+          "unknown": 76,
+          "winter": 26
+        },
+        "most_common_period": "NIGHT"
+      }
+    },
+    "analysis_timestamp": "2026-04-02T21:26:31.294748"
+  },
+  {
+    "film": "Star_Wars_A_New_Hope",
+    "total_scenes": 481,
+    "statistics": {
+      "locations": {
+        "int_ext_distribution": {
+          "INT": 314,
+          "EXT": 166,
+          "UNKNOWN": 1
+        },
+        "environment_distribution": {
+          "sea": 78,
+          "space": 88,
+          "desert": 20,
+          "fantasy": 13,
+          "unknown": 189,
+          "urban": 35,
+          "mountain": 12,
+          "suburban": 9,
+          "rural": 37
+        },
+        "most_common_environment": "unknown"
+      },
+      "temporal": {
+        "day_night_distribution": {
+          "MORNING": 39,
+          "NIGHT": 259,
+          "DAY": 14,
+          "EVENING": 17,
+          "UNKNOWN": 152
+        },
+        "season_distribution": {
+          "autumn": 115,
+          "winter": 47,
+          "unknown": 247,
+          "spring": 58,
+          "summer": 14
+        },
+        "most_common_period": "NIGHT"
+      }
+    },
+    "analysis_timestamp": "2026-04-02T21:26:31.417194"
+  },
+  {
+    "film": "TGM FSS Cover_for Academy",
+    "total_scenes": 343,
+    "statistics": {
+      "locations": {
+        "int_ext_distribution": {
+          "EXT": 107,
+          "INT": 235,
+          "UNKNOWN": 1
+        },
+        "environment_distribution": {
+          "sea": 39,
+          "unknown": 218,
+          "suburban": 14,
+          "desert": 16,
+          "space": 6,
+          "fantasy": 8,
+          "urban": 8,
+          "mountain": 29,
+          "rural": 5
+        },
+        "most_common_environment": "unknown"
+      },
+      "temporal": {
+        "day_night_distribution": {
+          "MORNING": 117,
+          "DAY": 70,
+          "EVENING": 41,
+          "NIGHT": 42,
+          "UNKNOWN": 73
+        },
+        "season_distribution": {
+          "autumn": 106,
+          "winter": 27,
+          "unknown": 171,
+          "spring": 32,
+          "summer": 7
+        },
+        "most_common_period": "MORNING"
+      }
+    },
+    "analysis_timestamp": "2026-04-02T21:26:31.526912"
+  },
+  {
+    "film": "the avengers",
+    "total_scenes": 227,
+    "statistics": {
+      "locations": {
+        "int_ext_distribution": {
+          "EXT": 98,
+          "INT": 122,
+          "UNKNOWN": 7
+        },
+        "environment_distribution": {
+          "space": 6,
+          "mountain": 36,
+          "sea": 10,
+          "unknown": 94,
+          "urban": 37,
+          "desert": 1,
+          "suburban": 9,
+          "fantasy": 30,
+          "rural": 4
+        },
+        "most_common_environment": "unknown"
+      },
+      "temporal": {
+        "day_night_distribution": {
+          "MORNING": 56,
+          "UNKNOWN": 68,
+          "EVENING": 20,
+          "NIGHT": 52,
+          "DAY": 31
+        },
+        "season_distribution": {
+          "autumn": 40,
+          "unknown": 121,
+          "summer": 11,
+          "spring": 13,
+          "winter": 42
+        },
+        "most_common_period": "UNKNOWN"
+      }
+    },
+    "analysis_timestamp": "2026-04-02T21:26:31.594395"
+  },
+  {
+    "film": "the danish girl",
+    "total_scenes": 150,
+    "statistics": {
+      "locations": {
+        "int_ext_distribution": {
+          "EXT": 37,
+          "INT": 111,
+          "UNKNOWN": 2
+        },
+        "environment_distribution": {
+          "sea": 11,
+          "unknown": 43,
+          "urban": 37,
+          "suburban": 49,
+          "fantasy": 6,
+          "mountain": 1,
+          "space": 3
+        },
+        "most_common_environment": "suburban"
+      },
+      "temporal": {
+        "day_night_distribution": {
+          "DAY": 54,
+          "MORNING": 38,
+          "EVENING": 12,
+          "NIGHT": 30,
+          "UNKNOWN": 16
+        },
+        "season_distribution": {
+          "winter": 24,
+          "autumn": 47,
+          "unknown": 52,
+          "spring": 18,
+          "summer": 9
+        },
+        "most_common_period": "DAY"
+      }
+    },
+    "analysis_timestamp": "2026-04-02T21:26:31.644092"
+  },
+  {
+    "film": "the edge of seventeen",
+    "total_scenes": 102,
+    "statistics": {
+      "locations": {
+        "int_ext_distribution": {
+          "EXT": 40,
+          "INT": 62
+        },
+        "environment_distribution": {
+          "fantasy": 2,
+          "unknown": 65,
+          "suburban": 15,
+          "urban": 7,
+          "mountain": 3,
+          "desert": 1,
+          "sea": 3,
+          "space": 3,
+          "rural": 3
+        },
+        "most_common_environment": "unknown"
+      },
+      "temporal": {
+        "day_night_distribution": {
+          "EVENING": 9,
+          "DAY": 29,
+          "NIGHT": 14,
+          "MORNING": 15,
+          "UNKNOWN": 35
+        },
+        "season_distribution": {
+          "summer": 21,
+          "unknown": 50,
+          "autumn": 11,
+          "winter": 11,
+          "spring": 9
+        },
+        "most_common_period": "UNKNOWN"
+      }
+    },
+    "analysis_timestamp": "2026-04-02T21:26:31.676860"
+  },
+  {
+    "film": "the favourite",
+    "total_scenes": 138,
+    "statistics": {
+      "locations": {
+        "int_ext_distribution": {
+          "EXT": 17,
+          "INT": 120,
+          "UNKNOWN": 1
+        },
+        "environment_distribution": {
+          "rural": 10,
+          "unknown": 68,
+          "fantasy": 7,
+          "suburban": 12,
+          "urban": 35,
+          "space": 1,
+          "mountain": 4,
+          "sea": 1
+        },
+        "most_common_environment": "unknown"
+      },
+      "temporal": {
+        "day_night_distribution": {
+          "UNKNOWN": 4,
+          "MORNING": 19,
+          "NIGHT": 40,
+          "DAY": 70,
+          "EVENING": 5
+        },
+        "season_distribution": {
+          "unknown": 73,
+          "winter": 12,
+          "spring": 9,
+          "autumn": 31,
+          "summer": 13
+        },
+        "most_common_period": "DAY"
+      }
+    },
+    "analysis_timestamp": "2026-04-02T21:26:31.723313"
+  },
+  {
+    "film": "the hangover",
+    "total_scenes": 84,
+    "statistics": {
+      "locations": {
+        "int_ext_distribution": {
+          "EXT": 26,
+          "INT": 57,
+          "UNKNOWN": 1
+        },
+        "environment_distribution": {
+          "fantasy": 19,
+          "desert": 7,
+          "sea": 4,
+          "unknown": 39,
+          "space": 8,
+          "mountain": 2,
+          "urban": 4,
+          "rural": 1
+        },
+        "most_common_environment": "unknown"
+      },
+      "temporal": {
+        "day_night_distribution": {
+          "MORNING": 18,
+          "DAY": 23,
+          "EVENING": 5,
+          "NIGHT": 25,
+          "UNKNOWN": 13
+        },
+        "season_distribution": {
+          "spring": 7,
+          "winter": 20,
+          "summer": 13,
+          "unknown": 35,
+          "autumn": 9
+        },
+        "most_common_period": "NIGHT"
+      }
+    },
+    "analysis_timestamp": "2026-04-02T21:26:31.757403"
+  },
+  {
+    "film": "the hobbit an unexpected journey scripted",
+    "total_scenes": 154,
+    "statistics": {
+      "locations": {
+        "int_ext_distribution": {
+          "EXT": 76,
+          "INT": 78
+        },
+        "environment_distribution": {
+          "rural": 21,
+          "fantasy": 22,
+          "unknown": 55,
+          "sea": 7,
+          "suburban": 17,
+          "mountain": 32
+        },
+        "most_common_environment": "unknown"
+      },
+      "temporal": {
+        "day_night_distribution": {
+          "DAY": 78,
+          "NIGHT": 59,
+          "EVENING": 5,
+          "MORNING": 12
+        },
+        "season_distribution": {
+          "summer": 14,
+          "autumn": 45,
+          "spring": 19,
+          "winter": 9,
+          "unknown": 67
+        },
+        "most_common_period": "DAY"
+      }
+    },
+    "analysis_timestamp": "2026-04-02T21:26:31.813763"
+  },
+  {
+    "film": "the incredible hulk",
+    "total_scenes": 207,
+    "statistics": {
+      "locations": {
+        "int_ext_distribution": {
+          "EXT": 101,
+          "INT": 102,
+          "UNKNOWN": 4
+        },
+        "environment_distribution": {
+          "sea": 14,
+          "unknown": 82,
+          "urban": 71,
+          "mountain": 9,
+          "suburban": 16,
+          "fantasy": 5,
+          "rural": 6,
+          "space": 3,
+          "desert": 1
+        },
+        "most_common_environment": "unknown"
+      },
+      "temporal": {
+        "day_night_distribution": {
+          "NIGHT": 53,
+          "DAY": 30,
+          "MORNING": 84,
+          "EVENING": 9,
+          "UNKNOWN": 31
+        },
+        "season_distribution": {
+          "winter": 41,
+          "autumn": 49,
+          "unknown": 83,
+          "spring": 24,
+          "summer": 10
+        },
+        "most_common_period": "MORNING"
+      }
+    },
+    "analysis_timestamp": "2026-04-02T21:26:31.892638"
+  },
+  {
+    "film": "the matrix",
+    "total_scenes": 225,
+    "statistics": {
+      "locations": {
+        "int_ext_distribution": {
+          "INT": 180,
+          "EXT": 44,
+          "UNKNOWN": 1
+        },
+        "environment_distribution": {
+          "urban": 55,
+          "unknown": 133,
+          "space": 8,
+          "desert": 2,
+          "fantasy": 9,
+          "sea": 12,
+          "rural": 5,
+          "mountain": 1
+        },
+        "most_common_environment": "unknown"
+      },
+      "temporal": {
+        "day_night_distribution": {
+          "NIGHT": 39,
+          "MORNING": 34,
+          "UNKNOWN": 64,
+          "EVENING": 18,
+          "DAY": 70
+        },
+        "season_distribution": {
+          "summer": 19,
+          "winter": 34,
+          "autumn": 43,
+          "unknown": 107,
+          "spring": 22
+        },
+        "most_common_period": "DAY"
+      }
+    },
+    "analysis_timestamp": "2026-04-02T21:26:31.955577"
+  },
+  {
+    "film": "the menu",
+    "total_scenes": 59,
+    "statistics": {
+      "locations": {
+        "int_ext_distribution": {
+          "EXT": 24,
+          "INT": 34,
+          "UNKNOWN": 1
+        },
+        "environment_distribution": {
+          "unknown": 21,
+          "sea": 11,
+          "suburban": 8,
+          "urban": 5,
+          "fantasy": 3,
+          "space": 9,
+          "rural": 2
+        },
+        "most_common_environment": "unknown"
+      },
+      "temporal": {
+        "day_night_distribution": {
+          "EVENING": 33,
+          "UNKNOWN": 7,
+          "MORNING": 6,
+          "DAY": 2,
+          "NIGHT": 11
+        },
+        "season_distribution": {
+          "winter": 10,
+          "unknown": 22,
+          "spring": 6,
+          "summer": 9,
+          "autumn": 12
+        },
+        "most_common_period": "EVENING"
+      }
+    },
+    "analysis_timestamp": "2026-04-02T21:26:31.985101"
+  },
+  {
+    "film": "the teachers lounge",
+    "total_scenes": 65,
+    "statistics": {
+      "locations": {
+        "int_ext_distribution": {
+          "INT": 62,
+          "UNKNOWN": 1,
+          "EXT": 2
+        },
+        "environment_distribution": {
+          "unknown": 32,
+          "sea": 10,
+          "fantasy": 4,
+          "urban": 11,
+          "rural": 3,
+          "mountain": 3,
+          "suburban": 2
+        },
+        "most_common_environment": "unknown"
+      },
+      "temporal": {
+        "day_night_distribution": {
+          "DAY": 52,
+          "MORNING": 6,
+          "EVENING": 2,
+          "NIGHT": 5
+        },
+        "season_distribution": {
+          "unknown": 27,
+          "autumn": 15,
+          "winter": 16,
+          "spring": 7
+        },
+        "most_common_period": "DAY"
+      }
+    },
+    "analysis_timestamp": "2026-04-02T21:26:32.018269"
+  },
+  {
+    "film": "the way back",
+    "total_scenes": 112,
+    "statistics": {
+      "locations": {
+        "int_ext_distribution": {
+          "EXT": 27,
+          "INT": 83,
+          "UNKNOWN": 2
+        },
+        "environment_distribution": {
+          "suburban": 29,
+          "sea": 17,
+          "fantasy": 7,
+          "unknown": 30,
+          "rural": 3,
+          "urban": 19,
+          "space": 5,
+          "mountain": 2
+        },
+        "most_common_environment": "unknown"
+      },
+      "temporal": {
+        "day_night_distribution": {
+          "EVENING": 8,
+          "NIGHT": 44,
+          "MORNING": 40,
+          "DAY": 19,
+          "UNKNOWN": 1
+        },
+        "season_distribution": {
+          "autumn": 35,
+          "winter": 29,
+          "spring": 8,
+          "unknown": 37,
+          "summer": 3
+        },
+        "most_common_period": "NIGHT"
+      }
+    },
+    "analysis_timestamp": "2026-04-02T21:26:32.076400"
+  },
+  {
+    "film": "Theory_of_Everything,_The",
+    "total_scenes": 149,
+    "statistics": {
+      "locations": {
+        "int_ext_distribution": {
+          "INT": 102,
+          "EXT": 43,
+          "UNKNOWN": 4
+        },
+        "environment_distribution": {
+          "urban": 11,
+          "mountain": 54,
+          "unknown": 37,
+          "sea": 5,
+          "suburban": 17,
+          "rural": 5,
+          "fantasy": 9,
+          "space": 11
+        },
+        "most_common_environment": "mountain"
+      },
+      "temporal": {
+        "day_night_distribution": {
+          "MORNING": 80,
+          "DAY": 37,
+          "UNKNOWN": 5,
+          "NIGHT": 13,
+          "EVENING": 14
+        },
+        "season_distribution": {
+          "winter": 13,
+          "autumn": 32,
+          "unknown": 68,
+          "spring": 16,
+          "summer": 20
+        },
+        "most_common_period": "MORNING"
+      }
+    },
+    "analysis_timestamp": "2026-04-02T21:26:32.130313"
+  },
+  {
+    "film": "TPOH 4 25 05",
+    "total_scenes": 253,
+    "statistics": {
+      "locations": {
+        "int_ext_distribution": {
+          "EXT": 136,
+          "INT": 113,
+          "UNKNOWN": 4
+        },
+        "environment_distribution": {
+          "sea": 7,
+          "suburban": 18,
+          "urban": 138,
+          "unknown": 67,
+          "fantasy": 10,
+          "space": 8,
+          "mountain": 4,
+          "rural": 1
+        },
+        "most_common_environment": "urban"
+      },
+      "temporal": {
+        "day_night_distribution": {
+          "MORNING": 67,
+          "DAY": 31,
+          "UNKNOWN": 114,
+          "NIGHT": 28,
+          "EVENING": 13
+        },
+        "season_distribution": {
+          "winter": 40,
+          "unknown": 106,
+          "autumn": 53,
+          "spring": 41,
+          "summer": 13
+        },
+        "most_common_period": "UNKNOWN"
+      }
+    },
+    "analysis_timestamp": "2026-04-02T21:26:32.212208"
+  },
+  {
+    "film": "Twilight_New_Moon",
+    "total_scenes": 124,
+    "statistics": {
+      "locations": {
+        "int_ext_distribution": {
+          "EXT": 57,
+          "INT": 65,
+          "UNKNOWN": 2
+        },
+        "environment_distribution": {
+          "rural": 19,
+          "unknown": 36,
+          "suburban": 43,
+          "space": 7,
+          "mountain": 7,
+          "urban": 5,
+          "sea": 6,
+          "fantasy": 1
+        },
+        "most_common_environment": "suburban"
+      },
+      "temporal": {
+        "day_night_distribution": {
+          "DAY": 55,
+          "MORNING": 27,
+          "NIGHT": 39,
+          "EVENING": 2,
+          "UNKNOWN": 1
+        },
+        "season_distribution": {
+          "spring": 14,
+          "summer": 14,
+          "unknown": 39,
+          "winter": 30,
+          "autumn": 27
+        },
+        "most_common_period": "DAY"
+      }
+    },
+    "analysis_timestamp": "2026-04-02T21:26:32.256860"
+  },
+  {
+    "film": "vm_InsideOutFinalScript_PD_Oct2015",
+    "total_scenes": 381,
+    "statistics": {
+      "locations": {
+        "int_ext_distribution": {
+          "INT": 299,
+          "EXT": 81,
+          "UNKNOWN": 1
+        },
+        "environment_distribution": {
+          "unknown": 228,
+          "suburban": 24,
+          "fantasy": 18,
+          "sea": 4,
+          "urban": 40,
+          "mountain": 19,
+          "rural": 46,
+          "space": 2
+        },
+        "most_common_environment": "unknown"
+      },
+      "temporal": {
+        "day_night_distribution": {
+          "DAY": 30,
+          "UNKNOWN": 251,
+          "MORNING": 45,
+          "NIGHT": 43,
+          "EVENING": 12
+        },
+        "season_distribution": {
+          "unknown": 308,
+          "spring": 27,
+          "winter": 12,
+          "autumn": 28,
+          "summer": 6
+        },
+        "most_common_period": "UNKNOWN"
+      }
+    },
+    "analysis_timestamp": "2026-04-02T21:26:32.326101"
+  },
+  {
+    "film": "Wonka",
+    "total_scenes": 125,
+    "statistics": {
+      "locations": {
+        "int_ext_distribution": {
+          "EXT": 44,
+          "INT": 79,
+          "UNKNOWN": 2
+        },
+        "environment_distribution": {
+          "sea": 8,
+          "urban": 14,
+          "fantasy": 15,
+          "rural": 16,
+          "unknown": 59,
+          "suburban": 10,
+          "desert": 1,
+          "space": 2
+        },
+        "most_common_environment": "unknown"
+      },
+      "temporal": {
+        "day_night_distribution": {
+          "DAY": 42,
+          "UNKNOWN": 7,
+          "MORNING": 19,
+          "EVENING": 11,
+          "NIGHT": 46
+        },
+        "season_distribution": {
+          "autumn": 63,
+          "unknown": 31,
+          "spring": 14,
+          "summer": 3,
+          "winter": 14
+        },
+        "most_common_period": "NIGHT"
+      }
+    },
+    "analysis_timestamp": "2026-04-02T21:26:32.367789"
+  }
+]
