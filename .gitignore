@@ -8,7 +8,6 @@ __pycache__/
 # Cartelle generate automaticamente dalla pipeline
 /txt_scripts/
 /tei_scripts/
-/analysis/
 
 # Input - ignora i PDF ma tieni la struttura delle cartelle
 /input/pdf_scripts/

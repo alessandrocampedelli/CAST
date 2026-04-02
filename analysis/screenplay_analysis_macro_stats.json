@@ -1,0 +1,684 @@
+{
+  "analysis_summary": {
+    "total_films_analyzed": 100,
+    "total_scenes_analyzed": 15615,
+    "average_scenes_per_film": 156.2,
+    "analysis_timestamp": "2026-04-02T21:26:32.419357"
+  },
+  "aggregated_statistics": {
+    "locations": {
+      "int_ext_totals": {
+        "EXT": 5753,
+        "INT": 9261,
+        "UNKNOWN": 601
+      },
+      "int_ext_percentages": {
+        "EXT": 36.8,
+        "INT": 59.3,
+        "UNKNOWN": 3.8
+      },
+      "environment_totals": {
+        "rural": 755,
+        "unknown": 6036,
+        "mountain": 925,
+        "fantasy": 1110,
+        "urban": 2637,
+        "suburban": 1627,
+        "sea": 1273,
+        "desert": 175,
+        "space": 1077
+      },
+      "environment_percentages": {
+        "rural": 4.8,
+        "unknown": 38.7,
+        "mountain": 5.9,
+        "fantasy": 7.1,
+        "urban": 16.9,
+        "suburban": 10.4,
+        "sea": 8.2,
+        "desert": 1.1,
+        "space": 6.9
+      },
+      "most_common_overall": {
+        "location_type": "INT",
+        "environment": "unknown"
+      }
+    },
+    "temporal": {
+      "period_totals": {
+        "DAY": 4473,
+        "UNKNOWN": 2297,
+        "MORNING": 3495,
+        "NIGHT": 4228,
+        "EVENING": 1122
+      },
+      "period_percentages": {
+        "DAY": 28.6,
+        "UNKNOWN": 14.7,
+        "MORNING": 22.4,
+        "NIGHT": 27.1,
+        "EVENING": 7.2
+      },
+      "season_totals": {
+        "autumn": 3694,
+        "unknown": 6275,
+        "spring": 1672,
+        "summer": 1599,
+        "winter": 2375
+      },
+      "season_percentages": {
+        "autumn": 23.7,
+        "unknown": 40.2,
+        "spring": 10.7,
+        "summer": 10.2,
+        "winter": 15.2
+      },
+      "most_common_overall": {
+        "period": "DAY",
+        "season": "unknown"
+      }
+    }
+  },
+  "films_summary": [
+    {
+      "film": "1917",
+      "scenes": 61,
+      "dominant_environment": "rural",
+      "dominant_period": "UNKNOWN"
+    },
+    {
+      "film": "8 bit christmas",
+      "scenes": 95,
+      "dominant_environment": "suburban",
+      "dominant_period": "DAY"
+    },
+    {
+      "film": "a complete unknown",
+      "scenes": 126,
+      "dominant_environment": "sea",
+      "dominant_period": "MORNING"
+    },
+    {
+      "film": "a haunting in venice",
+      "scenes": 133,
+      "dominant_environment": "unknown",
+      "dominant_period": "NIGHT"
+    },
+    {
+      "film": "a man called otto",
+      "scenes": 143,
+      "dominant_environment": "unknown",
+      "dominant_period": "DAY"
+    },
+    {
+      "film": "aftersun",
+      "scenes": 141,
+      "dominant_environment": "unknown",
+      "dominant_period": "MORNING"
+    },
+    {
+      "film": "air",
+      "scenes": 74,
+      "dominant_environment": "urban",
+      "dominant_period": "DAY"
+    },
+    {
+      "film": "Amadeus",
+      "scenes": 174,
+      "dominant_environment": "unknown",
+      "dominant_period": "NIGHT"
+    },
+    {
+      "film": "Angels_%2526_Demons",
+      "scenes": 152,
+      "dominant_environment": "unknown",
+      "dominant_period": "NIGHT"
+    },
+    {
+      "film": "Anora",
+      "scenes": 222,
+      "dominant_environment": "unknown",
+      "dominant_period": "DAY"
+    },
+    {
+      "film": "avatar",
+      "scenes": 166,
+      "dominant_environment": "unknown",
+      "dominant_period": "MORNING"
+    },
+    {
+      "film": "avengers endgame",
+      "scenes": 172,
+      "dominant_environment": "unknown",
+      "dominant_period": "DAY"
+    },
+    {
+      "film": "back to the future",
+      "scenes": 152,
+      "dominant_environment": "unknown",
+      "dominant_period": "UNKNOWN"
+    },
+    {
+      "film": "Barbie",
+      "scenes": 87,
+      "dominant_environment": "suburban",
+      "dominant_period": "DAY"
+    },
+    {
+      "film": "Beauty_and_the_Beast",
+      "scenes": 151,
+      "dominant_environment": "fantasy",
+      "dominant_period": "NIGHT"
+    },
+    {
+      "film": "belle",
+      "scenes": 125,
+      "dominant_environment": "rural",
+      "dominant_period": "DAY"
+    },
+    {
+      "film": "Bookworm",
+      "scenes": 66,
+      "dominant_environment": "unknown",
+      "dominant_period": "MORNING"
+    },
+    {
+      "film": "bridget joness baby",
+      "scenes": 185,
+      "dominant_environment": "unknown",
+      "dominant_period": "DAY"
+    },
+    {
+      "film": "call me by your name",
+      "scenes": 120,
+      "dominant_environment": "unknown",
+      "dominant_period": "DAY"
+    },
+    {
+      "film": "coco",
+      "scenes": 94,
+      "dominant_environment": "unknown",
+      "dominant_period": "UNKNOWN"
+    },
+    {
+      "film": "Coco",
+      "scenes": 94,
+      "dominant_environment": "unknown",
+      "dominant_period": "UNKNOWN"
+    },
+    {
+      "film": "conclave",
+      "scenes": 160,
+      "dominant_environment": "space",
+      "dominant_period": "DAY"
+    },
+    {
+      "film": "Despicable_Me_2",
+      "scenes": 113,
+      "dominant_environment": "unknown",
+      "dominant_period": "MORNING"
+    },
+    {
+      "film": "dont worry darling",
+      "scenes": 111,
+      "dominant_environment": "suburban",
+      "dominant_period": "DAY"
+    },
+    {
+      "film": "Dune_Part_One",
+      "scenes": 143,
+      "dominant_environment": "unknown",
+      "dominant_period": "NIGHT"
+    },
+    {
+      "film": "Elemental",
+      "scenes": 123,
+      "dominant_environment": "urban",
+      "dominant_period": "MORNING"
+    },
+    {
+      "film": "Fantastic_Beasts_and_Where_to_Find_Them",
+      "scenes": 128,
+      "dominant_environment": "urban",
+      "dominant_period": "NIGHT"
+    },
+    {
+      "film": "Fantastic_Beasts_The_Crimes_of_Grindelwald",
+      "scenes": 125,
+      "dominant_environment": "unknown",
+      "dominant_period": "NIGHT"
+    },
+    {
+      "film": "Fantastic_Beasts_The_Secrets_of_Dumbledore",
+      "scenes": 101,
+      "dominant_environment": "unknown",
+      "dominant_period": "MORNING"
+    },
+    {
+      "film": "Fantastic_Four",
+      "scenes": 172,
+      "dominant_environment": "urban",
+      "dominant_period": "NIGHT"
+    },
+    {
+      "film": "Fault_in_Our_Stars,_The",
+      "scenes": 106,
+      "dominant_environment": "unknown",
+      "dominant_period": "MORNING"
+    },
+    {
+      "film": "ferrari",
+      "scenes": 221,
+      "dominant_environment": "unknown",
+      "dominant_period": "DAY"
+    },
+    {
+      "film": "Fight_Club",
+      "scenes": 253,
+      "dominant_environment": "unknown",
+      "dominant_period": "NIGHT"
+    },
+    {
+      "film": "Forrest_Gump",
+      "scenes": 196,
+      "dominant_environment": "unknown",
+      "dominant_period": "DAY"
+    },
+    {
+      "film": "Ghostbusters",
+      "scenes": 61,
+      "dominant_environment": "unknown",
+      "dominant_period": "UNKNOWN"
+    },
+    {
+      "film": "Ghostbusters_2",
+      "scenes": 156,
+      "dominant_environment": "unknown",
+      "dominant_period": "NIGHT"
+    },
+    {
+      "film": "Ghost_Rider",
+      "scenes": 163,
+      "dominant_environment": "unknown",
+      "dominant_period": "NIGHT"
+    },
+    {
+      "film": "gladiator 2",
+      "scenes": 152,
+      "dominant_environment": "unknown",
+      "dominant_period": "MORNING"
+    },
+    {
+      "film": "green book",
+      "scenes": 147,
+      "dominant_environment": "unknown",
+      "dominant_period": "NIGHT"
+    },
+    {
+      "film": "Green_Mile,_The",
+      "scenes": 108,
+      "dominant_environment": "unknown",
+      "dominant_period": "DAY"
+    },
+    {
+      "film": "Guardians_of_the_Galaxy_Vol_2",
+      "scenes": 258,
+      "dominant_environment": "space",
+      "dominant_period": "NIGHT"
+    },
+    {
+      "film": "harry potter and the chamber of secrets",
+      "scenes": 120,
+      "dominant_environment": "unknown",
+      "dominant_period": "NIGHT"
+    },
+    {
+      "film": "Hidden Figures   9.29.16 FF CLEAN.fdx",
+      "scenes": 198,
+      "dominant_environment": "unknown",
+      "dominant_period": "MORNING"
+    },
+    {
+      "film": "if beale street could talk",
+      "scenes": 85,
+      "dominant_environment": "urban",
+      "dominant_period": "DAY"
+    },
+    {
+      "film": "Inception",
+      "scenes": 286,
+      "dominant_environment": "unknown",
+      "dominant_period": "DAY"
+    },
+    {
+      "film": "Interstellar",
+      "scenes": 247,
+      "dominant_environment": "space",
+      "dominant_period": "NIGHT"
+    },
+    {
+      "film": "Jojo Rabbit 2.5.fdx",
+      "scenes": 88,
+      "dominant_environment": "suburban",
+      "dominant_period": "MORNING"
+    },
+    {
+      "film": "joker",
+      "scenes": 129,
+      "dominant_environment": "urban",
+      "dominant_period": "MORNING"
+    },
+    {
+      "film": "King's_Speech,_The",
+      "scenes": 91,
+      "dominant_environment": "unknown",
+      "dominant_period": "DAY"
+    },
+    {
+      "film": "king richard",
+      "scenes": 113,
+      "dominant_environment": "unknown",
+      "dominant_period": "MORNING"
+    },
+    {
+      "film": "Kung_Fu_Panda",
+      "scenes": 60,
+      "dominant_environment": "unknown",
+      "dominant_period": "NIGHT"
+    },
+    {
+      "film": "Les_Miserables",
+      "scenes": 144,
+      "dominant_environment": "unknown",
+      "dominant_period": "NIGHT"
+    },
+    {
+      "film": "little women",
+      "scenes": 92,
+      "dominant_environment": "suburban",
+      "dominant_period": "DAY"
+    },
+    {
+      "film": "Lord_of_the_Rings_Fellowship_of_the_Ring,_The",
+      "scenes": 139,
+      "dominant_environment": "unknown",
+      "dominant_period": "NIGHT"
+    },
+    {
+      "film": "luca",
+      "scenes": 99,
+      "dominant_environment": "sea",
+      "dominant_period": "MORNING"
+    },
+    {
+      "film": "Matrix,_The",
+      "scenes": 217,
+      "dominant_environment": "unknown",
+      "dominant_period": "DAY"
+    },
+    {
+      "film": "MEA1_Script_042923_2nd PINK Revised",
+      "scenes": 87,
+      "dominant_environment": "unknown",
+      "dominant_period": "MORNING"
+    },
+    {
+      "film": "Music_of_the_Heart",
+      "scenes": 164,
+      "dominant_environment": "unknown",
+      "dominant_period": "DAY"
+    },
+    {
+      "film": "Napoleon",
+      "scenes": 228,
+      "dominant_environment": "unknown",
+      "dominant_period": "DAY"
+    },
+    {
+      "film": "ORIENTEXPRESS2.20.15.fdx",
+      "scenes": 156,
+      "dominant_environment": "unknown",
+      "dominant_period": "NIGHT"
+    },
+    {
+      "film": "Pianist,_The",
+      "scenes": 167,
+      "dominant_environment": "urban",
+      "dominant_period": "DAY"
+    },
+    {
+      "film": "Pirates_of_the_Caribbean",
+      "scenes": 138,
+      "dominant_environment": "sea",
+      "dominant_period": "NIGHT"
+    },
+    {
+      "film": "Prestige,_The",
+      "scenes": 219,
+      "dominant_environment": "urban",
+      "dominant_period": "DAY"
+    },
+    {
+      "film": "Pretty_Woman",
+      "scenes": 163,
+      "dominant_environment": "suburban",
+      "dominant_period": "DAY"
+    },
+    {
+      "film": "Pride_and_Prejudice",
+      "scenes": 127,
+      "dominant_environment": "unknown",
+      "dominant_period": "DAY"
+    },
+    {
+      "film": "Priscilla",
+      "scenes": 166,
+      "dominant_environment": "fantasy",
+      "dominant_period": "DAY"
+    },
+    {
+      "film": "Psycho",
+      "scenes": 137,
+      "dominant_environment": "suburban",
+      "dominant_period": "NIGHT"
+    },
+    {
+      "film": "raiders of the lost ark",
+      "scenes": 139,
+      "dominant_environment": "unknown",
+      "dominant_period": "MORNING"
+    },
+    {
+      "film": "rocky",
+      "scenes": 107,
+      "dominant_environment": "mountain",
+      "dominant_period": "NIGHT"
+    },
+    {
+      "film": "Romeo_%2526_Juliet",
+      "scenes": 187,
+      "dominant_environment": "unknown",
+      "dominant_period": "DAY"
+    },
+    {
+      "film": "rush",
+      "scenes": 187,
+      "dominant_environment": "unknown",
+      "dominant_period": "MORNING"
+    },
+    {
+      "film": "Sex_and_the_City",
+      "scenes": 267,
+      "dominant_environment": "urban",
+      "dominant_period": "UNKNOWN"
+    },
+    {
+      "film": "Sherlock_Holmes",
+      "scenes": 156,
+      "dominant_environment": "unknown",
+      "dominant_period": "MORNING"
+    },
+    {
+      "film": "shortcomings",
+      "scenes": 118,
+      "dominant_environment": "urban",
+      "dominant_period": "NIGHT"
+    },
+    {
+      "film": "Shrek_the_Third",
+      "scenes": 88,
+      "dominant_environment": "fantasy",
+      "dominant_period": "MORNING"
+    },
+    {
+      "film": "sing",
+      "scenes": 154,
+      "dominant_environment": "urban",
+      "dominant_period": "DAY"
+    },
+    {
+      "film": "spider man 2",
+      "scenes": 148,
+      "dominant_environment": "urban",
+      "dominant_period": "NIGHT"
+    },
+    {
+      "film": "spider man no way home",
+      "scenes": 199,
+      "dominant_environment": "unknown",
+      "dominant_period": "MORNING"
+    },
+    {
+      "film": "star wars episode vii the force awakens",
+      "scenes": 268,
+      "dominant_environment": "unknown",
+      "dominant_period": "DAY"
+    },
+    {
+      "film": "Star_Trek_Generations",
+      "scenes": 229,
+      "dominant_environment": "unknown",
+      "dominant_period": "UNKNOWN"
+    },
+    {
+      "film": "Star_Trek_II_The_Wrath_of_Khan",
+      "scenes": 253,
+      "dominant_environment": "unknown",
+      "dominant_period": "UNKNOWN"
+    },
+    {
+      "film": "Star_Trek_Nemesis",
+      "scenes": 146,
+      "dominant_environment": "mountain",
+      "dominant_period": "NIGHT"
+    },
+    {
+      "film": "Star_Wars_A_New_Hope",
+      "scenes": 481,
+      "dominant_environment": "unknown",
+      "dominant_period": "NIGHT"
+    },
+    {
+      "film": "TGM FSS Cover_for Academy",
+      "scenes": 343,
+      "dominant_environment": "unknown",
+      "dominant_period": "MORNING"
+    },
+    {
+      "film": "the avengers",
+      "scenes": 227,
+      "dominant_environment": "unknown",
+      "dominant_period": "UNKNOWN"
+    },
+    {
+      "film": "the danish girl",
+      "scenes": 150,
+      "dominant_environment": "suburban",
+      "dominant_period": "DAY"
+    },
+    {
+      "film": "the edge of seventeen",
+      "scenes": 102,
+      "dominant_environment": "unknown",
+      "dominant_period": "UNKNOWN"
+    },
+    {
+      "film": "the favourite",
+      "scenes": 138,
+      "dominant_environment": "unknown",
+      "dominant_period": "DAY"
+    },
+    {
+      "film": "the hangover",
+      "scenes": 84,
+      "dominant_environment": "unknown",
+      "dominant_period": "NIGHT"
+    },
+    {
+      "film": "the hobbit an unexpected journey scripted",
+      "scenes": 154,
+      "dominant_environment": "unknown",
+      "dominant_period": "DAY"
+    },
+    {
+      "film": "the incredible hulk",
+      "scenes": 207,
+      "dominant_environment": "unknown",
+      "dominant_period": "MORNING"
+    },
+    {
+      "film": "the matrix",
+      "scenes": 225,
+      "dominant_environment": "unknown",
+      "dominant_period": "DAY"
+    },
+    {
+      "film": "the menu",
+      "scenes": 59,
+      "dominant_environment": "unknown",
+      "dominant_period": "EVENING"
+    },
+    {
+      "film": "the teachers lounge",
+      "scenes": 65,
+      "dominant_environment": "unknown",
+      "dominant_period": "DAY"
+    },
+    {
+      "film": "the way back",
+      "scenes": 112,
+      "dominant_environment": "unknown",
+      "dominant_period": "NIGHT"
+    },
+    {
+      "film": "Theory_of_Everything,_The",
+      "scenes": 149,
+      "dominant_environment": "mountain",
+      "dominant_period": "MORNING"
+    },
+    {
+      "film": "TPOH 4 25 05",
+      "scenes": 253,
+      "dominant_environment": "urban",
+      "dominant_period": "UNKNOWN"
+    },
+    {
+      "film": "Twilight_New_Moon",
+      "scenes": 124,
+      "dominant_environment": "suburban",
+      "dominant_period": "DAY"
+    },
+    {
+      "film": "vm_InsideOutFinalScript_PD_Oct2015",
+      "scenes": 381,
+      "dominant_environment": "unknown",
+      "dominant_period": "UNKNOWN"
+    },
+    {
+      "film": "Wonka",
+      "scenes": 125,
+      "dominant_environment": "unknown",
+      "dominant_period": "NIGHT"
+    }
+  ]
+}
