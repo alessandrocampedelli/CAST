@@ -1,6 +1,7 @@
 import subprocess
+import sys
 
-subprocess.run(["python", "extract_txt.py"], check=True)
-subprocess.run(["python", "txt2tei.py"], check=True)
-subprocess.run(["python", "TEIAnalyzer.py"], check=True)
-subprocess.run(["streamlit", "run", "dashboard.py"], check=True)
+subprocess.run([sys.executable, "extract_txt.py"], check=True)
+subprocess.run([sys.executable, "txt2tei.py"], check=True)
+subprocess.run([sys.executable, "TEIAnalyzer.py"], check=True)
+subprocess.run([sys.executable, "-m", "streamlit", "run", "dashboard.py"], check=True)

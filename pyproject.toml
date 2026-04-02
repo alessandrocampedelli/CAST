@@ -1,0 +1,17 @@
+[project]
+name = "cast"
+version = "0.1.0"
+description = "Cinematic Analysis & Screenplay Transformer"
+readme = "README.md"
+requires-python = ">=3.13"
+dependencies = [
+    "beautifulsoup4>=4.14.3",
+    "nltk>=3.9.4",
+    "pdfminer-six>=20260107",
+    "plotly>=6.6.0",
+    "requests>=2.33.1",
+    "streamlit>=1.56.0",
+]
+
+[project.scripts]
+cast = "main:main"

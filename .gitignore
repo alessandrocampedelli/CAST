@@ -1,6 +1,15 @@
-/txt_scripts
-/tei_scripts
-/input/pdf_scripts
-input/sites.txt
-screenplay_analysis.json
-screenplay_analysis_macro_stats.json
+# Ambiente virtuale
+.venv/
+
+# Cache Python
+__pycache__/
+*.pyc
+
+# Cartelle generate automaticamente dalla pipeline
+/txt_scripts/
+/tei_scripts/
+/analysis/
+
+# Input - ignora i PDF ma tieni la struttura delle cartelle
+/input/pdf_scripts/
+/input/sites.txt
