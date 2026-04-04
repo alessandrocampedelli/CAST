@@ -1,136 +1,128 @@
-# CAST: Convertitore e Analizzatore Copioni HTML/PDF → TEI-XML
- 
-Questo progetto converte copioni cinematografici da HTML e PDF nel formato standard TEI-XML e genera analisi statistiche
+# CAST: Cinematic Analysis & Screenplay Transformer
 
-## Struttura del Progetto
+Automated pipeline that converts film screenplays from PDF/HTML into TEI-XML and performs semantic analysis of locations, environments, and temporal patterns across scenes. Includes an interactive Streamlit dashboard for multi-film statistical comparison.
+
+## Project Structure
 
 ```
-progetto/
-├── main.py             # Script principale (esegue tutto)
-├── extract_txt.py      # Fase 1: Estrae TXT da HTML/PDF
-├── txt2tei.py          # Fase 2: Converte TXT → TEI-XML  
-├── TEIAnalyzer.py      # Fase 3: Analizza i copioni TEI
-├── dashboard.py        # Fase 4: Dashboard interattiva Streamlit
-├── utils.py            # Funzioni di utilità per txt2tei
-├── README.md           # Documentazione
-├── input/              # Sorgenti originali
-│   ├── pdf_scripts/    # File PDF dei copioni
-│   └── sites.txt       # URL HTML da scaricare (IMSDB)
-├── txt_scripts/        # File TXT intermedi (generati automaticamente)
-├── tei_scripts/        # File XML TEI (generati automaticamente)
-└── analysis/           # Risultati analisi (generati automaticamente)
+CAST/
+├── main.py                 # Main script (runs the full pipeline)
+├── extract_txt.py          # Phase 1: Downloads from HF and extracts TXT from HTML/PDF
+├── txt2tei.py              # Phase 2: Converts TXT → TEI-XML  
+├── TEIAnalyzer.py          # Phase 3: Analyzes TEI screenplays
+├── dashboard.py            # Phase 4: Interactive Streamlit dashboard
+├── utils.py                # Utility functions for txt2tei
+├── pyproject.toml          # Project dependencies (uv)
+├── uv.lock                 # Lock file (uv)
+├── .python-version         # Python version
+├── README.md               # Documentation
+├── input/                  # Downloaded automatically from Hugging Face
+│   ├── pdf_scripts/        # PDF screenplay files
+│   └── sites.txt           # HTML URLs to download (IMSDB)
+├── txt_scripts/            # Intermediate TXT files (auto-generated)
+├── tei_scripts/            # TEI XML files (auto-generated)
+└── analysis/               # Analysis results (auto-generated)
     ├── screenplay_analysis.json
     └── screenplay_analysis_macro_stats.json
 ```
 
-## Workflow Completo
+## Installation
 
-### Esecuzione Automatica (Consigliata)
+### Prerequisites
+
+Install `uv` (package manager):
+
 ```bash
-python main.py
-```
-Esegue automaticamente tutte e quattro le fasi in sequenza:
-1. Estrazione testo da PDF/HTML
-2. Conversione in formato TEI-XML
-3. Analisi statistica dei copioni
-4. Avvio dashboard interattiva
+# Linux/macOS
+curl -Lsf https://astral.sh/uv/install.sh | sh
 
-### Esecuzione Manuale (Avanzata)
-
-#### Fase 1: Estrazione TXT
-```bash
-python extract_txt.py
-```
-- **Input**: File PDF in `input/pdf_scripts/` + URL in `input/sites.txt`
-- **Output**: File TXT in `txt_scripts/`
-
-#### Fase 2: Conversione TEI-XML  
-```bash
-python txt2tei.py
-```
-- **Input**: File TXT in `txt_scripts/`
-- **Output**: File XML in `tei_scripts/`
-
-#### Fase 3: Analisi Statistiche
-```bash
-python TEIAnalyzer.py
-```
-- **Input**: File XML in `tei_scripts/`
-- **Output**: File JSON di analisi in `analysis/`
-
-#### Fase 4: Dashboard Interattiva
-```bash
-streamlit run dashboard.py
-```
-- **Input**: File JSON da `analysis/`
-- **Output**: Dashboard web interattiva
-
-## Installazione
-
-### Dipendenze Complete
-```bash
-pip install requests beautifulsoup4 pdfminer.six streamlit plotly
+# Windows (PowerShell)
+powershell -ExecutionPolicy ByPass -c "irm https://astral.sh/uv/install.ps1 | iex"
 ```
 
-### Dipendenze per Fase
-- **Fase 1**: `requests (download righe dalla pagina web),
-               beautifulsoup4 (estrazione testo da html),
-               pdfminer.six (estrazione testo da pdf)`
-- **Fase 2**: Solo librerie standard Python
-- **Fase 3**: Solo librerie standard Python
-- **Fase 4**: `streamlit (creazione pagina web con interfaccia utente), 
-               plotly (creazione di grafici interattivi)`
+### Setup
 
-## Utilizzo
-
-### Preparazione Iniziale
-1. Crea la struttura delle cartelle:
-   ```bash
-   mkdir -p input/pdf_scripts txt_scripts tei_scripts analysis
-   ```
-
-2. **Per file PDF**: Inserisci i file PDF in `input/pdf_scripts/`
-
-3. **Per siti web**: Crea `input/sites.txt` con gli URL IMSDB:
-   ```
-   https://imsdb.com/scripts/Film1.html
-   https://imsdb.com/scripts/Film2.html
-   ```
-
-### Esecuzione Completa
 ```bash
-# Metodo rapido (consigliato)
-python main.py
-
-# Metodo manuale (se necessario)
-python extract_txt.py
-python txt2tei.py
-python TEIAnalyzer.py
-streamlit run dashboard.py
+git clone https://github.com/alessandrocampedelli/CAST
+cd CAST
+uv sync
 ```
 
-### Risultati
-- **File XML**: Copioni convertiti in `tei_scripts/`
-- **Analisi JSON**: Statistiche dettagliate in `analysis/`
-- **Dashboard Web**: Visualizzazioni interattive accessibili via browser
+`uv sync` automatically installs all dependencies defined in `pyproject.toml`.
 
-## Formato Input
+## Usage
 
-### Sorgenti Supportate
-- **File PDF**: Copioni in formato PDF (estratti automaticamente)
-- **Siti IMSDB**: URL del database Internet Movie Script Database
+### Automatic Execution (Recommended)
 
-I file TXT intermedi seguono il formato standard dei copioni cinematografici:
+```bash
+uv run python main.py
+```
 
-- **Location lines**: `INT. CASA - GIORNO` o `EXT. STRADA - NOTTE`
-- **Speaker**: Nomi in maiuscolo (es. `MARIO`, `LUIGI (CONT'D)`)
-- **Dialoghi**: Testo normale dopo il nome del personaggio
-- **Stage directions**: Descrizioni narrative
+Automatically runs all four phases in sequence:
 
-## Formato Output
+1. **Data download** from Hugging Face (PDFs + `sites.txt`)
+2. **Text extraction** from PDF/HTML
+3. **Conversion** to TEI-XML format
+4. **Statistical analysis** of screenplays
+5. **Dashboard launch** in the browser
 
-### File TEI-XML
-I file XML seguono lo standard TEI (Text Encoding Initiative):
+### Input Data — Hugging Face
+
+Input files (screenplay PDFs and `sites.txt`) are hosted on Hugging Face Datasets:
+
+```
+https://huggingface.co/datasets/campe03/CAST-screenplays
+```
+
+`extract_txt.py` downloads them automatically on first run. Files already present locally are skipped (no repeated downloads).
+
+### Manual Execution (Advanced)
+
+#### Phase 1: Download and TXT Extraction
+```bash
+uv run python extract_txt.py
+```
+- **Input**: PDFs and `sites.txt` downloaded from Hugging Face
+- **Output**: TXT files in `txt_scripts/`
+
+#### Phase 2: TEI-XML Conversion
+```bash
+uv run python txt2tei.py
+```
+- **Input**: TXT files in `txt_scripts/`
+- **Output**: XML files in `tei_scripts/`
+
+#### Phase 3: Statistical Analysis
+```bash
+uv run python TEIAnalyzer.py
+```
+- **Input**: XML files in `tei_scripts/`
+- **Output**: JSON files in `analysis/`
+
+#### Phase 4: Interactive Dashboard
+```bash
+uv run python -m streamlit run dashboard.py
+```
+- **Input**: JSON files from `analysis/`
+- **Output**: Interactive web dashboard
+
+## Input Format
+
+### Supported Sources
+- **PDF files**: Screenplay PDFs hosted on Hugging Face
+- **IMSDB websites**: URLs listed in `sites.txt`, hosted on Hugging Face
+
+Intermediate TXT files follow the standard screenplay format:
+
+- **Location lines**: `INT. LIVING ROOM - DAY` or `EXT. STREET - NIGHT`
+- **Speakers**: Uppercase names (e.g. `JOHN`, `MARY (CONT'D)`)
+- **Dialogue**: Plain text after the character name
+- **Stage directions**: Narrative descriptions
+
+## Output Format
+
+### TEI-XML Files
+XML files follow the TEI (Text Encoding Initiative) standard:
 
 ```xml
 <?xml version="1.0" encoding="utf-8"?>
@@ -138,102 +130,102 @@ I file XML seguono lo standard TEI (Text Encoding Initiative):
   <teiHeader>
     <fileDesc>
       <titleStmt>
-        <title>Titolo del Film</title>
+        <title>Film Title</title>
       </titleStmt>
     </fileDesc>
   </teiHeader>
   <text>
     <body>
       <div type="scene" n="1">
-        <stage type="location">INT. CASA - GIORNO</stage>
+        <stage type="location">INT. LIVING ROOM - DAY</stage>
         <sp>
-          <speaker>MARIO</speaker>
-          <p>Ciao Luigi!</p>
+          <speaker>JOHN</speaker>
+          <p>Hey, how are you?</p>
         </sp>
-        <stage>Mario entra in cucina.</stage>
+        <stage>John walks into the kitchen.</stage>
       </div>
     </body>
   </text>
 </TEI>
 ```
 
-### File di Analisi JSON
-Le statistiche vengono salvate in due file:
+### JSON Analysis Files
+Statistics are saved in two files:
 
-- `screenplay_analysis.json`: Analisi dettagliate per ogni singolo film
-- `screenplay_analysis_macro_stats.json`: Statistiche aggregate di tutti i film
+- `screenplay_analysis.json`: Detailed analysis for each individual film
+- `screenplay_analysis_macro_stats.json`: Aggregated statistics across all films
 
-## Funzionalità
+## Features
 
-### Conversione TEI-XML
-#### Riconoscimento Automatico
-- **Scene**: Identificate tramite location lines (INT./EXT.)
-- **Personaggi**: Nomi in maiuscolo con gestione delle continuazioni
-- **Dialoghi**: Testo associato ai personaggi
-- **Descrizioni**: Stage directions e indicazioni sceniche
+### TEI-XML Conversion
+#### Automatic Recognition
+- **Scenes**: Identified via location lines (INT./EXT.)
+- **Characters**: Uppercase names with continuation handling
+- **Dialogue**: Text associated with characters
+- **Descriptions**: Stage directions and scene indications
 
-#### Filtri Intelligenti
-- Rimuove numeri di pagina
-- Ignora intestazioni e piè di pagina
-- Salta transizioni cinematografiche (`CUT TO:`, `FADE OUT`, etc.)
-- Gestisce righe `CONTINUED` e `(MORE)`
+#### Smart Filters
+- Removes page numbers
+- Ignores headers and footers
+- Skips cinematic transitions (`CUT TO:`, `FADE OUT`, etc.)
+- Handles `CONTINUED` and `(MORE)` lines
 
-### Analisi Statistiche
-#### Analisi per Location
-- **Tipo**: Classificazione INT/EXT
-- **Ambiente**: urban, suburban, rural, sea, mountain, desert, space, fantasy
+### Statistical Analysis
+#### Location Analysis
+- **Type**: INT/EXT classification
+- **Environment**: urban, suburban, rural, sea, mountain, desert, space, fantasy
 - **Setting**: contemporary, natural, fantasy/sci-fi
 
-#### Analisi Temporale
-- **Periodi giornalieri**: MORNING, DAY, EVENING, NIGHT
-- **Stagioni**: spring, summer, autumn, winter
+#### Temporal Analysis
+- **Time of day**: MORNING, DAY, EVENING, NIGHT
+- **Seasons**: spring, summer, autumn, winter
 
-#### Statistiche Aggregate
-- Distribuzione percentuale per tutti i parametri
-- Confronti tra film
-- Identificazione di pattern e tendenze
+#### Aggregated Statistics
+- Percentage distribution for all parameters
+- Cross-film comparisons
+- Pattern and trend identification
 
-### Dashboard Interattiva
-- **Grafici a torta**: Distribuzione INT/EXT, periodi giornalieri, stagioni
-- **Grafici a barre**: Ambienti, confronti tra film
-- **Analisi individuali**: Dettagli per ogni singolo film
-- **Metriche comparative**: Confronto con le medie generali
-- **Visualizzazioni responsive**: Grafici interattivi con Plotly
+### Interactive Dashboard
+- **Pie charts**: INT/EXT distribution, time of day, seasons
+- **Bar charts**: Environments, cross-film comparisons
+- **Individual analysis**: Detailed breakdown per film
+- **Comparative metrics**: Comparison against general averages
+- **Responsive visualizations**: Interactive charts with Plotly
 
-## File del Progetto
+## Project Files
 
 ### `main.py`
-Script orchestratore che esegue l'intero pipeline con gestione degli errori.
+Orchestrator script that runs the full pipeline in sequence using `sys.executable` to ensure the correct virtual environment is used throughout.
 
 ### `extract_txt.py`
-Estrazione testo da PDF (pdfminer) e HTML (IMSDB via requests e BeautifulSoup).
+Automatically downloads input data from Hugging Face (`campe03/CAST-screenplays`), then extracts text from PDFs (pdfminer) and HTML pages (IMSDB via requests and BeautifulSoup).
 
 ### `txt2tei.py`
-Conversione da formato screenplay a TEI-XML con parsing intelligente.
+Converts screenplay format to TEI-XML with intelligent parsing.
 
 ### `utils.py`
-Libreria completa di funzioni per il riconoscimento degli elementi screenplay:
-- `is_location_line()`: Identifica nuove scene con pattern multipli
-- `is_speaker()`: Riconosce personaggi e continuazioni
-- `is_page_number()`, `is_header_line()`: Filtri per contenuto non rilevante
-- `extract_title_from_filename()`: Estrazione titoli
-- E oltre 10 funzioni specializzate
+Complete library of functions for screenplay element recognition:
+- `is_location_line()`: Identifies new scenes with multiple patterns
+- `is_speaker()`: Recognizes characters and continuations
+- `is_page_number()`, `is_header_line()`: Filters for irrelevant content
+- `extract_title_from_filename()`: Title extraction
+- And over 10 additional specialized functions
 
 ### `TEIAnalyzer.py`
-Analizzatore avanzato che:
-- Classifica semanticamente location e temporalità
-- Calcola statistiche per film singoli e aggregate
-- Genera report JSON strutturati
-- Utilizza dizionari di keyword per classificazione automatica
+Advanced analyzer that:
+- Semantically classifies locations and temporality
+- Calculates statistics for individual films and aggregates
+- Generates structured JSON reports
+- Uses keyword dictionaries and WordNet for automatic classification
 
 ### `dashboard.py`
-Dashboard Streamlit con:
-- Visualizzazioni aggregate multi-film
-- Analisi dettagliate per singoli film
-- Grafici interattivi (Plotly)
-- Metriche comparative
-- Interface responsive
+Streamlit dashboard with:
+- Multi-film aggregate visualizations
+- Detailed analysis for individual films
+- Interactive charts (Plotly)
+- Comparative metrics
+- Responsive interface
 
-## Licenza
+## License
 
-Progetto open source per uso educativo e di ricerca.
+Open source project for educational and research purposes.
