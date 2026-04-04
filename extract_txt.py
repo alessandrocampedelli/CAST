@@ -5,9 +5,57 @@ import requests
 from bs4 import BeautifulSoup
 from pdfminer.high_level import extract_text_to_fp
 from pdfminer.layout import LAParams
+from huggingface_hub import hf_hub_download, list_repo_files
 
+HF_REPO_ID = "campe03/CAST-screenplays"
+HF_REPO_TYPE = "dataset"
 INPUT_DIR = "input/pdf_scripts"
 OUTPUT_DIR = "txt_scripts"
+
+
+def download_from_huggingface():
+    """Scarica PDF e sites.txt da Hugging Face se non già presenti in locale"""
+    print("[INFO] Controllo file su Hugging Face...")
+
+    os.makedirs(INPUT_DIR, exist_ok=True)
+    os.makedirs(OUTPUT_DIR, exist_ok=True)
+
+    # Scarica sites.txt
+    sites_local = "input/sites.txt"
+    if not os.path.exists(sites_local):
+        print("[INFO] Scaricamento sites.txt da Hugging Face...")
+        path = hf_hub_download(
+            repo_id=HF_REPO_ID,
+            repo_type=HF_REPO_TYPE,
+            filename="sites.txt"
+        )
+        with open(path, "r") as src, open(sites_local, "w") as dst:
+            dst.write(src.read())
+        print("[OK] sites.txt scaricato")
+    else:
+        print("[SKIP] sites.txt già presente in locale")
+
+    # Scarica tutti i PDF
+    all_files = list_repo_files(HF_REPO_ID, repo_type=HF_REPO_TYPE)
+    pdf_files = [f for f in all_files if f.startswith("pdf_scripts/") and f.endswith(".pdf")]
+
+    for hf_path in pdf_files:
+        filename = os.path.basename(hf_path)
+        local_path = os.path.join(INPUT_DIR, filename)
+
+        if not os.path.exists(local_path):
+            print(f"[INFO] Scaricamento {filename} da Hugging Face...")
+            downloaded = hf_hub_download(
+                repo_id=HF_REPO_ID,
+                repo_type=HF_REPO_TYPE,
+                filename=hf_path
+            )
+            with open(downloaded, "rb") as src, open(local_path, "wb") as dst:
+                dst.write(src.read())
+            print(f"[OK] {filename} scaricato")
+        else:
+            print(f"[SKIP] {filename} già presente in locale")
+
 
 def estrai_da_imsdb(url, output_path):
     print(f"[INFO] Scaricamento da IMSDB: {url}")
@@ -24,11 +72,9 @@ def estrai_da_imsdb(url, output_path):
         f.write(testo)
 
 
-
 def estrai_pdf(percorso_pdf, output_path):
     print(f"[INFO] Estrazione testo da PDF: {percorso_pdf}")
 
-    # Parametri di parsing pdfminer per mantenere una buona struttura
     laparams = LAParams(
         line_margin=0.1,
         char_margin=2.0,
@@ -36,7 +82,6 @@ def estrai_pdf(percorso_pdf, output_path):
         boxes_flow=None
     )
 
-    # Legge PDF ed estrae testo
     output_string = io.StringIO()
     with open(percorso_pdf, 'rb') as f:
         extract_text_to_fp(
@@ -49,12 +94,11 @@ def estrai_pdf(percorso_pdf, output_path):
 
     testo = output_string.getvalue()
 
-    # Salva il testo estratto in .txt
     with open(output_path, 'w', encoding='utf-8') as f:
         f.write(testo)
 
+
 def ricava_nome_film_da_url(url):
-    # Per scriptslug e springfield: prendi il valore dopo "movie=" o l'ultima parte del path
     if "springfieldspringfield" in url:
         match = re.search(r'movie=([^&]+)', url)
         return match.group(1).replace('-', '_') if match else "film"
@@ -67,10 +111,14 @@ def ricava_nome_film_da_url(url):
     else:
         return "film"
 
+
 def main():
+    # Fase 0: scarica da Hugging Face se necessario
+    download_from_huggingface()
+
     os.makedirs(OUTPUT_DIR, exist_ok=True)
 
-    # --- Estrazione da file sites.txt ---
+    # Estrazione da sites.txt
     path_siti = "input/sites.txt"
     if os.path.exists(path_siti):
         with open(path_siti, 'r', encoding='utf-8') as f:
@@ -86,10 +134,8 @@ def main():
                     print(f"[ERRORE] Impossibile estrarre da {url}: {e}")
             else:
                 print(f"[AVVISO] URL non supportato: {url}")
-    else:
-        print(f"[ERRORE] File '{path_siti}' non trovato.")
 
-    # --- Estrazione da PDF nella cartella ---
+    # Estrazione da PDF
     for nome_file in os.listdir(INPUT_DIR):
         if nome_file.lower().endswith(".pdf"):
             nome_base = os.path.splitext(nome_file)[0]
